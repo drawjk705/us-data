@@ -46,21 +46,28 @@ def generateSql(filename: str) -> str:
     absPath = os.getcwd()
 
     return f"""use states
-    
-if not exists (
+
+print 'CREATING TABLE {tableName}'
+
+if exists (
     select 1
 from states.INFORMATION_SCHEMA.TABLES t
 where t.TABLE_NAME = '{tableName}'
 )
 begin
-    create table {tableName}
-    (
-{columnsSql},
-        constraint FK_{tableName}StateId_StateIdsStateId foreign key (stateId) references stateIds(stateId)
-    )
+    drop table {tableName}
 end
 
-exec master.dbo.maybeDropTemp
+create table {tableName}
+(
+{columnsSql},
+    constraint FK_{tableName}StateId_StateIdsStateId foreign key (stateId) references stateIds(stateId)
+)
+
+if OBJECT_ID('tempdb..#temp') is not null
+begin
+    drop table #temp
+end
 
 create table #temp
 (
@@ -79,8 +86,7 @@ select
 {transferColumnsSql}
 from #temp
 
-select *
-from {tableName}
+print '{tableName} CREATED'
 """
 
 
