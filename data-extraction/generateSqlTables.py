@@ -1,71 +1,93 @@
 import os
-from typing import List
+from pathlib import Path
 
 DIR = 'dataFiles'
 
 
-def getColumns(topRow: str) -> List[str]:
+def __getColumnsSql(topRow: str, temp=False) -> str:
+    columns = topRow.strip().split(',')
+    columns = columns[:-1]
+    columnType = 'varchar(32)' if temp else 'bigint'
+
+    stateIdSql = '    stateId varchar(32)' + ('' if temp else ' primary key')
+
+    columnSqlList = [f'    [{col}] {columnType}' for col in columns]
+    if temp:
+        columnSqlList.append(stateIdSql)
+    else:
+        columnSqlList.insert(0, stateIdSql)
+
+    return ',\n'.join(columnSqlList)
+
+
+def __getTransferColumnsSql(topRow: str) -> str:
+    columns = topRow.strip().split(',')
+    stateIdColumn = columns[-1]
+    columns = columns[:-1]
+
+    transferColumnsSqlList = [
+        f'    cast([{col}] as bigint) as [{col}]' for col in columns]
+    transferColumnsSqlList.insert(0,
+                                  f'    [{stateIdColumn}] as [{stateIdColumn}]')
+
+    return ',\n'.join(transferColumnsSqlList)
 
 
 def generateSql(filename: str) -> str:
+    tableName = Path(filename).with_suffix('')
     topRow = ''
     with open(f'{DIR}/{filename}', 'r') as f:
         topRow = f.readline()
 
+    columnsSql = __getColumnsSql(topRow)
+    tempColumnsSql = __getColumnsSql(topRow, temp=True)
+    transferColumnsSql = __getTransferColumnsSql(topRow)
+
+    absPath = os.getcwd()
+
     return f"""use states
+    
 if not exists (
     select 1
 from states.INFORMATION_SCHEMA.TABLES t
-where t.TABLE_NAME = '{0}'
+where t.TABLE_NAME = '{tableName}'
 )
 begin
-    create table {0}
+    create table {tableName}
     (
-        stateId varchar(32) primary key,
-        {1},
-
-        constraint FK_{0}StateId_StateIdsStateId foreign key (stateId) references stateIds(stateId)
+{columnsSql},
+        constraint FK_{tableName}StateId_StateIdsStateId foreign key (stateId) references stateIds(stateId)
     )
 end
 
 exec master.dbo.maybeDropTemp
 
-bulk insert #temp
-from '{2}{0}'
-
 create table #temp
 (
-    stateId varchar(32) primary key,
-    total varchar(32),
-    noIncome varchar(32),
-    [$1-9k] varchar(32),
-    [$10-15k] varchar(32),
-    [$15-25k] varchar(32),
-    [$25-35k] varchar(32),
-    [$35-50k] varchar(32),
-    [$50-65k] varchar(32),
-    [$65-75k] varchar(32),
-    [$75k-more] varchar(32),
+{tempColumnsSql}
 )
 
-insert into income
+bulk insert #temp
+from '{absPath}/{DIR}/{filename}'
+with (
+    fieldterminator = ',',
+    firstrow = 2
+)
+
+insert into {tableName}
 select
-    stateId as stateId,
-    cast(total as bigint) as total,
-    cast(noIncome as bigint) as noIncome,
-    cast([$1-9k] as bigint) as [$1-9k],
-    cast([$10-15k] as bigint) as [$10-15k],
-    cast([$15-25k] as bigint) as [$15-25k],
-    cast([$25-35k] as bigint) as [$25-35k],
-    cast([$35-50k] as bigint) as [$35-50k],
-    cast([$50-65k] as bigint) as [$50-65k],
-    cast([$65-75k] as bigint) as [$65-75k],
-    cast([$75k-more] as bigint) as [$75k-more]
+{transferColumnsSql}
 from #temp
 
 select *
-from income
+from {tableName}
 """
 
 
-csvFiles = os.listdir('./dataFiles'):
+csvFiles = os.listdir('./dataFiles')
+
+for file in csvFiles:
+    sql = generateSql(file)
+    name = Path(file).with_suffix('.sql')
+    with open(f'../db-scripts/setup/{name}', 'w') as f:
+        f.write(sql)

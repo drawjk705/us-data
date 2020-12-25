@@ -75,7 +75,6 @@ codes: Dict[str, Dict[str, str]] = {
         'graduateDegree': 'B29002_008E',
     },
     'educationByInternetAccess': {
-        # EDUCATIONAL ATTAINMENT BY PRESENCE OF A COMPUTER AND TYPES OF INTERNET SUBSCRIPTION IN HOUSEHOLD
         'total': 'B28006_001E',
 
         'lessThanHighSchoolTotal': 'B28006_002E',
