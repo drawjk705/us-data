@@ -4,7 +4,7 @@ from typing import Dict
 from pprint import pprint
 import pandas as pd
 from models.State import State
-from utils.buildUrl import buildUrl
+from utils import buildUrl
 from constants import stateAbbreviations
 
 

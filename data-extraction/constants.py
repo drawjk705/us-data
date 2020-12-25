@@ -1,5 +1,7 @@
 from typing import Dict
 
+DB = 'usCensus'
+DATA_FILES_DIR = '~/src/us-stats/data-extraction/dataFiles'
 
 stateAbbreviations: Dict[str, str] = {
     "ALABAMA": "AL",

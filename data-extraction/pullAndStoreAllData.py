@@ -1,7 +1,5 @@
-from utils.loadDataFile import DIR
-from utils.getDataFromApi import getDatafromApi
-from utils.joinData import joinData
-from constants import codes
+from utils import getDatafromApi, joinData
+from constants import DATA_FILES_DIR, codes
 
 for topic, topicDict in codes.items():
     print(topic, end='...')
@@ -14,5 +12,5 @@ for topic, topicDict in codes.items():
 
     df = joinData(apiData)
 
-    df.to_csv(f'{DIR}/{topic}.csv', index=False)
+    df.to_csv(f'{DATA_FILES_DIR}/{topic}.csv', index=False)
     print(' done')

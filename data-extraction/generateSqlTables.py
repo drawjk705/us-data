@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from constants import DB
 
 DIR = 'dataFiles'
 
@@ -33,7 +34,7 @@ def __getTransferColumnsSql(topRow: str) -> str:
     return ',\n'.join(transferColumnsSqlList)
 
 
-def generateSql(filename: str) -> str:
+def __createSqlForCsv(filename: str) -> str:
     tableName = Path(filename).with_suffix('')
     topRow = ''
     with open(f'{DIR}/{filename}', 'r') as f:
@@ -45,13 +46,13 @@ def generateSql(filename: str) -> str:
 
     absPath = os.getcwd()
 
-    return f"""use states
+    return f"""use {DB}
 
 print 'CREATING TABLE {tableName}'
 
 if exists (
     select 1
-from states.INFORMATION_SCHEMA.TABLES t
+from {DB}.INFORMATION_SCHEMA.TABLES t
 where t.TABLE_NAME = '{tableName}'
 )
 begin
@@ -90,10 +91,9 @@ print '{tableName} CREATED'
 """
 
 
-csvFiles = os.listdir('./dataFiles')
+def generateSqlTables():
+    csvFiles = os.listdir('./dataFiles')
 
-for file in csvFiles:
-    sql = generateSql(file)
-    name = Path(file).with_suffix('.sql')
-    with open(f'../db-scripts/setup/{name}', 'w') as f:
-        f.write(sql)
+    for file in csvFiles:
+        sql = __createSqlForCsv(file)
+        yield sql
