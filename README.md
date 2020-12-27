@@ -28,7 +28,7 @@ If you do not complete this step, the script will likely error out on you; but y
 
 ## Modifying or adding more to the Database
 
-The census data we determine to pull is stored in the [`schemasToTables`](https://github.com/drawjk705/us-stats/blob/996fc0eeb8fcc184599874bbf9ccc80bf5096162/data-extraction/constants.py#L69) variable.
+The census data we determine to pull is stored in the [`schemasToTables`](https://github.com/drawjk705/us-stats/blob/main/data-extraction/constants.py#L73) variable.
 
 ### Adding a schema
 
@@ -57,3 +57,7 @@ schemasToTables: Dict[str, Dict[str, str]] = {
 The `concept` must be string which can be found in the description column of the [groups information for the census data](https://api.census.gov/data/2019/acs/acs1/groups.html).
 
 ### Changing the census year or survey data
+
+If you want census data from a particular year or survey, modify the `YEAR` and `SURVEY_TYPE` variables (here)[https://github.com/drawjk705/us-stats/blob/main/data-extraction/constants.py#L3-L4].
+
+You must make sure that there existed such a survey for the given year, and that the `SURVEY_TYPE` is correct for the API route.
