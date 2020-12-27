@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
-from constants import DB
-
-DIR = 'dataFiles'
+from constants import DB, DATA_FILES_DIR
 
 
 def __getColumnsSql(topRow: str, temp=False) -> str:
@@ -37,7 +35,7 @@ def __getTransferColumnsSql(topRow: str) -> str:
 def __createSqlForCsv(filename: str) -> str:
     tableName = Path(filename).with_suffix('')
     topRow = ''
-    with open(f'{DIR}/{filename}', 'r') as f:
+    with open(f'{DATA_FILES_DIR}/{filename}', 'r') as f:
         topRow = f.readline()
 
     columnsSql = __getColumnsSql(topRow)
@@ -76,7 +74,7 @@ create table #temp
 )
 
 bulk insert #temp
-from '{absPath}/{DIR}/{filename}'
+from '{absPath}/{DATA_FILES_DIR}/{filename}'
 with (
     fieldterminator = ',',
     firstrow = 2
@@ -91,7 +89,7 @@ print '{tableName} CREATED'
 """
 
 
-def generateSqlTables():
+def generateSqlScripts():
     csvFiles = os.listdir('./dataFiles')
 
     for file in csvFiles:

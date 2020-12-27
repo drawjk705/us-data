@@ -5,7 +5,7 @@ columns_to_drop = ['stateCode', 'districtNum', 'stateName', 'stateAbbr']
 
 
 def joinData(newData: pd.DataFrame) -> pd.DataFrame:
-    states = utils.loadDataFile('stateIds')
+    states = utils.loadDataFile('dbo/stateIds')
 
     states['stateCode'] = states['stateCode'].astype(int)
     states['districtNum'] = states['districtNum'].astype(int)

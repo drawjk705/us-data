@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import json
 import logging
+from os import replace
 import re
 import requests
 from typing import Dict, Generator, List, Tuple
@@ -25,6 +26,12 @@ def __getVariableUrlWithGroup() -> Generator[Tuple[str, str], None, None]:
             yield url, concept
 
 
+def toCamelCase(string: str) -> str:
+    uppercasedList = [
+        f'{token[0].upper()}{token[1:]}' for token in string.split(' ')]
+    return ''.join(uppercasedList)
+
+
 def __makeVariableName(variable: str) -> str:
     prefix = 'Estimate!!Total:!!'
     delimiter = ':!!'
@@ -32,9 +39,12 @@ def __makeVariableName(variable: str) -> str:
     if not variable.startswith(prefix) or variable.endswith(':'):
         return ''
 
-    newName = variable.replace(prefix, '') \
+    camelCasedVar = toCamelCase(variable)
+
+    newName = camelCasedVar.replace(prefix, '') \
         .replace(delimiter, '_') \
-        .replace('!!', '_')
+        .replace('!!', '_') \
+        .replace("'", '')
 
     newName = re.sub(r"[\(\),-]", ' ', newName).replace(' ', '_')
     newName = re.sub(r'\$', 'USD_', newName)

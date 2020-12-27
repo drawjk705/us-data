@@ -9,7 +9,7 @@ from utils import buildUrl
 from constants import DATA_FILES_DIR, stateAbbreviations
 
 
-def extractState(data: list) -> str:
+def __extractState(data: list) -> str:
     name = data[0]
     match = re.search(r', (.*)', name)
     if not match:
@@ -17,14 +17,14 @@ def extractState(data: list) -> str:
     return match.group(1)
 
 
-def getStatesAndDistricts() -> List[Dict[str, str]]:
+def __getStatesAndDistricts() -> List[Dict[str, str]]:
     url = buildUrl('NAME')
     res = requests.get(url).json()
 
     states: Dict[str, State] = {}
 
     for line in res[1:]:
-        name = extractState(line)
+        name = __extractState(line)
 
         if line[1] in states:
             state = states[line[1]]
@@ -52,11 +52,11 @@ def getStatesAndDistricts() -> List[Dict[str, str]]:
 
 def buildStateIds():
     logging.info('generating state IDs...')
-    states = getStatesAndDistricts()
+    states = __getStatesAndDistricts()
     df = pd.DataFrame(states).sort_values(
         ['stateName', 'districtNum'], ascending=[True, True])
 
-    path = Path(DATA_FILES_DIR)
+    path = Path(f'{DATA_FILES_DIR}/dbo')
     path.mkdir(parents=True, exist_ok=True)
 
     df.to_csv(f'{path.absolute()}/stateIds.csv', index=False)
