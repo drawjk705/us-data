@@ -1,5 +1,5 @@
 
-from typing import List, Dict
+from typing import List
 
 
 class GeographyResponseItem:
@@ -15,10 +15,8 @@ class GeographyResponseItem:
 
 
 class GeographyResponse:
-    default: List[Dict[str, str]] = []
     fips: List[GeographyResponseItem] = []
 
-    def __init__(self, fips: List[GeographyResponseItem], default: Dict[str, str]) -> None:
+    def __init__(self, fips: List[GeographyResponseItem], **kwargs) -> None:
         for fip in fips:
             self.fips.append(GeographyResponseItem(fip))
-        self.default = default
