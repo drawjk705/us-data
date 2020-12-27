@@ -1,9 +1,13 @@
 from typing import Dict
 
+SURVEY_TYPE = 'acs1'
+YEAR = 2019
+
 DB = 'usCensus'
 DATA_FILES_DIR = 'dataFiles'
-API_BASE_URL = 'https://api.census.gov/data/2019/acs/acs1'
-CENSUS_TOPICS_URL = 'https://api.census.gov/data/2019/acs/acs1/groups.json'
+API_BASE_URL = f'https://api.census.gov/data/{YEAR}/acs/{SURVEY_TYPE}'
+
+CENSUS_TOPICS_URL = 'https://api.census.gov/data/{YEAR}/acs/{SURVEY_TYPE}/groups.json'
 
 stateAbbreviations: Dict[str, str] = {
     "ALABAMA": "AL",
