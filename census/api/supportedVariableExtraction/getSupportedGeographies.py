@@ -1,8 +1,8 @@
+from api.supportedVariableExtraction.models.GeographyItem import GeographyItem
 from api.getDataBase import getDataBase
 from api.supportedVariableExtraction.models import GeographyResponse
 from models import SurveyType
-from typing import OrderedDict, List, Any
-from collections import OrderedDict
+from typing import List, Dict, Any, Set
 
 
 def getSupportedGeographies(year: int, surveyType: SurveyType = SurveyType.ACS1) -> List[str]:
@@ -12,27 +12,37 @@ def getSupportedGeographies(year: int, surveyType: SurveyType = SurveyType.ACS1)
     return __parseSupportedGeographies(geogRes)
 
 
-def __parseSupportedGeographies(supportedGeosResponse: Any) -> List[OrderedDict[str, str]]:
+def __parseSupportedGeographies(supportedGeosResponse: Any) -> Dict[str, Set[GeographyItem]]:
     geogRes = GeographyResponse(**supportedGeosResponse)
-    supportedGeographies: List[OrderedDict[str, str]] = []
+    supportedGeographies: Dict[str, Set[GeographyItem]] = {}
 
     for fip in geogRes.fips:
         varName = fip.name
         requirements = fip.requires or []
         wildcards = fip.wildcard or []
+        nonWildcardableRequirements = list(
+            filter(lambda req: req not in wildcards, fip.requires))
 
-        if not len(requirements) and not len(wildcards):
-            for suffix in ['*', 'CODE']:
-                supportedGeographies.append(
-                    OrderedDict({'for': f'{varName}:{suffix}'}))
-        if len(requirements):
-            requirementsDict = {
-                'in': [
-                    f'{requirement}:CODE'
-                ] for requirement in requirements
-            }
+        withAllCodes = GeographyItem(
+            forClause=f'{varName}:CODE',
+            inClauses=[f'{requirement}:CODE' for requirement in requirements]
+        )
 
-            supportedGeographies.append(
-                OrderedDict({'for': f'{varName}:CODE', 'in': requirementsDict}))
+        withWithCardForVar = GeographyItem(
+            forClause=f'{varName}:*',
+            inClauses=[
+                f'{requirement}:CODE' for requirement in nonWildcardableRequirements]
+        )
+
+        withWildCardedRequirements = GeographyItem(
+            forClause=f'{varName}:*',
+            inClauses=[f'{requirement}:CODE' for requirement in nonWildcardableRequirements] + [
+                f'{wildcard}:*' for wildcard in wildcards]
+        )
+
+        supportedGeographies[varName] = {
+            withAllCodes,
+            withWithCardForVar,
+            withWildCardedRequirements}
 
     return supportedGeographies
