@@ -1,11 +1,22 @@
 import pandas as pd
-import utils
+from constants import DATA_FILES_DIR
 
 columns_to_drop = ['stateCode', 'districtNum', 'stateName', 'stateAbbr']
 
 
-def joinData(newData: pd.DataFrame) -> pd.DataFrame:
-    states = utils.loadDataFile('dbo/stateIds')
+def addStateIds(newData: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds the state IDs (e.g, CA-01 -- [state]-[congressional district number])
+    to the passed-in DataFrame
+
+    Args:
+        newData (pd.DataFrame): The state IDs will be added to this
+
+    Returns:
+        pd.DataFrame: The `newData` augmented with the state IDs
+    """
+
+    states = pd.read_csv(f'{DATA_FILES_DIR}/dbo/stateIds.csv')
 
     states['stateCode'] = states['stateCode'].astype(int)
     states['districtNum'] = states['districtNum'].astype(int)

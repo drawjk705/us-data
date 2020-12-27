@@ -3,6 +3,12 @@ import sys
 
 
 def configureLogger(logFile: str):
+    """
+    sets up logger for the project
+
+    Args:
+        logFile (str): the name of the file that log output will be sent to
+    """
     logFormat = '[%(levelname)s] %(asctime)s %(message)s'
     dateFormat = '%Y-%m-%d %H:%M:%S %z'
 

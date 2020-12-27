@@ -10,6 +10,16 @@ from constants import DATA_FILES_DIR, stateAbbreviations
 
 
 def __extractState(data: list) -> str:
+    """
+    Pulls the state's name from what's returned from the API
+
+    Args:
+        data (list): data from the API
+
+    Returns:
+        str: the stat's name
+    """
+
     name = data[0]
     match = re.search(r', (.*)', name)
     if not match:
@@ -18,6 +28,17 @@ def __extractState(data: list) -> str:
 
 
 def __getStatesAndDistricts() -> List[Dict[str, str]]:
+    """
+    Get all states and their congressional districts from
+    the census API
+
+    Returns:
+        List[Dict[str, str]]: list of dictionaries, each of which
+            contains the state name, census code for the state,
+            district number for that particular dictionary,
+            and the computed state ID ([state name]-[congressional district number])
+    """
+
     url = buildUrl('NAME')
     res = requests.get(url).json()
 
@@ -33,12 +54,12 @@ def __getStatesAndDistricts() -> List[Dict[str, str]]:
             states[line[1]] = State(name)
             states[line[1]].addDistrict(line[2])
 
-    statesList = []
+    statesList: List[Dict[str, str]] = []
     for code, state in states.items():
         for district in state.districts:
             stateAbbr = stateAbbreviations[state.name.upper()]
 
-            obj = {
+            obj: Dict[str, str] = {
                 'stateCode': code,
                 'stateName': state.name,
                 'stateAbbr': stateAbbr,
@@ -51,6 +72,11 @@ def __getStatesAndDistricts() -> List[Dict[str, str]]:
 
 
 def buildStateIds():
+    """
+    Creates IDs for each state and congressional district combination.
+    e.g., CA-01 for California's 1st congressional district
+    """
+
     logging.info('generating state IDs...')
     states = __getStatesAndDistricts()
     df = pd.DataFrame(states).sort_values(
