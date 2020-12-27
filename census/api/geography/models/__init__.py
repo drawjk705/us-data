@@ -1,2 +1,2 @@
-from api.supportedVariableExtraction.models.GeographyResponse import GeographyResponse, GeographyResponseItem
-from api.supportedVariableExtraction.models.GeographyItem import GeographyItem, GeographyClauses
+from api.geography.models.GeographyResponse import GeographyResponse, GeographyResponseItem
+from api.geography.models.GeographyItem import GeographyItem, GeographyClauses

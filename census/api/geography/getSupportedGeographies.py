@@ -1,14 +1,14 @@
 from models.DatasetType import DatasetType
-from api.supportedVariableExtraction.models.GeographyItem import GeographyClauses, GeographyItem
+from api.geography.models.GeographyItem import GeographyClauses, GeographyItem
 from api.getData_Base import getData_Base
-from api.supportedVariableExtraction.models import GeographyResponse
+from api.geography.models import GeographyResponse
 from models import SurveyType
 from typing import Dict, Any, OrderedDict, Set
 
 
 def getSupportedGeographies(year: int,
                             datasetType: DatasetType = DatasetType.ACS,
-                            surveyType: SurveyType = SurveyType.ACS1) -> Dict[str, Set[GeographyItem]]:
+                            surveyType: SurveyType = SurveyType.ACS1) -> OrderedDict[str, GeographyItem]:
 
     geogRes = getData_Base(year,
                            datasetType=datasetType,
@@ -20,7 +20,7 @@ def getSupportedGeographies(year: int,
 
 def __parseSupportedGeographies(supportedGeosResponse: Any) -> OrderedDict[str, GeographyItem]:
     geogRes = GeographyResponse(**supportedGeosResponse)
-    supportedGeographies: Dict[str, Set[GeographyItem]] = {}
+    supportedGeographies: Dict[str, GeographyItem] = {}
 
     for fip in geogRes.fips:
         varName = fip.name

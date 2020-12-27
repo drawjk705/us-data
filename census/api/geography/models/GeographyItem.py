@@ -1,3 +1,4 @@
+import json
 from typing import List, Set
 
 
@@ -22,17 +23,16 @@ class GeographyClauses:
             sum([item.__hash__() for item in self. inClauses])
 
 
-class GeographyItem:
+class GeographyItem():
 
     name: str
     hierarchy: str
-    clauses: Set[GeographyClauses] = {}
-    hierarchy: str
+    clauses: List[GeographyClauses] = {}
 
     def __init__(self, name: str, hierarchy: str, clauses: Set[GeographyClauses]) -> None:
         self.name = name
         self.hierarchy = hierarchy
-        self.clauses = clauses
+        self.clauses = list(clauses)
 
     def __eq__(self, o: object) -> bool:
         return \
