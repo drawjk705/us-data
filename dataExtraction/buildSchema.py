@@ -11,6 +11,8 @@ concepts = [concept
             for table in schemasToTables.values()
             for concept in table.values()]
 
+MAX_SQL_COL_LEN = 128
+
 
 def __getVariableUrlWithGroup() -> Generator[Tuple[str, str], None, None]:
     groups: Dict[str, List[Dict[str, str]]] = requests.get(
@@ -28,7 +30,7 @@ def __getVariableUrlWithGroup() -> Generator[Tuple[str, str], None, None]:
 
 def toCamelCase(string: str) -> str:
     uppercasedList = [
-        f'{token[0].upper()}{token[1:]}' for token in string.split(' ')]
+        f'{token[0].upper()}{token[1:]}' for token in re.sub(r'\(\)', '', string).split(' ')]
     return ''.join(uppercasedList)
 
 
@@ -46,8 +48,20 @@ def __makeVariableName(variable: str) -> str:
         .replace('!!', '_') \
         .replace("'", '')
 
-    newName = re.sub(r"[\(\),-]", ' ', newName).replace(' ', '_')
+    stringsToRemove = ['InThePast12Months',
+                       'FiberOpticOrDSL_']
+
+    # this is to ensure that the new name has fewer than 128 characters
+    for stringToRemove in stringsToRemove:
+        if stringToRemove in newName:
+            newName = newName.replace(stringToRemove, '')
+
+    newName = re.sub(r"[,-]", ' ', newName).replace(' ', '_')
     newName = re.sub(r'\$', 'USD_', newName)
+
+    if len(newName) >= MAX_SQL_COL_LEN:
+        logging.error(
+            f'column {newName} has length greater than max SQL column length of {MAX_SQL_COL_LEN}')
 
     return newName
 
