@@ -1,1 +1,1 @@
-from api.supportedVariableExtraction import getSupportedGeographies
+from api.supportedVariableExtraction.getSupportedGeographies import getSupportedGeographies
