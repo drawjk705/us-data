@@ -2,7 +2,7 @@ import shutil
 import logging
 from buildSchema import buildSchema
 from constants import DATA_FILES_DIR
-from stateIds import buildStateIds
+from buildStateIds import buildStateIds
 from pullAndStoreAllData import pullAndStoreAllData
 from utils import configureLogger
 from buildSqlScripts import buildSqlScripts
