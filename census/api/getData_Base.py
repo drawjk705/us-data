@@ -9,5 +9,6 @@ def getData_Base(year: int,
                  route: str = '',
                  datasetType: DatasetType = DatasetType.ACS,
                  surveyType: SurveyType = SurveyType.ACS1) -> Any:
-    url = API_URL_FORMAT.format(year, datasetType.value, surveyType.value)
-    return requests.get(url + route).json()
+    url = API_URL_FORMAT.format(
+        year, datasetType.value, surveyType.value) + route
+    return requests.get(url).json()

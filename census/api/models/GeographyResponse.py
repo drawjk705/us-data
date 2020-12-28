@@ -1,4 +1,3 @@
-
 from typing import List
 
 
@@ -6,7 +5,7 @@ class GeographyResponseItem:
     name: str
     geoLevelDisplay: str
     referenceData: str
-    requires: List[str] = []
+    requires: list[str] = []
     wildcard: List[str] = []
     optionalWithWCFor: str = ''
 
@@ -17,6 +16,6 @@ class GeographyResponseItem:
 class GeographyResponse:
     fips: List[GeographyResponseItem] = []
 
-    def __init__(self, fips: List[GeographyResponseItem], **kwargs) -> None:
+    def __init__(self, fips: List[GeographyResponseItem], **_) -> None:
         for fip in fips:
             self.fips.append(GeographyResponseItem(fip))

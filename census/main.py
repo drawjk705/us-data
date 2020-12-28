@@ -1,13 +1,13 @@
-import collections
-from dataFrames import geoDataToDataFrame
-from api import getSupportedGeographies
-import json
-from pprint import pprint
+from variableRetrieval.VariableRetriever import VariableRetriever
 from utils import configureLogger
-import pandas as pd
 
 configureLogger('census.log')
 
-supportedGeos = getSupportedGeographies(2019)
+c = VariableRetriever(2019, onDiskCache=True)
 
-geoDataToDataFrame(supportedGeos).to_csv('test.csv')
+searchedGroups = c.searchGroups('family')
+variables = c.getVariablesByGroup(groups=['B19202H'])
+searchedVars = c.searchVariables(
+    r'margin', inGroups=['B19202H'], searchBy='name')
+
+print(searchedVars)

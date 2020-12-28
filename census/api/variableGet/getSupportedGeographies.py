@@ -1,9 +1,9 @@
 from models.DatasetType import DatasetType
-from api.geography.models.GeographyItem import GeographyClauses, GeographyItem
+from api.models.GeographyItem import GeographyClauses, GeographyItem
+from api.models.GeographyResponse import GeographyResponse
 from api.getData_Base import getData_Base
-from api.geography.models import GeographyResponse
 from models import SurveyType
-from typing import Dict, Any, OrderedDict, Set
+from typing import Dict, Any, OrderedDict
 
 
 def getSupportedGeographies(year: int,
