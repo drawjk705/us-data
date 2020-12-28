@@ -1,20 +1,37 @@
-from typing import Literal, List
+from typing import Literal, List, Dict
 from variableRetrieval.getVariables import getVariables
 from variableRetrieval.getGroups import getGroups
 from variableRetrieval.getGeographies import getGeographies
 import pandas as pd
 from models.SurveyType import SurveyType
 from models.DatasetType import DatasetType
-from variableRetrieval.VariableRetrievalCache import CensusCache
+from variableRetrieval.VariableRetrievalCache import VariableRetrievalCache
 import logging
 
 
-class Codes:
+class _Code:
+    code: str
+    meaning: str
+
+    def __init__(self, code: str, meaning: str) -> None:
+        self.code = code
+        self.meaning = meaning
+
+    def __repr__(self) -> str:
+        return self.__dict__.__repr__()
+
+
+class _Codes:
     def __init__(self, **kwargs: dict) -> None:
-        self.__dict__ = kwargs
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     def addCodes(self, **codes: dict) -> None:
-        self.__dict__.update(codes)
+        for k, v in codes.items():
+            self.__setattr__(k, v)
+
+    def __repr__(self) -> str:
+        return self.__dict__.__repr__()
 
 
 class VariableRetriever:
@@ -23,10 +40,10 @@ class VariableRetriever:
     year: str
 
     # these will be useful for jupyter
-    variableCodes: Codes
-    groupCodes: Codes
+    variableCodes: _Codes
+    groupCodes: _Codes
 
-    __cache: CensusCache
+    __cache: VariableRetrievalCache
 
     def __init__(self,
                  year: int,
@@ -39,10 +56,10 @@ class VariableRetriever:
         self.datasetType = datasetType
         self.surveyType = surveyType
 
-        self.groupCodes = Codes()
-        self.variableCodes = Codes()
+        self.groupCodes = _Codes()
+        self.variableCodes = _Codes()
 
-        self.__cache = CensusCache(
+        self.__cache = VariableRetrievalCache(
             year=year,
             datasetType=datasetType,
             surveyType=surveyType,
@@ -51,20 +68,25 @@ class VariableRetriever:
             shouldLoadFromExistingCache=shouldLoadFromExistingCache)
 
     def getGroups(self) -> pd.DataFrame:
-        if self.__cache.groups:
+        if self.__cache.groups is not None:
             logging.info('retrieveing group data from cache')
             return self.__cache.groups
 
         groups = getGroups(self.year, self.datasetType, self.surveyType)
         self.__cache.persist('groups', groups)
 
-        groupCodesList = groups['code'].tolist()
-        self.groupCodes.addCodes(**{code: code for code in groupCodesList})
+        groupCodesList: List[Dict[str, str]] = groups[[
+            'code', 'description']].to_dict('records')
+        self.groupCodes.addCodes(
+            **{
+                code['code']: _Code(code['code'], code['description'])
+                for code in groupCodesList
+            })
 
         return groups
 
     def getGeography(self) -> pd.DataFrame:
-        if self.__cache.geography:
+        if self.__cache.geography is not None:
             logging.info('retrieving geography data from cache')
             return self.__cache.geography
 
@@ -99,9 +121,13 @@ class VariableRetriever:
 
             self.__cache.persist(group, varsForGroup)
 
-            variableCodesList = varsForGroup['code'].tolist()
-            self.groupCodes.addCodes(
-                **{code: code for code in variableCodesList})
+            variableCodesList: List[Dict[str, str]] = varsForGroup[[
+                'code', 'name']].to_dict('records')
+            self.variableCodes.addCodes(
+                **{
+                    code['code']: _Code(code['code'], code['name'])
+                    for code in variableCodesList
+                })
 
             if allVars is None:
                 allVars = varsForGroup

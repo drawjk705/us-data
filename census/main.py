@@ -3,8 +3,9 @@ from utils import configureLogger
 
 configureLogger('census.log')
 
-c = VariableRetriever(2019, onDiskCache=True)
+c = VariableRetriever(2019, onDiskCache=True, shouldLoadFromExistingCache=True)
 
+c.getGeography()
 searchedGroups = c.searchGroups('family')
 variables = c.getVariablesByGroup(groups=['B19202H'])
 searchedVars = c.searchVariables(

@@ -1,6 +1,6 @@
 from typing import Dict, List
 import pandas as pd
-from api.models import GroupVariable
+from api.models.GroupVariable import GroupVariable
 
 
 def variablesToDataframe(variables: List[GroupVariable]) -> pd.DataFrame:

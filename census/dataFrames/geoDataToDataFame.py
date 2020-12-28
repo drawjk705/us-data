@@ -1,6 +1,6 @@
 import pandas as pd
 from collections import OrderedDict
-from api.models import GeographyItem
+from api.models.GeographyItem import GeographyItem
 
 
 def geoDataToDataFrame(supportedGeos: OrderedDict[str, GeographyItem]) -> pd.DataFrame:

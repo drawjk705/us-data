@@ -1,5 +1,6 @@
 from models.DatasetType import DatasetType
-from api.models import GeographyClauses, GeographyItem, GeographyResponse
+from api.models.GeographyResponse import GeographyResponse
+from api.models.GeographyItem import GeographyItem, GeographyClauses
 from api.getData_Base import getData_Base
 from models import SurveyType
 from typing import Dict, Any, OrderedDict

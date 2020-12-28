@@ -55,19 +55,22 @@ class VariableRetrievalCache:
 
         self.__onDiskCacheDir = f'{CACHE_DIR}/{year}/{datasetType.value}/{surveyType.value}'
 
-        self.__setUpOnDickCache()
+        self.__setUpOnDiskCache()
 
-    def __setUpOnDickCache(self) -> None:
-        if not self.__onDisk:
-            return
-
+    def __setUpOnDiskCache(self) -> None:
         path = Path(self.__onDiskCacheDir)
-        path.mkdir(parents=True, exist_ok=True)
 
-        logging.info(
-            f'creating cache directories, located at {path.absolute()}')
+        if self.__onDisk:
+            path.mkdir(parents=True, exist_ok=True)
+
+            logging.info(
+                f'creating cache directories, located at {path.absolute()}')
 
         if self.__shouldLoadFromExistingCache:
+            if not path.exists():
+                logging.info(
+                    'cannot load from previous on-disk cache, because it does not exist')
+
             logging.info('loading from existing on-disk cache...')
 
             for d in path.iterdir():
@@ -75,11 +78,19 @@ class VariableRetrievalCache:
                     df = pd.read_csv(d.absolute())
                     dataName = d.with_suffix('').name
                     self.__dict__.update({dataName: df})
+
+                    logging.info(f'loaded `{dataName}.csv` into memory')
+
                 else:
                     for varCsv in d.iterdir():
                         df = pd.read_csv(varCsv.absolute())
-                        dataName = d.with_suffix('').name
-                        self.variables.update({dataName, df})
+                        dataName = varCsv.with_suffix('').name
+                        self.variables.update({dataName: df})
+
+                        logging.info(
+                            f'loaded `variables/{dataName}.csv` into memory')
+
+            logging.info('restoring cache from disk...')
 
     def persist(self, dataType: str, data: pd.DataFrame) -> None:
         self.__persistOnDisk(dataType, data)

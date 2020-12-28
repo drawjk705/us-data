@@ -1,6 +1,6 @@
 import pandas as pd
 from dataFrames.geoDataToDataFame import geoDataToDataFrame
-from api.variableGet import getSupportedGeographies
+from api.variableGet.getSupportedGeographies import getSupportedGeographies
 from models.SurveyType import SurveyType
 from models.DatasetType import DatasetType
 

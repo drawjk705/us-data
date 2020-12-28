@@ -16,5 +16,6 @@ class GeographyResponseItem:
 class GeographyResponse:
     fips: List[GeographyResponseItem] = []
 
-    def __init__(self, fips: List[GeographyResponseItem], **_) -> None:
-        self.fips = fips
+    def __init__(self, fips: List[dict], **_) -> None:
+        for fip in fips:
+            self.fips.append(GeographyResponseItem(fip))
