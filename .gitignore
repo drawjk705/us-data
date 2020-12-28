@@ -154,4 +154,4 @@ dmypy.json
 
 *.log
 db-scripts/setup/*.sql
-*/share/*
+cache/
