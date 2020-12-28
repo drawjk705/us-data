@@ -26,7 +26,7 @@ class GeographyItem():
 
     name: str
     hierarchy: str
-    clauses: List[GeographyClauses] = {}
+    clauses: List[GeographyClauses] = []
 
     def __init__(self, name: str, hierarchy: str, clauses: Set[GeographyClauses]) -> None:
         self.name = name
@@ -43,4 +43,4 @@ class GeographyItem():
         return self.__dict__.__repr__()
 
     def __hash__(self) -> int:
-        return self.name.__hash__() + self.hierarchy.__hash__() + self.clauses.__hash__()
+        return self.name.__hash__() + self.hierarchy.__hash__() + sum([clause.__hash__() for clause in self.clauses])

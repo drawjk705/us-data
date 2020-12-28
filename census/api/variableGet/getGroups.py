@@ -1,7 +1,7 @@
 from typing import Dict
 from api.getData_Base import getData_Base
 from models import DatasetType, SurveyType
-from api.models.Group import Group
+from api.models import Group
 
 
 def getGroups(year: int,

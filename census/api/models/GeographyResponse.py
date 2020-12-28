@@ -5,7 +5,7 @@ class GeographyResponseItem:
     name: str
     geoLevelDisplay: str
     referenceData: str
-    requires: list[str] = []
+    requires: List[str] = []
     wildcard: List[str] = []
     optionalWithWCFor: str = ''
 
@@ -17,5 +17,4 @@ class GeographyResponse:
     fips: List[GeographyResponseItem] = []
 
     def __init__(self, fips: List[GeographyResponseItem], **_) -> None:
-        for fip in fips:
-            self.fips.append(GeographyResponseItem(fip))
+        self.fips = fips

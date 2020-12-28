@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import Dict
-from api.models.Group import Group
+from api.models import Group
 
 
 def groupDataToDataFrame(groupData: Dict[str, Group]) -> pd.DataFrame:

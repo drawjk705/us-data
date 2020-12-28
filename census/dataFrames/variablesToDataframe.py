@@ -1,10 +1,10 @@
-from typing import List
+from typing import Dict, List
 import pandas as pd
-from api.models.GroupVariable import GroupVariable
+from api.models import GroupVariable
 
 
 def variablesToDataframe(variables: List[GroupVariable]) -> pd.DataFrame:
-    variableDictList: list[dict[str, str]] = []
+    variableDictList: List[Dict] = []
 
     for variable in variables:
         variableDictList.append({
