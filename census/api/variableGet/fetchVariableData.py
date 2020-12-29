@@ -1,11 +1,11 @@
 from api.ApiConfig import ApiConfig
 from api.models.GroupVariable import GroupVariable
-from api.utils import getData_Base
+from api.utils import fetchData_Base
 from typing import Any, List
 
 
 def fetchVariableData(group: str, apiConfig: ApiConfig) -> List[GroupVariable]:
-    res = getData_Base(apiConfig, route=f'/groups/{group}.json')
+    res = fetchData_Base(apiConfig, route=f'/groups/{group}.json')
 
     return __parseVariableData(res)
 

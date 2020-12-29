@@ -1,12 +1,12 @@
 from api import ApiConfig
 from api.models import GeographyResponse, GeographyItem, GeographyClauses
-from api.utils import getData_Base
+from api.utils import fetchData_Base
 from typing import Dict, Any, OrderedDict
 
 
 def fetchSupportedGeographiesData(apiConfig: ApiConfig) -> OrderedDict[str, GeographyItem]:
 
-    geogRes = getData_Base(apiConfig, route='/geography.json')
+    geogRes = fetchData_Base(apiConfig, route='/geography.json')
 
     return __parseSupportedGeographies(geogRes)
 

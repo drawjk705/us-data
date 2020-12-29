@@ -9,6 +9,8 @@ from models.SurveyType import SurveyType
 
 CACHE_DIR = 'cache'
 
+LOG_PREFIX = '[On-Disk Cache]'
+
 
 class OnDiskCache:
     __shouldLoadFromExistingCache: bool
@@ -21,7 +23,7 @@ class OnDiskCache:
                  surveyType: SurveyType = SurveyType.ACS1,
                  shouldLoadFromExistingCache: bool = False) -> None:
 
-        logMsg = f'creating cache for {year} {datasetType.value} - {surveyType.value}'
+        logMsg = f'{LOG_PREFIX} creating cache for {year} {datasetType.value} - {surveyType.value}'
 
         logging.info(logMsg)
 
@@ -32,10 +34,10 @@ class OnDiskCache:
         self.__setUpOnDiskCache()
 
     def __setUpOnDiskCache(self) -> None:
-        logging.info('setting up on disk cache')
+        logging.info(f'{LOG_PREFIX} setting up on disk cache')
 
         if not self.__shouldLoadFromExistingCache:
-            logging.info('purging on disk cache')
+            logging.info(f'{LOG_PREFIX} purging on disk cache')
 
             if Path(CACHE_DIR).exists():
                 shutil.rmtree(CACHE_DIR)
@@ -43,10 +45,17 @@ class OnDiskCache:
         path = Path(self.__onDiskCacheDir)
         path.mkdir(parents=True, exist_ok=True)
 
-    def persist(self, file: Path, data: pd.DataFrame) -> None:
-        path = Path(f'{self.__onDiskCacheDir}/{file}')
+    def persist(self, file: Path, data: pd.DataFrame, parentPath: Optional[Path] = None) -> None:
+        path: Path
 
-        logging.info(f'persisting {path} on disk')
+        if parentPath:
+            path = Path(f'{self.__onDiskCacheDir}/{parentPath}')
+            path.mkdir(parents=True, exist_ok=True)
+            path /= file
+        else:
+            path = Path(f'{self.__onDiskCacheDir}/{file}')
+
+        logging.info(f'{LOG_PREFIX} persisting {path} on disk')
 
         data.to_csv(str(path.absolute()))
 
@@ -61,9 +70,9 @@ class OnDiskCache:
             path = Path(f'{self.__onDiskCacheDir}/{file}')
 
         if not path.exists():
-            logging.info(f'cache miss for {file}')
+            logging.info(f'{LOG_PREFIX} cache miss for {file}')
             return pd.DataFrame()
 
-        logging.info(f'cache hit for {file}')
+        logging.info(f'{LOG_PREFIX} cache hit for {file}')
 
         return pd.read_csv(path.absolute())  # type: ignore

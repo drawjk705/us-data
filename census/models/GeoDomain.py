@@ -1,4 +1,4 @@
-class Domain:
+class GeoDomain:
     name: str
     codeOrWildcard: str
 

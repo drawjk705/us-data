@@ -1,12 +1,12 @@
 from api.ApiConfig import ApiConfig
-from api.models import Domain
+from models import GeoDomain
 from typing import Any, List
-from api.utils import getData_Base
+from api.utils import fetchData_Base
 
 
 def fetchGeographyCodes(apiConfig: ApiConfig,
-                        forDomain: Domain,
-                        inDomains: List[Domain] = []) -> Any:
+                        forDomain: GeoDomain,
+                        inDomains: List[GeoDomain] = []) -> Any:
 
     forClause = f'for={forDomain}'
     inClauses = '&in='.join([str(parent) for parent in inDomains])
@@ -15,4 +15,4 @@ def fetchGeographyCodes(apiConfig: ApiConfig,
     if len(inDomains):
         querystring += f'&in={inClauses}'
 
-    return getData_Base(apiConfig, route=querystring)
+    return fetchData_Base(apiConfig, route=querystring)

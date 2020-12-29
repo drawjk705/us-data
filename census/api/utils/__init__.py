@@ -1,2 +1,2 @@
 # pyright:reportUnusedImport=false
-from api.utils.getData_Base import getData_Base
+from api.utils.fetchData_Base import fetchData_Base
