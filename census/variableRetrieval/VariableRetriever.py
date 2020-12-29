@@ -1,3 +1,4 @@
+from api.ApiConfig import ApiConfig
 from typing import Literal, List, Dict
 from variableRetrieval.getVariables import getVariables
 from variableRetrieval.getGroups import getGroups
@@ -37,13 +38,15 @@ class _Codes:
 class VariableRetriever:
     datasetType: DatasetType
     surveyType: SurveyType
-    year: str
+    year: int
 
     # these will be useful for jupyter
     variableCodes: _Codes
     groupCodes: _Codes
 
     __cache: VariableRetrievalCache
+
+    __apiConfig: ApiConfig
 
     def __init__(self,
                  year: int,
@@ -53,6 +56,8 @@ class VariableRetriever:
         self.year = year
         self.datasetType = datasetType
         self.surveyType = surveyType
+
+        self.__apiConfig = ApiConfig(year, datasetType, surveyType)
 
         self.groupCodes = _Codes()
         self.variableCodes = _Codes()
@@ -68,7 +73,7 @@ class VariableRetriever:
             logging.info('retrieveing group data from cache')
             return self.__cache.groups
 
-        groups = getGroups(self.year, self.datasetType, self.surveyType)
+        groups = getGroups(self.__apiConfig)
         self.__cache.persist('groups', groups)
 
         groupCodesList: List[Dict[str, str]] = groups[[
@@ -86,15 +91,14 @@ class VariableRetriever:
             logging.info('retrieving geography data from cache')
             return self.__cache.geography
 
-        geography = getGeographies(
-            self.year, self.datasetType, self.surveyType)
+        geography = getGeographies(self.__apiConfig)
 
         self.__cache.persist('geography', geography)
 
         return geography
 
     def getVariablesByGroup(self, groups: List[str]) -> pd.DataFrame:
-        allVars: pd.DataFrame = None
+        allVars: pd.DataFrame = pd.DataFrame()
 
         notFoundGroups = set(groups)
 
@@ -106,14 +110,13 @@ class VariableRetriever:
 
                 varsForGroup = self.__cache.variables[group]
 
-                if allVars is None:
+                if allVars.empty:
                     allVars = varsForGroup
                 else:
                     allVars = allVars.append(varsForGroup, ignore_index=True)
 
         for group in notFoundGroups:
-            varsForGroup = getVariables(
-                group, self.year, self.datasetType, self.surveyType)
+            varsForGroup = getVariables(group, self.__apiConfig)
 
             self.__cache.persist(group, varsForGroup)
 
@@ -154,8 +157,10 @@ class VariableRetriever:
 
         variables = self.getVariablesByGroup(inGroups)
 
+        # pyright:reportFunctionMemberAccess=false
         series = variables[searchBy].str.contains(regex, case=False)
 
+        # pyright:reportGeneralTypeIssues=false
         return variables[series]
 
     def purgeCache(self, inMemory: bool = True, onDisk: bool = False) -> None:

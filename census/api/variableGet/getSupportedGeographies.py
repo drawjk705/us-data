@@ -1,19 +1,13 @@
-from models.DatasetType import DatasetType
+from api.ApiConfig import ApiConfig
 from api.models.GeographyResponse import GeographyResponse
 from api.models.GeographyItem import GeographyItem, GeographyClauses
 from api.getData_Base import getData_Base
-from models import SurveyType
 from typing import Dict, Any, OrderedDict
 
 
-def getSupportedGeographies(year: int,
-                            datasetType: DatasetType = DatasetType.ACS,
-                            surveyType: SurveyType = SurveyType.ACS1) -> OrderedDict[str, GeographyItem]:
+def getSupportedGeographies(apiConfig: ApiConfig) -> OrderedDict[str, GeographyItem]:
 
-    geogRes = getData_Base(year,
-                           datasetType=datasetType,
-                           surveyType=surveyType,
-                           route='/geography.json')
+    geogRes = getData_Base(apiConfig, route='/geography.json')
 
     return __parseSupportedGeographies(geogRes)
 

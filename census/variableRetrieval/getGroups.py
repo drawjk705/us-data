@@ -1,11 +1,9 @@
-from models import DatasetType, SurveyType
 import pandas as pd
-from api.variableGet.getGroups import getGroups as getGroupData
+from api.variableGet.getGroupsData import getGroupData
+from api.ApiConfig import ApiConfig
 from dataFrames.groupDataToDataFrame import groupDataToDataFrame
 
 
-def getGroups(year: int,
-              datasetType: DatasetType = DatasetType.ACS,
-              surveyType: SurveyType = SurveyType.ACS1) -> pd.DataFrame:
-    groupRes = getGroupData(year, datasetType, surveyType)
+def getGroups(apiConfig: ApiConfig) -> pd.DataFrame:
+    groupRes = getGroupData(apiConfig)
     return groupDataToDataFrame(groupRes)

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 
 
 class GeographyResponseItem:
@@ -9,7 +9,7 @@ class GeographyResponseItem:
     wildcard: List[str] = []
     optionalWithWCFor: str = ''
 
-    def __init__(self, jsonRes: dict) -> None:
+    def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
 
 

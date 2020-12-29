@@ -1,9 +1,9 @@
 from variableRetrieval.VariableRetriever import VariableRetriever
-from utils import configureLogger
+from utils.configureLogger import configureLogger
 
 configureLogger('census.log')
 
-c = VariableRetriever(2019, onDiskCache=True, shouldLoadFromExistingCache=True)
+c = VariableRetriever(2019, shouldLoadFromExistingCache=True)
 
 c.getGeography()
 searchedGroups = c.searchGroups('family')

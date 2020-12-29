@@ -1,10 +1,12 @@
+from api.ApiConfig import ApiConfig
 from api.models.Domain import Domain
-from typing import Dict, List
+from typing import Any, List
 from api import getData_Base
 
 
-def getGeographyCodes(domain: Domain,
-                      parentDomains: List[Domain] = []) -> Dict[str, str]:
+def getGeographyCodes(apiConfig: ApiConfig,
+                      domain: Domain,
+                      parentDomains: List[Domain] = []) -> Any:
 
     forClause = f'for={domain}'
     inClauses = '&in='.join([str(parent) for parent in parentDomains])
@@ -13,4 +15,4 @@ def getGeographyCodes(domain: Domain,
     if len(parentDomains):
         querystring += f'&in={inClauses}'
 
-    return getData_Base()
+    return getData_Base(apiConfig, route=querystring)

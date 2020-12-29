@@ -1,7 +1,8 @@
 import pandas as pd
 from typing import Dict, Optional
 import logging
-from models import DatasetType, SurveyType
+from models.DatasetType import DatasetType
+from models.SurveyType import SurveyType
 from pathlib import Path
 import shutil
 
@@ -27,7 +28,7 @@ class VariableRetrievalCache:
                  year: int,
                  datasetType: DatasetType = DatasetType.ACS,
                  surveyType: SurveyType = SurveyType.ACS1,
-                 shouldLoadFromExistingCache=False) -> None:
+                 shouldLoadFromExistingCache: bool = False) -> None:
 
         logMsg = f'creating cache for {year} {datasetType.value} - {surveyType.value}'
 
@@ -83,7 +84,7 @@ class VariableRetrievalCache:
     def __persistOnDisk(self, dataType: str, data: pd.DataFrame) -> None:
         logging.info(f'persisting {dataType} on disk')
 
-        path: Path = None
+        path: Path
 
         if dataType not in ['groups', 'geography']:
             path = Path(f'{self.__onDiskCacheDir}/variables')

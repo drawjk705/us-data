@@ -1,5 +1,5 @@
 from enum import Enum
 
 
-class DatasetType(Enum):
+class DatasetType(str, Enum):
     ACS = 'acs'
