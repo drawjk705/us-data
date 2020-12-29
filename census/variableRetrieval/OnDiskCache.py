@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from models.DatasetType import DatasetType
-from models.SurveyType import SurveyType
+from models import DatasetType, SurveyType
 
 CACHE_DIR = 'cache'
 
@@ -23,9 +22,8 @@ class OnDiskCache:
                  surveyType: SurveyType = SurveyType.ACS1,
                  shouldLoadFromExistingCache: bool = False) -> None:
 
-        logMsg = f'{LOG_PREFIX} creating cache for {year} {datasetType.value} - {surveyType.value}'
-
-        logging.info(logMsg)
+        logging.info(
+            f'{LOG_PREFIX} creating cache for {year}/{datasetType.value}/{surveyType.value}')
 
         self.__shouldLoadFromExistingCache = shouldLoadFromExistingCache
 

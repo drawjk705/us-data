@@ -1,8 +1,0 @@
-# pyright:reportUnusedImport=false
-
-from variableRetrieval.utils.getVariables import getVariables
-from variableRetrieval.utils.getGeographyCodes import getGeographyCodes
-from variableRetrieval.utils.getGroups import getGroups
-from variableRetrieval.utils.getSupportedGeographies import getSupportedGeographies
-from variableRetrieval.utils.VariableCode import VariableCode, VariableCodes
-from variableRetrieval.utils.OnDiskCache import OnDiskCache

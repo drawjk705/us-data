@@ -1,8 +1,20 @@
+from enum import Enum
+
+
+class DatasetType(str, Enum):
+    ACS = 'acs'
+
+
+class SurveyType(str, Enum):
+    ACS1 = 'acs1'
+    ACS5 = 'acs5'
+
+
 class GeoDomain:
     name: str
     codeOrWildcard: str
 
-    def __init__(self, name: str, codeOrWildcard: str) -> None:
+    def __init__(self, name: str, codeOrWildcard: str = '*') -> None:
         self.name = name
         self.codeOrWildcard = codeOrWildcard
 

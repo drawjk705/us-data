@@ -1,17 +1,14 @@
 import logging
-from models import GeoDomain
+from functools import cache
 from pathlib import Path
 from typing import Dict, List, Literal, Tuple
-from functools import cache
 
 import pandas as pd
 from api.ApiConfig import ApiConfig
-from models.DatasetType import DatasetType
-from models.SurveyType import SurveyType
+from models import DatasetType, GeoDomain, SurveyType
 
-from variableRetrieval.utils import getGroups, getGeographyCodes, getSupportedGeographies, getVariables, OnDiskCache
-from variableRetrieval.utils.VariableCode import VariableCode, VariableCodes
-
+from variableRetrieval import OnDiskCache, VariableCode, VariableCodes
+import variableRetrieval.utils as retUtils
 
 GROUPS_FILE = 'groups.csv'
 SUPPORTED_GEOS_FILE = 'supportedGeographies.csv'
@@ -53,6 +50,9 @@ class VariableRetriever:
             surveyType=surveyType,
             shouldLoadFromExistingCache=shouldLoadFromExistingCache)
 
+        logging.info(
+            f'Ready to retrieve census data for the {surveyType.upper()}-{year}')
+
     def getGroups(self) -> pd.DataFrame:
         return self.__getGroups()
 
@@ -63,7 +63,7 @@ class VariableRetriever:
         groups = self.__onDiskCache.getFromCache(groupsPath)
 
         if groups.empty:
-            groups = getGroups(self.__apiConfig)
+            groups = retUtils.getGroups(self.__apiConfig)
 
             self.__onDiskCache.persist(groupsPath, groups)
 
@@ -80,7 +80,9 @@ class VariableRetriever:
             Path(SUPPORTED_GEOS_FILE))
 
         if supportedGeographies.empty:
-            supportedGeographies = getSupportedGeographies(self.__apiConfig)
+            supportedGeographies = retUtils.getSupportedGeographies(
+                self.__apiConfig)
+
             self.__onDiskCache.persist(Path(SUPPORTED_GEOS_FILE),
                                        supportedGeographies)
 
@@ -91,7 +93,7 @@ class VariableRetriever:
 
     @ cache
     def __getGeographyCodes(self, forDomain: GeoDomain, inDomains: Tuple[GeoDomain, ...] = ()) -> pd.DataFrame:
-        return getGeographyCodes(self.__apiConfig, forDomain, list(inDomains))
+        return retUtils.getGeographyCodes(self.__apiConfig, forDomain, list(inDomains))
 
     def getVariablesByGroup(self, groups: List[str]) -> pd.DataFrame:
         return self.__getVariablesByGroup(tuple(groups))
@@ -113,7 +115,7 @@ class VariableRetriever:
                 else:
                     allVars.append(df, ignore_index=True)
             else:
-                df = getVariables(group, self.__apiConfig)
+                df = retUtils.getVariables(group, self.__apiConfig)
 
                 self.__onDiskCache.persist(fullPath, df)
 
