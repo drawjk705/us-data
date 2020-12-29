@@ -27,26 +27,11 @@ class VariableRetrievalCache:
                  year: int,
                  datasetType: DatasetType = DatasetType.ACS,
                  surveyType: SurveyType = SurveyType.ACS1,
-                 inMemory: bool = True,
-                 onDisk: bool = False,
                  shouldLoadFromExistingCache=False) -> None:
 
-        if not inMemory and not onDisk:
-            raise Exception('cache must be in-memory and/or on-disk')
-
-        logMsg = 'creating '
-        if inMemory:
-            logMsg += 'in-memory '
-        if onDisk:
-            if inMemory:
-                logMsg += 'and '
-            logMsg += ' on-disk '
-        logMsg += f'cache for {year} {datasetType.value} - {surveyType.value}'
+        logMsg = f'creating cache for {year} {datasetType.value} - {surveyType.value}'
 
         logging.info(logMsg)
-
-        self.__inMemory = inMemory
-        self.__onDisk = onDisk
 
         self.__year = year
         self.__datasetType = datasetType
@@ -60,11 +45,10 @@ class VariableRetrievalCache:
     def __setUpOnDiskCache(self) -> None:
         path = Path(self.__onDiskCacheDir)
 
-        if self.__onDisk:
-            path.mkdir(parents=True, exist_ok=True)
+        path.mkdir(parents=True, exist_ok=True)
 
-            logging.info(
-                f'creating cache directories, located at {path.absolute()}')
+        logging.info(
+            f'creating cache directories, located at {path.absolute()}')
 
         if self.__shouldLoadFromExistingCache:
             if not path.exists():
@@ -97,9 +81,6 @@ class VariableRetrievalCache:
         self.__persistInMemory(dataType, data)
 
     def __persistOnDisk(self, dataType: str, data: pd.DataFrame) -> None:
-        if not self.__onDisk:
-            return
-
         logging.info(f'persisting {dataType} on disk')
 
         path: Path = None
@@ -115,9 +96,6 @@ class VariableRetrievalCache:
         data.to_csv(f'{path.absolute()}/{dataType}.csv')
 
     def __persistInMemory(self, dataType: str, data: pd.DataFrame) -> None:
-        if not self.__inMemory:
-            return
-
         logging.info(f'persisting {dataType} in memory')
 
         if dataType not in ['groups', 'geography']:

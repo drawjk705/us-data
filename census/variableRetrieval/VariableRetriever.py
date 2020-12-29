@@ -49,8 +49,6 @@ class VariableRetriever:
                  year: int,
                  datasetType: DatasetType = DatasetType.ACS,
                  surveyType: SurveyType = SurveyType.ACS1,
-                 inMemoryCache: bool = True,
-                 onDiskCache: bool = False,
                  shouldLoadFromExistingCache: bool = False):
         self.year = year
         self.datasetType = datasetType
@@ -63,8 +61,6 @@ class VariableRetriever:
             year=year,
             datasetType=datasetType,
             surveyType=surveyType,
-            inMemory=inMemoryCache,
-            onDisk=onDiskCache,
             shouldLoadFromExistingCache=shouldLoadFromExistingCache)
 
     def getGroups(self) -> pd.DataFrame:
