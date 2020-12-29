@@ -1,10 +1,10 @@
-from api.ApiConfig import ApiConfig
+from api import ApiConfig
 from typing import Dict, List
-from api.getData_Base import getData_Base
-from api.models.Group import Group
+from api.utils import getData_Base
+from api.models import Group
 
 
-def getGroupData(apiConfig: ApiConfig) -> Dict[str, Group]:
+def fetchGroupData(apiConfig: ApiConfig) -> Dict[str, Group]:
     groupsRes: Dict[str, List[Dict[str, str]]] = getData_Base(
         apiConfig, route='/groups.json')
 

@@ -1,9 +1,9 @@
 import pandas as pd
-from api.variableGet.getGroupsData import getGroupData
+from api.variableGet.fetchGroupsData import fetchGroupData
 from api.ApiConfig import ApiConfig
-from dataFrames.groupDataToDataFrame import groupDataToDataFrame
+from dataFrames import groupDataToDataFrame
 
 
 def getGroups(apiConfig: ApiConfig) -> pd.DataFrame:
-    groupRes = getGroupData(apiConfig)
+    groupRes = fetchGroupData(apiConfig)
     return groupDataToDataFrame(groupRes)

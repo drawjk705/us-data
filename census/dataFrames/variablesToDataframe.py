@@ -4,10 +4,10 @@ from api.models.GroupVariable import GroupVariable
 
 
 def variablesToDataframe(variables: List[GroupVariable]) -> pd.DataFrame:
-    variableDictList: List[Dict] = []
+    variableDictList: List[Dict] = []  # type: ignore
 
     for variable in variables:
-        variableDictList.append({
+        variableDictList.append({  # type: ignore
             "code": variable.code,
             "groupCode": variable.groupCode,
             "concept": variable.groupConcept,
@@ -17,4 +17,4 @@ def variablesToDataframe(variables: List[GroupVariable]) -> pd.DataFrame:
             "predicateType": variable.predicateType
         })
 
-    return pd.DataFrame(variableDictList)
+    return pd.DataFrame(variableDictList)  # type: ignore

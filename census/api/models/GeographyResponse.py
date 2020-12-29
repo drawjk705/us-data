@@ -16,6 +16,6 @@ class GeographyResponseItem:
 class GeographyResponse:
     fips: List[GeographyResponseItem] = []
 
-    def __init__(self, fips: List[dict], **_) -> None:
+    def __init__(self, fips: List[dict], **_) -> None:  # type: ignore
         for fip in fips:
-            self.fips.append(GeographyResponseItem(fip))
+            self.fips.append(GeographyResponseItem(fip))  # type: ignore

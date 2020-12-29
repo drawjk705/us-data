@@ -7,7 +7,7 @@ class GroupVariable:
     predicateOnly: bool
     predicateType: str
 
-    def __init__(self, code: str, jsonData: dict) -> None:
+    def __init__(self, code: str, jsonData: dict) -> None:  # type: ignore
         self.code = code
         self.groupCode = jsonData['group']
         self.groupConcept = jsonData['concept']

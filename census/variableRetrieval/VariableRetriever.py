@@ -1,13 +1,19 @@
-from api.ApiConfig import ApiConfig
-from typing import Literal, List, Dict
-from variableRetrieval.getVariables import getVariables
-from variableRetrieval.getGroups import getGroups
-from variableRetrieval.getGeographies import getGeographies
-import pandas as pd
-from models.SurveyType import SurveyType
-from models.DatasetType import DatasetType
-from variableRetrieval.VariableRetrievalCache import VariableRetrievalCache
 import logging
+from functools import cache
+from pathlib import Path
+from typing import Dict, List, Literal, Tuple
+
+import pandas as pd
+from api.ApiConfig import ApiConfig
+from api.models.Domain import Domain
+from models.DatasetType import DatasetType
+from models.SurveyType import SurveyType
+
+from variableRetrieval.getGroups import getGroups
+from variableRetrieval.getGeographyCodes import getGeographyCodes
+from variableRetrieval.getSupportedGeographies import getSupportedGeographies
+from variableRetrieval.getVariables import getVariables
+from variableRetrieval.OnDiskCache import OnDiskCache
 
 
 class _Code:
@@ -23,16 +29,24 @@ class _Code:
 
 
 class _Codes:
-    def __init__(self, **kwargs: dict) -> None:
+    def __init__(self, **kwargs: dict) -> None:  # type: ignore
         for k, v in kwargs.items():
-            self.__setattr__(k, v)
+            self.__setattr__(k, v)  # type: ignore
 
-    def addCodes(self, **codes: dict) -> None:
+    def addCodes(self, **codes: dict) -> None:  # type: ignore
         for k, v in codes.items():
-            self.__setattr__(k, v)
+            self.__setattr__(k, v)  # type: ignore
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
+
+
+GROUPS_FILE = 'groups.csv'
+SUPPORTED_GEOS_FILE = 'supportedGeographies.csv'
+
+VARIABLES_DIR = 'variables'
+GEOGRAPHY_CODES_DIR = 'geographyCodes'
+QUERY_RESULTS_DIR = 'queryResults'
 
 
 class VariableRetriever:
@@ -44,7 +58,7 @@ class VariableRetriever:
     variableCodes: _Codes
     groupCodes: _Codes
 
-    __cache: VariableRetrievalCache
+    __cache: OnDiskCache
 
     __apiConfig: ApiConfig
 
@@ -62,76 +76,69 @@ class VariableRetriever:
         self.groupCodes = _Codes()
         self.variableCodes = _Codes()
 
-        self.__cache = VariableRetrievalCache(
+        self.__cache = OnDiskCache(
             year=year,
             datasetType=datasetType,
             surveyType=surveyType,
             shouldLoadFromExistingCache=shouldLoadFromExistingCache)
 
+    @cache
     def getGroups(self) -> pd.DataFrame:
-        if self.__cache.groups is not None:
-            logging.info('retrieveing group data from cache')
-            return self.__cache.groups
+        groupsPath = Path(GROUPS_FILE)
 
-        groups = getGroups(self.__apiConfig)
-        self.__cache.persist('groups', groups)
+        groups = self.__cache.getFromCache(groupsPath)
 
-        groupCodesList: List[Dict[str, str]] = groups[[
-            'code', 'description']].to_dict('records')
-        self.groupCodes.addCodes(
-            **{
-                code['code']: _Code(code['code'], code['description'])
-                for code in groupCodesList
-            })
+        if groups.empty:
+            groups = getGroups(self.__apiConfig)
+
+            self.__cache.persist(groupsPath, groups)
+
+        self.__populateCodes(groups, self.groupCodes, "description")
 
         return groups
 
-    def getGeography(self) -> pd.DataFrame:
-        if self.__cache.geography is not None:
-            logging.info('retrieving geography data from cache')
-            return self.__cache.geography
+    @cache
+    def getSupportedGeographies(self) -> pd.DataFrame:
+        supportedGeographies = self.__cache.getFromCache(
+            Path(SUPPORTED_GEOS_FILE))
 
-        geography = getGeographies(self.__apiConfig)
+        if supportedGeographies.empty:
+            supportedGeographies = getSupportedGeographies(self.__apiConfig)
+            self.__cache.persist(Path(SUPPORTED_GEOS_FILE),
+                                 supportedGeographies)
 
-        self.__cache.persist('geography', geography)
+        return supportedGeographies
 
-        return geography
+    @cache
+    def getGeographyCodes(self, forDomain: Domain, inDomains: Tuple[Domain, ...] = ()) -> pd.DataFrame:
+        return getGeographyCodes(self.__apiConfig, forDomain, list(inDomains))
 
     def getVariablesByGroup(self, groups: List[str]) -> pd.DataFrame:
         allVars: pd.DataFrame = pd.DataFrame()
 
-        notFoundGroups = set(groups)
-
         for group in groups:
-            if group in self.__cache.variables:
-                logging.info(f'retrieving variables for group {group}')
+            file = Path(f'{group}.csv')
+            parentPath = Path(VARIABLES_DIR)
+            fullPath = parentPath / file
 
-                notFoundGroups.remove(group)
+            df = self.__cache.getFromCache(file, parentPath)
 
-                varsForGroup = self.__cache.variables[group]
+            if not df.empty:
+                if allVars.empty:
+                    allVars = df
+                else:
+                    allVars.append(df, ignore_index=True)
+            else:
+                df = getVariables(group, self.__apiConfig)
+
+                self.__cache.persist(fullPath, df)
 
                 if allVars.empty:
-                    allVars = varsForGroup
+                    allVars = df
                 else:
-                    allVars = allVars.append(varsForGroup, ignore_index=True)
+                    allVars.append(df, ignore_index=True)
 
-        for group in notFoundGroups:
-            varsForGroup = getVariables(group, self.__apiConfig)
-
-            self.__cache.persist(group, varsForGroup)
-
-            variableCodesList: List[Dict[str, str]] = varsForGroup[[
-                'code', 'name']].to_dict('records')
-            self.variableCodes.addCodes(
-                **{
-                    code['code']: _Code(code['code'], code['name'])
-                    for code in variableCodesList
-                })
-
-            if allVars is None:
-                allVars = varsForGroup
-            else:
-                allVars = allVars.append(varsForGroup, ignore_index=True)
+        self.__populateCodes(allVars, self.variableCodes, "name")
 
         return allVars
 
@@ -140,7 +147,7 @@ class VariableRetriever:
 
         groups = self.getGroups()
 
-        series: pd.Series = groups['description'].str.contains(
+        series: pd.Series = groups['description'].str.contains(  # type: ignore
             regex, case=False)
 
         return groups[series]
@@ -157,11 +164,17 @@ class VariableRetriever:
 
         variables = self.getVariablesByGroup(inGroups)
 
-        # pyright:reportFunctionMemberAccess=false
-        series = variables[searchBy].str.contains(regex, case=False)
+        series = variables[searchBy].str.contains(  # type: ignore
+            regex, case=False)
 
-        # pyright:reportGeneralTypeIssues=false
-        return variables[series]
+        return variables[series]  # type: ignore
 
-    def purgeCache(self, inMemory: bool = True, onDisk: bool = False) -> None:
-        self.__cache.purge(inMemory, onDisk)
+    def __populateCodes(self, sourceDf: pd.DataFrame, codes: _Codes, meaningCol: str) -> None:
+        codesList: List[Dict[str, str]] = sourceDf[[
+            'code', meaningCol]].to_dict('records')
+
+        codes.addCodes(  # type: ignore
+            **{
+                code['code']: _Code(code['code'], code[meaningCol])
+                for code in codesList
+            })

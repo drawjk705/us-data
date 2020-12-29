@@ -1,14 +1,16 @@
-from variableRetrieval.VariableRetriever import VariableRetriever
 from utils.configureLogger import configureLogger
+from api.models.Domain import Domain
+from variableRetrieval.VariableRetriever import VariableRetriever
+
 
 configureLogger('census.log')
 
 c = VariableRetriever(2019, shouldLoadFromExistingCache=True)
+supportedGeos = c.getSupportedGeographies()
 
-c.getGeography()
-searchedGroups = c.searchGroups('family')
-variables = c.getVariablesByGroup(groups=['B19202H'])
-searchedVars = c.searchVariables(
-    r'margin', inGroups=['B19202H'], searchBy='name')
+c.getGroups()
 
-print(searchedVars)
+geoCodes = c.getGeographyCodes(Domain('us', '*'))
+geoCodes = c.getGeographyCodes(Domain('us', '*'))
+
+c.getVariablesByGroup(['B17015'])
