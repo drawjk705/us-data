@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Set
 
 
 class GeographyClauses:
-    forClause: str = ''
+    forClause: str = ""
     inClauses: List[str] = []
 
     def __init__(self, forClause: str, inClauses: List[str]) -> None:
@@ -10,16 +10,17 @@ class GeographyClauses:
         self.inClauses = inClauses
 
     def __eq__(self, o: object) -> bool:
-        return \
-            self.forClause == o.__getattribute__('forClause') \
-            and self.inClauses == o.__getattribute__('inClauses')
+        return self.forClause == o.__getattribute__(
+            "forClause"
+        ) and self.inClauses == o.__getattribute__("inClauses")
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
 
     def __hash__(self) -> int:
-        return self.forClause.__hash__() + \
-            sum([item.__hash__() for item in self. inClauses])
+        return self.forClause.__hash__() + sum(
+            [item.__hash__() for item in self.inClauses]
+        )
 
 
 class GeographyItem:
@@ -27,22 +28,29 @@ class GeographyItem:
     hierarchy: str
     clauses: List[GeographyClauses] = []
 
-    def __init__(self, name: str, hierarchy: str, clauses: Set[GeographyClauses]) -> None:
+    def __init__(
+        self, name: str, hierarchy: str, clauses: Set[GeographyClauses]
+    ) -> None:
         self.name = name
         self.hierarchy = hierarchy
         self.clauses = list(clauses)
 
     def __eq__(self, o: object) -> bool:
-        return \
-            self.name == o.__getattribute__('name') and \
-            self.hierarchy == o.__getattribute__('hierarchy') and \
-            self.clauses == o.__getattribute__('clauses')
+        return (
+            self.name == o.__getattribute__("name")
+            and self.hierarchy == o.__getattribute__("hierarchy")
+            and self.clauses == o.__getattribute__("clauses")
+        )
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
 
     def __hash__(self) -> int:
-        return self.name.__hash__() + self.hierarchy.__hash__() + sum([clause.__hash__() for clause in self.clauses])
+        return (
+            self.name.__hash__()
+            + self.hierarchy.__hash__()
+            + sum([clause.__hash__() for clause in self.clauses])
+        )
 
 
 class GeographyResponseItem:
@@ -51,7 +59,7 @@ class GeographyResponseItem:
     referenceData: str
     requires: List[str] = []
     wildcard: List[str] = []
-    optionalWithWCFor: str = ''
+    optionalWithWCFor: str = ""
 
     def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
@@ -85,12 +93,12 @@ class GroupVariable:
 
     def __init__(self, code: str, jsonData: dict) -> None:  # type: ignore
         self.code = code
-        self.groupCode = jsonData['group']
-        self.groupConcept = jsonData['concept']
-        self.name = jsonData['label']
-        self.limit = jsonData['limit']
-        self.predicateOnly = jsonData['predicateOnly']
-        self.predicateType = jsonData['predicateType']
+        self.groupCode = jsonData["group"]
+        self.groupConcept = jsonData["concept"]
+        self.name = jsonData["label"]
+        self.limit = jsonData["limit"]
+        self.predicateOnly = jsonData["predicateOnly"]
+        self.predicateType = jsonData["predicateType"]
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()

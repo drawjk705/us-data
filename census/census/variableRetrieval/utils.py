@@ -1,13 +1,15 @@
 from typing import List
 
-import api.fetch as fetch
-import dataTransformation.toDataFrame as toDataFrame
+import census.api.fetch as fetch
+import census.dataTransformation.toDataFrame as toDataFrame
 import pandas as pd
-from api.ApiConfig import ApiConfig
-from models import GeoDomain
+from census.api.ApiConfig import ApiConfig
+from census.models import GeoDomain
 
 
-def getGeographyCodes(apiConfig: ApiConfig, forDomain: GeoDomain, inDomains: List[GeoDomain]) -> pd.DataFrame:
+def getGeographyCodes(
+    apiConfig: ApiConfig, forDomain: GeoDomain, inDomains: List[GeoDomain]
+) -> pd.DataFrame:
     codes = fetch.geographyCodes(apiConfig, forDomain, inDomains)
     return toDataFrame.geographyCodes(codes)
 
@@ -22,7 +24,6 @@ def getSupportedGeographies(apiConfig: ApiConfig) -> pd.DataFrame:
     return toDataFrame.supportedGeographies(geos)
 
 
-def getVariables(group: str,
-                 apiConfig: ApiConfig) -> pd.DataFrame:
+def getVariables(group: str, apiConfig: ApiConfig) -> pd.DataFrame:
     varData = fetch.variableData(group, apiConfig)
     return toDataFrame.variables(varData)

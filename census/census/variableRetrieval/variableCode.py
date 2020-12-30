@@ -1,3 +1,6 @@
+from typing import Mapping
+
+
 class VariableCode:
     code: str
     meaning: str
@@ -15,7 +18,8 @@ class VariableCodes:
         for k, v in kwargs.items():
             self.__setattr__(k, v)  # type: ignore
 
-    def addCodes(self, **codes: dict) -> None:  # type: ignore
+    # type: ignore
+    def addCodes(self, **codes: Mapping[str, VariableCode]) -> None:
         for k, v in codes.items():
             self.__setattr__(k, v)  # type: ignore
 

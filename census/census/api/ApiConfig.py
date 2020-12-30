@@ -1,4 +1,4 @@
-from models import SurveyType, DatasetType
+from census.models import SurveyType, DatasetType
 
 
 class ApiConfig:
@@ -16,10 +16,12 @@ class ApiConfig:
     datasetType: DatasetType
     surveyType: SurveyType
 
-    def __init__(self,
-                 year: int,
-                 datasetType: DatasetType = DatasetType.ACS,
-                 surveyType: SurveyType = SurveyType.ACS1) -> None:
+    def __init__(
+        self,
+        year: int,
+        datasetType: DatasetType = DatasetType.ACS,
+        surveyType: SurveyType = SurveyType.ACS1,
+    ) -> None:
         self.year = year
         self.datasetType = datasetType
         self.surveyType = surveyType
