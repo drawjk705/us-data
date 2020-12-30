@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 
@@ -11,14 +11,10 @@ class SurveyType(str, Enum):
     ACS5 = "acs5"
 
 
-@dataclass
+@dataclass(frozen=True)
 class GeoDomain:
     name: str
-    codeOrWildcard: str
-
-    def __init__(self, name: str, codeOrWildcard: str = "*") -> None:
-        self.name = name
-        self.codeOrWildcard = codeOrWildcard
+    codeOrWildcard: str = field(default="*")
 
     def __str__(self) -> str:
         return self.__repr__()

@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, OrderedDict
 from census.api.models import (
-    GeographyClauses,
+    GeographyClauseSet,
     GeographyItem,
     GeographyResponse,
     Group,
@@ -54,7 +54,55 @@ def parseVariableData(variableData: Any) -> List[GroupVariable]:
 def parseSupportedGeographies(
     supportedGeosResponse: Any,
 ) -> OrderedDict[str, GeographyItem]:
-    geogRes = GeographyResponse(**supportedGeosResponse)
+    """
+    parse a supported geographies response from the census API, e.g.:
+
+    ```
+        {
+            "default": [
+                {
+                    "isDefault": "true"
+                }
+            ],
+            "fips": [
+                {
+                    "name": "state",
+                    "geoLevelDisplay": "040",
+                    "referenceDate": "2019-01-01"
+                },
+                {
+                    "name": "county",
+                    "geoLevelDisplay": "050",
+                    "referenceDate": "2019-01-01",
+                    "requires": [
+                        "state"
+                    ],
+                    "wildcard": [
+                        "state"
+                    ],
+                    "optionalWithWCFor": "state"
+                },
+                {
+                    "name": "principal city (or part)",
+                    "geoLevelDisplay": "312",
+                    "referenceDate": "2019-01-01",
+                    "requires": [
+                        "metropolitan statistical area/micropolitan statistical area",
+                        "state (or part)"
+                    ]
+                },
+            ]
+        }
+    ```
+
+    Args:
+        supportedGeosResponse (Any)
+
+    Returns:
+        OrderedDict[str, GeographyItem]: mapping the geography title to its name and code
+    """
+
+    geogRes = GeographyResponse(fips=supportedGeosResponse["fips"])
     supportedGeographies: Dict[str, GeographyItem] = {}
 
     for fip in geogRes.fips:
@@ -65,30 +113,32 @@ def parseSupportedGeographies(
             filter(lambda req: req not in wildcards, fip.requires)
         )
 
-        withAllCodes = GeographyClauses(
+        withAllCodes = GeographyClauseSet(
             forClause=f"{varName}:CODE",
-            inClauses=[f"{requirement}:CODE" for requirement in requirements],
+            inClauses=tuple([f"{requirement}:CODE" for requirement in requirements]),
         )
 
-        withWithCardForVar = GeographyClauses(
+        withWithCardForVar = GeographyClauseSet(
             forClause=f"{varName}:*",
-            inClauses=[
-                f"{requirement}:CODE" for requirement in nonWildcardableRequirements
-            ],
+            inClauses=tuple(
+                [f"{requirement}:CODE" for requirement in nonWildcardableRequirements]
+            ),
         )
 
-        withWildCardedRequirements = GeographyClauses(
+        withWildCardedRequirements = GeographyClauseSet(
             forClause=f"{varName}:*",
-            inClauses=[
-                f"{requirement}:CODE" for requirement in nonWildcardableRequirements
-            ]
-            + [f"{wildcard}:*" for wildcard in wildcards],
+            inClauses=tuple(
+                [f"{requirement}:CODE" for requirement in nonWildcardableRequirements]
+                + [f"{wildcard}:*" for wildcard in wildcards]
+            ),
         )
+
+        clauses = tuple({withAllCodes, withWithCardForVar, withWildCardedRequirements})
 
         supportedGeographies[varName] = GeographyItem(
             name=varName,
             hierarchy=fip.geoLevelDisplay,
-            clauses=[withAllCodes, withWithCardForVar, withWildCardedRequirements],
+            clauses=clauses,
         )
 
     return OrderedDict(

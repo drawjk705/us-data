@@ -1,47 +1,54 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Tuple
 
 
 @dataclass(frozen=True)
-class GeographyClauses:
-    forClause: str = ""
-    inClauses: List[str] = field(default_factory=list)
+class GeographyClauseSet:
+    forClause: str
+    inClauses: Tuple[str]
+
+    def __repr__(self) -> str:
+        return "\n".join([self.forClause] + list(self.inClauses))
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
 
-@dataclass
+@dataclass(frozen=True)
 class GeographyItem:
     name: str
     hierarchy: str
-    clauses: Set[GeographyClauses] = field(default_factory=set)
+    clauses: Tuple[GeographyClauseSet, ...]
 
-    def __init__(
-        self, name: str, hierarchy: str, clauses: List[GeographyClauses]
-    ) -> None:
-        self.name = name
-        self.hierarchy = hierarchy
-        self.clauses = set(clauses)
+    def __repr__(self) -> str:
+        rep = self.name + " - " + self.hierarchy + "\n------\n"
+
+        rep += "\n--\n".join([str(clause) for clause in self.clauses])
+
+        return rep
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
 
-@dataclass
 class GeographyResponseItem:
     name: str
     geoLevelDisplay: str
     referenceData: str
-    requires: List[str] = field(default_factory=list)
-    wildcard: List[str] = field(default_factory=list)
-    optionalWithWCFor: str = ""
+    requires: List[str] = []
+    wildcard: List[str] = []
+    optionalWithWCFor: str
 
     def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
 
 
-@dataclass
 class GeographyResponse:
-    fips: List[GeographyResponseItem] = field(default_factory=list)
+    fips: List[GeographyResponseItem] = []
 
-    def __init__(self, fips: List[dict], **_) -> None:  # type: ignore
+    def __init__(self, fips: List[Dict[Any, Any]], **_) -> None:
         for fip in fips:
-            self.fips.append(GeographyResponseItem(fip))  # type: ignore
+            self.fips.append(GeographyResponseItem(fip))
 
 
 @dataclass

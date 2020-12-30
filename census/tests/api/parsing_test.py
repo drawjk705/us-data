@@ -1,10 +1,11 @@
 from typing import Any, Dict
-from census.api.parsing import parseVariableData
-from collections import defaultdict
-from census.api.models import GroupVariable
-from hypothesis.core import given
+from collections import OrderedDict
 import hypothesis.strategies as st
+import pytest
+from census.api.models import GeographyClauseSet, GeographyItem, GroupVariable
+import census.api.parsing as parser
 from hypothesis import assume
+from hypothesis.core import given
 
 
 @given(
@@ -64,6 +65,56 @@ def test_parseVariableData(
 
     expected = [expectedVar1, expectedVar2]
 
-    actual = parseVariableData(variables)
+    actual = parser.parseVariableData(variables)
 
     assert actual == expected
+
+
+__supportedGeosTestCases = [
+    (
+        {
+            "name": "principal city (or part)",
+            "geoLevelDisplay": "312",
+            "referenceDate": "2019-01-01",
+            "requires": [
+                "metropolitan statistical area/micropolitan statistical area",
+                "state (or part)",
+            ],
+        },
+        GeographyItem(
+            name="principal city (or part)",
+            hierarchy="312",
+            clauses=(
+                GeographyClauseSet(
+                    forClause="principal city (or part):CODE",
+                    inClauses=tuple(
+                        [
+                            "metropolitan statistical area/micropolitan statistical area:CODE",
+                            "state (or part):CODE",
+                        ]
+                    ),
+                ),
+                GeographyClauseSet(
+                    forClause="principal city (or part):*",
+                    inClauses=tuple(
+                        [
+                            "metropolitan statistical area/micropolitan statistical area:CODE",
+                            "state (or part):CODE",
+                        ]
+                    ),
+                ),
+            ),
+        ),
+    )
+]
+
+
+@pytest.mark.parametrize(["apiItem", "expectedParsedValue"], __supportedGeosTestCases)
+def test_parseSupportedGeographies(
+    apiItem: Dict[Any, Any], expectedParsedValue: GeographyItem
+):
+    apiResponse = {"default": [{"isDefault": True}], "fips": [apiItem]}
+
+    res = parser.parseSupportedGeographies(apiResponse)
+
+    assert res[apiItem["name"]] == expectedParsedValue

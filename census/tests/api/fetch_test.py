@@ -26,7 +26,7 @@ def fetchMock(mocker: MockerFixture) -> Mock:
 
 
 @pytest.mark.parametrize(
-    "domain,parentDomains,expectedRoute",
+    ["domain", "parentDomains", "expectedRoute"],
     [
         (GeoDomain("state"), [GeoDomain("us")], "?get=NAME&for=state:*&in=us:*"),
         (
