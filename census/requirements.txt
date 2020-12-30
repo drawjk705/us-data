@@ -1,14 +1,18 @@
 anyio==2.0.2
+appdirs==1.4.4
 argon2-cffi==20.1.0
 async-generator==1.10
 attrs==20.3.0
 autopep8==1.5.4
 Babel==2.9.0
 backcall==0.2.0
+black==20.8b1
 bleach==3.2.1
+-e git+git@github.com:drawjk705/us-stats.git@bbeaf791fff95c13434fd7a9b8b04e94db1860d4#egg=census&subdirectory=census
 certifi==2020.12.5
 cffi==1.14.4
 chardet==4.0.0
+click==7.1.2
 decorator==4.4.2
 defusedxml==0.6.0
 entrypoints==0.3
@@ -43,6 +47,7 @@ packaging==20.8
 pandas==1.2.0
 pandocfilters==1.4.3
 parso==0.8.1
+pathspec==0.8.1
 pexpect==4.8.0
 pickleshare==0.7.5
 pluggy==0.13.1
@@ -56,14 +61,19 @@ Pygments==2.7.3
 pyparsing==2.4.7
 pyrsistent==0.17.3
 pytest==6.2.1
+pytest-clarity==0.3.0a0
+pytest-mock==3.4.0
+pytest-sugar==0.9.4
 python-dateutil==2.8.1
 pytz==2020.5
 pyzmq==20.0.0
+regex==2020.11.13
 requests==2.25.1
 Send2Trash==1.5.0
 six==1.15.0
 sniffio==1.2.0
 sortedcontainers==2.3.0
+termcolor==1.1.0
 terminado==0.9.1
 testpath==0.4.4
 toml==0.10.2

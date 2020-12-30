@@ -10,9 +10,9 @@ class GeographyClauses:
         self.inClauses = inClauses
 
     def __eq__(self, o: object) -> bool:
-        return self.forClause == o.__getattribute__(
-            "forClause"
-        ) and self.inClauses == o.__getattribute__("inClauses")
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
@@ -36,11 +36,9 @@ class GeographyItem:
         self.clauses = list(clauses)
 
     def __eq__(self, o: object) -> bool:
-        return (
-            self.name == o.__getattribute__("name")
-            and self.hierarchy == o.__getattribute__("hierarchy")
-            and self.clauses == o.__getattribute__("clauses")
-        )
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
@@ -64,6 +62,11 @@ class GeographyResponseItem:
     def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False
+
 
 class GeographyResponse:
     fips: List[GeographyResponseItem] = []
@@ -71,6 +74,11 @@ class GeographyResponse:
     def __init__(self, fips: List[dict], **_) -> None:  # type: ignore
         for fip in fips:
             self.fips.append(GeographyResponseItem(fip))  # type: ignore
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False
 
 
 class Group:
@@ -80,6 +88,11 @@ class Group:
 
     def __init__(self, jsonRes: Dict[str, str]) -> None:
         self.__dict__ = jsonRes
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False
 
 
 class GroupVariable:
@@ -102,3 +115,11 @@ class GroupVariable:
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, type(self)):
+            return self.__dict__ == o.__dict__
+        return False

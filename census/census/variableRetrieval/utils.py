@@ -20,7 +20,7 @@ def getGroups(apiConfig: ApiConfig) -> pd.DataFrame:
 
 
 def getSupportedGeographies(apiConfig: ApiConfig) -> pd.DataFrame:
-    geos = fetch.supportedGeographiesData(apiConfig)
+    geos = fetch.supportedGeographies(apiConfig)
     return toDataFrame.supportedGeographies(geos)
 
 
