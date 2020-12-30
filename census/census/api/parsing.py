@@ -45,7 +45,7 @@ def parseVariableData(variableData: Any) -> List[GroupVariable]:
 
     variables: List[GroupVariable] = []
     for varCode, varData in variableData["variables"].items():
-        groupVar = GroupVariable(code=varCode, jsonData=varData)
+        groupVar = GroupVariable(varCode, varData)
         variables.append(groupVar)
 
     return variables
@@ -88,7 +88,7 @@ def parseSupportedGeographies(
         supportedGeographies[varName] = GeographyItem(
             name=varName,
             hierarchy=fip.geoLevelDisplay,
-            clauses={withAllCodes, withWithCardForVar, withWildCardedRequirements},
+            clauses=[withAllCodes, withWithCardForVar, withWildCardedRequirements],
         )
 
     return OrderedDict(

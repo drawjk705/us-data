@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -10,6 +11,7 @@ class SurveyType(str, Enum):
     ACS5 = "acs5"
 
 
+@dataclass
 class GeoDomain:
     name: str
     codeOrWildcard: str
@@ -23,11 +25,3 @@ class GeoDomain:
 
     def __repr__(self) -> str:
         return f"{self.name}:{self.codeOrWildcard}"
-
-    def __hash__(self) -> int:
-        return self.name.__hash__() + self.codeOrWildcard.__hash__()
-
-    def __eq__(self, o: object) -> bool:
-        return self.name == o.__getattribute__(
-            "name"
-        ) and self.codeOrWildcard == o.__getattribute__("codeOrWildcard")

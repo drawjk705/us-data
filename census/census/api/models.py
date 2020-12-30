@@ -1,86 +1,50 @@
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Set
 
 
+@dataclass(frozen=True)
 class GeographyClauses:
     forClause: str = ""
-    inClauses: List[str] = []
-
-    def __init__(self, forClause: str, inClauses: List[str]) -> None:
-        self.forClause = forClause
-        self.inClauses = inClauses
-
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
-
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
-
-    def __hash__(self) -> int:
-        return self.forClause.__hash__() + sum(
-            [item.__hash__() for item in self.inClauses]
-        )
+    inClauses: List[str] = field(default_factory=list)
 
 
+@dataclass
 class GeographyItem:
     name: str
     hierarchy: str
-    clauses: List[GeographyClauses] = []
+    clauses: Set[GeographyClauses] = field(default_factory=set)
 
     def __init__(
-        self, name: str, hierarchy: str, clauses: Set[GeographyClauses]
+        self, name: str, hierarchy: str, clauses: List[GeographyClauses]
     ) -> None:
         self.name = name
         self.hierarchy = hierarchy
-        self.clauses = list(clauses)
-
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
-
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
-
-    def __hash__(self) -> int:
-        return (
-            self.name.__hash__()
-            + self.hierarchy.__hash__()
-            + sum([clause.__hash__() for clause in self.clauses])
-        )
+        self.clauses = set(clauses)
 
 
+@dataclass
 class GeographyResponseItem:
     name: str
     geoLevelDisplay: str
     referenceData: str
-    requires: List[str] = []
-    wildcard: List[str] = []
+    requires: List[str] = field(default_factory=list)
+    wildcard: List[str] = field(default_factory=list)
     optionalWithWCFor: str = ""
 
     def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
 
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
 
-
+@dataclass
 class GeographyResponse:
-    fips: List[GeographyResponseItem] = []
+    fips: List[GeographyResponseItem] = field(default_factory=list)
 
     def __init__(self, fips: List[dict], **_) -> None:  # type: ignore
         for fip in fips:
             self.fips.append(GeographyResponseItem(fip))  # type: ignore
 
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
 
-
+@dataclass
 class Group:
     name: str
     description: str
@@ -89,37 +53,23 @@ class Group:
     def __init__(self, jsonRes: Dict[str, str]) -> None:
         self.__dict__ = jsonRes
 
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
 
-
+@dataclass
 class GroupVariable:
     code: str
-    groupCode: str
-    groupConcept: str
-    name: str
-    limit: int
-    predicateOnly: bool
-    predicateType: str
+    __jsonData: Dict[Any, Any]
 
-    def __init__(self, code: str, jsonData: dict) -> None:  # type: ignore
-        self.code = code
-        self.groupCode = jsonData["group"]
-        self.groupConcept = jsonData["concept"]
-        self.name = jsonData["label"]
-        self.limit = jsonData["limit"]
-        self.predicateOnly = jsonData["predicateOnly"]
-        self.predicateType = jsonData["predicateType"]
+    groupCode: str = field(init=False)
+    groupConcept: str = field(init=False)
+    name: str = field(init=False)
+    limit: int = field(init=False)
+    predicateOnly: bool = field(init=False)
+    predicateType: str = field(init=False)
 
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, type(self)):
-            return self.__dict__ == o.__dict__
-        return False
+    def __post_init__(self):
+        self.groupCode = self.__jsonData["group"]
+        self.groupConcept = self.__jsonData["concept"]
+        self.name = self.__jsonData["label"]
+        self.limit = self.__jsonData["limit"]
+        self.predicateOnly = self.__jsonData["predicateOnly"]
+        self.predicateType = self.__jsonData["predicateType"]

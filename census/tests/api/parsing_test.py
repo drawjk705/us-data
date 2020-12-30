@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from census.api.parsing import parseVariableData
 from collections import defaultdict
 from census.api.models import GroupVariable
@@ -57,23 +58,9 @@ def test_parseVariableData(
         }
     }
 
-    dd = defaultdict(lambda: None)
+    expectedVar1 = GroupVariable(varCode1, variables["variables"][varCode1])
 
-    expectedVar1 = GroupVariable(varCode1, dd)
-    expectedVar1.groupCode = group
-    expectedVar1.groupConcept = concept
-    expectedVar1.limit = limit1
-    expectedVar1.name = label1
-    expectedVar1.predicateOnly = predicateOnly1
-    expectedVar1.predicateType = predicateType1
-
-    expectedVar2 = GroupVariable(varCode2, dd)
-    expectedVar2.groupCode = group
-    expectedVar2.groupConcept = concept
-    expectedVar2.limit = limit2
-    expectedVar2.name = label2
-    expectedVar2.predicateOnly = predicateOnly2
-    expectedVar2.predicateType = predicateType2
+    expectedVar2 = GroupVariable(varCode2, variables["variables"][varCode2])
 
     expected = [expectedVar1, expectedVar2]
 
