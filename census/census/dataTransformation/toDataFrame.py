@@ -9,7 +9,7 @@ from census.api.models import Group, GroupVariable
 def supportedGeographies(
     supportedGeos: OrderedDict[str, GeographyItem]
 ) -> pd.DataFrame:
-    valuesFlattened = []
+    valuesFlattened: List[Dict[str, str]] = []
     for geoItem in supportedGeos.values():
         for clause in geoItem.clauses:
             valuesFlattened.append(

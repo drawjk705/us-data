@@ -1,11 +1,18 @@
+from census.utils.unique import getUnique
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Tuple
+from functools import total_ordering
 
 
 @dataclass(frozen=True)
+@total_ordering
 class GeographyClauseSet:
     forClause: str
     inClauses: Tuple[str]
+
+    @classmethod
+    def makeSet(cls, forClause: str, inClauses: List[str]):
+        return cls(forClause, tuple(sorted(getUnique(inClauses))))
 
     def __repr__(self) -> str:
         return "\n".join([self.forClause] + list(self.inClauses))
@@ -13,12 +20,22 @@ class GeographyClauseSet:
     def __str__(self) -> str:
         return self.__repr__()
 
+    def __lt__(self, o: object) -> bool:
+        if not isinstance(o, type(self)):
+            raise Exception(f"cannot compare {type(o)} with {type(self)}")
+
+        return self.__repr__() < o.__repr__()
+
 
 @dataclass(frozen=True)
 class GeographyItem:
     name: str
     hierarchy: str
     clauses: Tuple[GeographyClauseSet, ...]
+
+    @classmethod
+    def makeItem(cls, name: str, hierarchy: str, clauses: List[GeographyClauseSet]):
+        return cls(name, hierarchy, tuple(sorted(getUnique(clauses))))
 
     def __repr__(self) -> str:
         rep = self.name + " - " + self.hierarchy + "\n------\n"
@@ -57,8 +74,19 @@ class Group:
     description: str
     variables: str
 
-    def __init__(self, jsonRes: Dict[str, str]) -> None:
-        self.__dict__ = jsonRes
+    def __init__(
+        self,
+        jsonRes: Dict[str, str] = {},
+        name: str = "",
+        description: str = "",
+        variables: str = "",
+    ) -> None:
+        if len(jsonRes):
+            self.__dict__ = jsonRes
+        else:
+            self.name = name
+            self.description = description
+            self.variables = variables
 
 
 @dataclass

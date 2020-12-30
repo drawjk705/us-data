@@ -113,32 +113,30 @@ def parseSupportedGeographies(
             filter(lambda req: req not in wildcards, fip.requires)
         )
 
-        withAllCodes = GeographyClauseSet(
+        withAllCodes = GeographyClauseSet.makeSet(
             forClause=f"{varName}:CODE",
-            inClauses=tuple([f"{requirement}:CODE" for requirement in requirements]),
+            inClauses=[f"{requirement}:CODE" for requirement in requirements],
         )
 
-        withWithCardForVar = GeographyClauseSet(
+        withWithCardForVar = GeographyClauseSet.makeSet(
             forClause=f"{varName}:*",
-            inClauses=tuple(
-                [f"{requirement}:CODE" for requirement in nonWildcardableRequirements]
-            ),
+            inClauses=[
+                f"{requirement}:CODE" for requirement in nonWildcardableRequirements
+            ],
         )
 
-        withWildCardedRequirements = GeographyClauseSet(
+        withWildCardedRequirements = GeographyClauseSet.makeSet(
             forClause=f"{varName}:*",
-            inClauses=tuple(
-                [f"{requirement}:CODE" for requirement in nonWildcardableRequirements]
-                + [f"{wildcard}:*" for wildcard in wildcards]
-            ),
+            inClauses=[
+                f"{requirement}:CODE" for requirement in nonWildcardableRequirements
+            ]
+            + [f"{wildcard}:*" for wildcard in wildcards],
         )
 
-        clauses = tuple({withAllCodes, withWithCardForVar, withWildCardedRequirements})
-
-        supportedGeographies[varName] = GeographyItem(
+        supportedGeographies[varName] = GeographyItem.makeItem(
             name=varName,
             hierarchy=fip.geoLevelDisplay,
-            clauses=clauses,
+            clauses=[withAllCodes, withWithCardForVar, withWildCardedRequirements],
         )
 
     return OrderedDict(
@@ -147,4 +145,30 @@ def parseSupportedGeographies(
 
 
 def parseGroups(groupsRes: Dict[str, List[Dict[str, str]]]) -> Dict[str, Group]:
+    """
+    Parses a /groups.json response from the census API, e.g.:
+
+    ```
+    {
+        "groups": [
+            {
+                "name": "B17015",
+                "description": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                "variables": "https://api.census.gov/data/2019/acs/acs1/groups/B17015.json"
+            },
+            {
+                "name": "B18104",
+                "description": "SEX BY AGE BY COGNITIVE DIFFICULTY",
+                "variables": "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json"
+            },
+    }
+
+    ```
+
+    Args:
+        groupsRes (Dict[str, List[Dict[str, str]]])
+
+    Returns:
+        Dict[str, Group]
+    """
     return {Group(group).name: Group(group) for group in groupsRes["groups"]}
