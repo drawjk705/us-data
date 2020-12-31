@@ -3,8 +3,8 @@ from census.models import SurveyType, DatasetType
 
 
 @dataclass(frozen=True)
-class ApiConfig:
-    """ApiConfig
+class Config:
+    """
 
     Stores basic information for hitting the API,
     so that we don't need to pass the same variables
@@ -14,6 +14,6 @@ class ApiConfig:
      - Survey type
     """
 
-    year: int
-    datasetType: DatasetType
-    surveyType: SurveyType
+    year: int = 2020
+    datasetType: DatasetType = DatasetType.ACS
+    surveyType: SurveyType = SurveyType.ACS1

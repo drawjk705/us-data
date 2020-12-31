@@ -1,30 +1,22 @@
 from census.utils.unique import getUnique
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
-from functools import total_ordering
 
 
 @dataclass(frozen=True)
-@total_ordering
 class GeographyClauseSet:
     forClause: str
     inClauses: Tuple[str]
 
     @classmethod
     def makeSet(cls, forClause: str, inClauses: List[str]):
-        return cls(forClause, tuple(sorted(getUnique(inClauses))))
+        return cls(forClause, tuple(getUnique(inClauses)))
 
     def __repr__(self) -> str:
         return "\n".join([self.forClause] + list(self.inClauses))
 
     def __str__(self) -> str:
         return self.__repr__()
-
-    def __lt__(self, o: object) -> bool:
-        if not isinstance(o, type(self)):
-            raise Exception(f"cannot compare {type(o)} with {type(self)}")
-
-        return self.__repr__() < o.__repr__()
 
 
 @dataclass(frozen=True)
@@ -35,7 +27,7 @@ class GeographyItem:
 
     @classmethod
     def makeItem(cls, name: str, hierarchy: str, clauses: List[GeographyClauseSet]):
-        return cls(name, hierarchy, tuple(sorted(getUnique(clauses))))
+        return cls(name, hierarchy, tuple(getUnique(clauses)))
 
     def __repr__(self) -> str:
         rep = self.name + " - " + self.hierarchy + "\n------\n"
@@ -92,19 +84,22 @@ class Group:
 @dataclass
 class GroupVariable:
     code: str
-    __jsonData: Dict[Any, Any]
+    groupCode: str
+    groupConcept: str
+    name: str
+    limit: int
+    predicateOnly: bool
+    predicateType: str
 
-    groupCode: str = field(init=False)
-    groupConcept: str = field(init=False)
-    name: str = field(init=False)
-    limit: int = field(init=False)
-    predicateOnly: bool = field(init=False)
-    predicateType: str = field(init=False)
+    @classmethod
+    def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
+        groupCode = jsonData["group"]
+        groupConcept = jsonData["concept"]
+        label = jsonData["label"]
+        limit = jsonData["limit"]
+        predicateOnly = jsonData["predicateOnly"]
+        predicateType = jsonData["predicateType"]
 
-    def __post_init__(self):
-        self.groupCode = self.__jsonData["group"]
-        self.groupConcept = self.__jsonData["concept"]
-        self.name = self.__jsonData["label"]
-        self.limit = self.__jsonData["limit"]
-        self.predicateOnly = self.__jsonData["predicateOnly"]
-        self.predicateType = self.__jsonData["predicateType"]
+        return cls(
+            code, groupCode, groupConcept, label, limit, predicateOnly, predicateType
+        )

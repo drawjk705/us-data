@@ -1,70 +1,56 @@
-from typing import Any, Dict
+from census.api.serialization import ApiSerializationService
+from typing import Any, Dict, Union
 import hypothesis.strategies as st
 import pytest
 from census.api.models import GeographyClauseSet, GeographyItem, Group, GroupVariable
-import census.api.parsing as parser
 from hypothesis import assume
 from hypothesis.core import given
 
 
+@pytest.fixture
+def service() -> ApiSerializationService:
+    return ApiSerializationService()
+
+
 @given(
-    group=st.text(),
-    concept=st.text(),
     varCode1=st.text(),
-    label1=st.text(),
-    predicateType1=st.text(),
-    limit1=st.integers(),
-    predicateOnly1=st.booleans(),
     varCode2=st.text(),
-    label2=st.text(),
-    predicateType2=st.text(),
-    limit2=st.integers(),
-    predicateOnly2=st.booleans(),
+    var1=st.fixed_dictionaries(
+        {
+            "label": st.text(),
+            "concept": st.text(),
+            "predicateType": st.text(),
+            "group": st.text(),
+            "limit": st.integers(),
+            "predicateOnly": st.booleans(),
+        }
+    ),
+    var2=st.fixed_dictionaries(
+        {
+            "label": st.text(),
+            "concept": st.text(),
+            "predicateType": st.text(),
+            "group": st.text(),
+            "limit": st.integers(),
+            "predicateOnly": st.booleans(),
+        }
+    ),
 )
 def test_parseVariableData(
-    concept: str,
-    group: str,
     varCode1: str,
-    label1: str,
-    predicateType1: str,
-    limit1: int,
-    predicateOnly1: bool,
     varCode2: str,
-    label2: str,
-    predicateType2: str,
-    limit2: int,
-    predicateOnly2: bool,
+    var1: Dict[str, Union[str, int, bool]],
+    var2: Dict[str, Union[str, int, bool]],
 ):
     assume(varCode1 != varCode2)
 
-    variables = {
-        "variables": {
-            varCode1: {
-                "label": label1,
-                "concept": concept,
-                "predicateType": predicateType1,
-                "group": group,
-                "limit": limit1,
-                "predicateOnly": predicateOnly1,
-            },
-            varCode2: {
-                "label": label2,
-                "concept": concept,
-                "predicateType": predicateType2,
-                "group": group,
-                "limit": limit2,
-                "predicateOnly": predicateOnly2,
-            },
-        }
-    }
-
-    expectedVar1 = GroupVariable(varCode1, variables["variables"][varCode1])
-
-    expectedVar2 = GroupVariable(varCode2, variables["variables"][varCode2])
-
+    service = ApiSerializationService()
+    variables = {"variables": {varCode1: var1, varCode2: var2}}
+    expectedVar1 = GroupVariable.fromJson(varCode1, var1)
+    expectedVar2 = GroupVariable.fromJson(varCode2, var2)
     expected = [expectedVar1, expectedVar2]
 
-    actual = parser.parseVariableData(variables)
+    actual = service.parseVariableData(variables)
 
     assert actual == expected
 
@@ -115,15 +101,15 @@ __supportedGeosTestCases = [
             hierarchy="500",
             clauses=[
                 GeographyClauseSet.makeSet(
+                    forClause="congressional district:CODE",
+                    inClauses=["state:CODE"],
+                ),
+                GeographyClauseSet.makeSet(
                     forClause="congressional district:*", inClauses=[]
                 ),
                 GeographyClauseSet.makeSet(
                     forClause="congressional district:*",
                     inClauses=["state:*"],
-                ),
-                GeographyClauseSet.makeSet(
-                    forClause="congressional district:CODE",
-                    inClauses=["state:CODE"],
                 ),
             ],
         ),
@@ -132,10 +118,12 @@ __supportedGeosTestCases = [
 
 
 @pytest.mark.parametrize(["apiItem", "expected"], __supportedGeosTestCases)
-def test_parseSupportedGeographies(apiItem: Dict[Any, Any], expected: GeographyItem):
+def test_parseSupportedGeographies(
+    service: ApiSerializationService, apiItem: Dict[Any, Any], expected: GeographyItem
+):
     apiResponse = {"default": [{"isDefault": True}], "fips": [apiItem]}
 
-    res = parser.parseSupportedGeographies(apiResponse)
+    res = service.parseSupportedGeographies(apiResponse)
 
     actual = res[apiItem["name"]]
 
@@ -175,7 +163,11 @@ def test_parseSupportedGeographies(apiItem: Dict[Any, Any], expected: GeographyI
         ),
     ],
 )
-def test_parseGroups(groupResponse: Dict[Any, Any], expected: Dict[str, Group]):
-    actual = parser.parseGroups(groupResponse)
+def test_parseGroups(
+    service: ApiSerializationService,
+    groupResponse: Dict[Any, Any],
+    expected: Dict[str, Group],
+):
+    actual = service.parseGroups(groupResponse)
 
     assert actual == expected

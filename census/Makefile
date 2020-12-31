@@ -10,4 +10,4 @@ test:
 	clear
 	pytest -vv -s -k $(TEST_PATTERN)
 
-.PHONY: init
+.PHONY: init test
