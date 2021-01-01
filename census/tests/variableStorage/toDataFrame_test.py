@@ -1,4 +1,5 @@
-from census.variableRetrieval.toDataFrame import VariablesToDataFrameService
+from census.variableStorage.models import TGroupCode
+from census.variableStorage.toDataFrame import VariableStorageService
 from census.models import GeoDomain
 from typing import Any, List, Tuple, cast
 
@@ -6,7 +7,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from tests.base import FixtureNames, ServiceTestFixture
 import pandas
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 # pyright: reportPrivateUsage = false
 
@@ -38,8 +39,8 @@ transformerRetval = "apple"
 
 
 @pytest.mark.usefixtures(FixtureNames.serviceFixture, FixtureNames.injectMockerToClass)
-class TestVariablesToDataFrameService(ServiceTestFixture[VariablesToDataFrameService]):
-    serviceType = VariablesToDataFrameService
+class TestVariableStorageService(ServiceTestFixture[VariableStorageService]):
+    serviceType = VariableStorageService
 
     @pytest.mark.parametrize("isCacheHit", (True, False))
     def test_getGroups_givenCacheRetval(
@@ -70,14 +71,14 @@ class TestVariablesToDataFrameService(ServiceTestFixture[VariablesToDataFrameSer
             transGroups.assert_not_called()
             cachePut.assert_not_called()
             popCodes.assert_called_once_with(
-                fullDf, self._service.groupCodes, "description"
+                fullDf, self._service.groupCodes, TGroupCode, "description"
             )
         else:
             apiGroup.assert_called_once()
             transGroups.assert_called_once_with(apiRetval)
             cachePut.assert_called_once_with("groups.csv", transformerRetval)
             popCodes.assert_called_once_with(
-                transformerRetval, self._service.groupCodes, "description"
+                transformerRetval, self._service.groupCodes, TGroupCode, "description"
             )
 
     def _getDependencies(self) -> Tuple[MagicMock, ...]:
@@ -141,8 +142,8 @@ class TestVariablesToDataFrameService(ServiceTestFixture[VariablesToDataFrameSer
         assert res == transformerRetval
 
     def test_getVariablesByGroup(self, monkeypatch: MonkeyPatch):
-        cacheHitGroup = "hit"
-        cacheMissGroup = "miss"
+        cacheHitGroup = TGroupCode("hit")
+        cacheMissGroup = TGroupCode("miss")
 
         monkeypatch.setattr(pandas, "DataFrame", lambda: emptyDf)
 

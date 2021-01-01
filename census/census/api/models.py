@@ -1,3 +1,4 @@
+from census.variableStorage.models import TGroupCode, TVariableCode
 from census.utils.unique import getUnique
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Tuple
@@ -62,29 +63,33 @@ class GeographyResponse:
 
 @dataclass
 class Group:
-    name: str
+    code: TGroupCode
     description: str
     variables: str
 
     def __init__(
         self,
-        jsonRes: Dict[str, str] = {},
-        name: str = "",
+        code: str = "",
         description: str = "",
         variables: str = "",
     ) -> None:
-        if len(jsonRes):
-            self.__dict__ = jsonRes
-        else:
-            self.name = name
-            self.description = description
-            self.variables = variables
+        self.code = TGroupCode(code)
+        self.description = description
+        self.variables = variables
+
+    @classmethod
+    def fromJson(cls, jsonDict: Dict[str, str]):
+        code = jsonDict["name"]
+        description = jsonDict["description"]
+        variables = jsonDict["variables"]
+
+        return cls(code, description, variables)
 
 
 @dataclass
 class GroupVariable:
-    code: str
-    groupCode: str
+    code: TVariableCode
+    groupCode: TGroupCode
     groupConcept: str
     name: str
     limit: int
@@ -101,5 +106,11 @@ class GroupVariable:
         predicateType = jsonData["predicateType"]
 
         return cls(
-            code, groupCode, groupConcept, label, limit, predicateOnly, predicateType
+            TVariableCode(code),
+            groupCode,
+            groupConcept,
+            label,
+            limit,
+            predicateOnly,
+            predicateType,
         )

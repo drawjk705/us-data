@@ -1,3 +1,4 @@
+from census.variableStorage.models import TVariableCode
 from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config
@@ -7,11 +8,7 @@ from typing import Any, Dict, List
 import requests
 
 from census.api.constants import API_URL_FORMAT
-from census.api.models import (
-    GeographyItem,
-    Group,
-    GroupVariable,
-)
+from census.api.models import GeographyItem, Group, GroupVariable
 from census.models import GeoDomain
 
 # we can query only 50 variables at a time, max
@@ -59,14 +56,15 @@ class ApiFetchService(IApiFetchService):
 
     def stats(
         self,
-        variablesCodes: List[str],
+        variablesCodes: List[TVariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain],
     ):
         res: List[List[str]] = []
 
         for i, codes in enumerate(chunk(variablesCodes, MAX_QUERY_SIZE)):
-            varStr = "NAME" + ",".join(codes)
+            codeStr = ",".join(codes)
+            varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
 
             domainStr = "for=" + str(forDomain)
             inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
@@ -75,7 +73,7 @@ class ApiFetchService(IApiFetchService):
                 domainStr += "&"
                 domainStr += inDomainStr
 
-            route = f"{varStr}?{domainStr}"
+            route = f"?{varStr}&{domainStr}"
 
             resp = self.__fetch(route)
 

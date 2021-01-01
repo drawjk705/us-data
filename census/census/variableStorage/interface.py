@@ -2,15 +2,15 @@ from abc import ABC, abstractmethod
 from typing import Generic, List, TypeVar
 
 from census.models import GeoDomain
-from census.variableRetrieval.models import VariableCodes
+from census.variableStorage.models import CodeSet, TGroupCode, TVariableCode
 
 T = TypeVar("T")
 
 
-class IVariableRetrievalService(ABC, Generic[T]):
+class IVariableStorageService(ABC, Generic[T]):
     # these will be useful for jupyter
-    variableCodes: VariableCodes
-    groupCodes: VariableCodes
+    variableCodes: CodeSet[TVariableCode]
+    groupCodes: CodeSet[TGroupCode]
 
     @abstractmethod
     def getGroups(self) -> T:
@@ -25,5 +25,5 @@ class IVariableRetrievalService(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    def getVariablesByGroup(self, groups: List[str]) -> T:
+    def getVariablesByGroup(self, groups: List[TGroupCode]) -> T:
         pass

@@ -3,10 +3,17 @@ from typing import Any, Dict, cast
 from unittest.mock import MagicMock
 
 import pytest
+from pytest import MonkeyPatch
 from _pytest.fixtures import FixtureRequest
 from pytest_mock.plugin import MockerFixture
 
 # pyright: reportPrivateUsage=false
+
+
+@pytest.fixture(autouse=True)
+def no_requests(monkeypatch: MonkeyPatch):
+    """Remove requests.sessions.Session.request for all tests."""
+    monkeypatch.delattr("requests.sessions.Session.request")
 
 
 @pytest.fixture(scope="function")

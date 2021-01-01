@@ -67,4 +67,7 @@ class ApiSerializationService(IApiSerializationService):
     def parseGroups(
         self, groupsRes: Dict[str, List[Dict[str, str]]]
     ) -> Dict[str, Group]:
-        return {Group(group).name: Group(group) for group in groupsRes["groups"]}
+        return {
+            Group.fromJson(group).code: Group.fromJson(group)
+            for group in groupsRes["groups"]
+        }

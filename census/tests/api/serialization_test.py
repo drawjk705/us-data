@@ -150,12 +150,12 @@ def test_parseSupportedGeographies(
             },
             {
                 "B17015": Group(
-                    name="B17015",
+                    code="B17015",
                     description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B17015.json",
                 ),
                 "B18104": Group(
-                    name="B18104",
+                    code="B18104",
                     description="SEX BY AGE BY COGNITIVE DIFFICULTY",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
                 ),

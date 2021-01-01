@@ -1,4 +1,6 @@
+from census.variableStorage.models import TVariableCode
 from typing import List
+from unittest.mock import call
 from census.config import Config
 from census.api.interface import IApiSerializationService
 
@@ -15,7 +17,11 @@ class ApiServiceWrapper(ApiFetchService):
         super().__init__(config=mockConfig, parser=parser)
 
 
-@pytest.mark.usefixtures(FixtureNames.apiFixture, FixtureNames.serviceFixture)
+@pytest.mark.usefixtures(
+    FixtureNames.apiFixture,
+    FixtureNames.serviceFixture,
+    FixtureNames.injectMockerToClass,
+)
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     serviceType = ApiServiceWrapper
 
@@ -63,7 +69,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             "https://api.census.gov/data/2019/acs/acs1/geography.json"
         )
 
-    def test_variable_callsFetch(self):
+    def test_variablesForGroup_callsFetch(self):
         group = "abc123"
 
         self._service.variablesForGroup(group)
@@ -71,3 +77,54 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self.requestsMock.get.assert_called_with(  # type: ignore
             f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
         )
+
+    def test_stats_callsFetchInBatches(self):
+        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
+
+        varCodes = [
+            TVariableCode("1"),
+            TVariableCode("2"),
+            TVariableCode("3"),
+            TVariableCode("4"),
+        ]
+        forDomain = GeoDomain("banana")
+        inDomains = [GeoDomain("phone", "92")]
+
+        self._service.stats(varCodes, forDomain, inDomains)
+
+        assert self.requestsMock.get.call_args_list == [  # type: ignore
+            call("https://api.census.gov/data/2019/acs/acs1?get=NAME,1,2&for=banana:*"),
+            call("https://api.census.gov/data/2019/acs/acs1?get=NAME,3,4&for=banana:*"),
+        ]
+
+    def test_stats_returnsOnlyTopRow(self):
+        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
+
+        class MockRes:
+            resCount: int = 0
+
+            @staticmethod
+            def json() -> List[List[str]]:
+                if MockRes.resCount == 0:
+                    MockRes.resCount += 1
+                    return [["header1", "header2"], ["a", "b"], ["c", "d"]]
+                else:
+                    return [["header1", "header2"], ["e", "f"], ["g", "h"]]
+
+        varCodes = [
+            TVariableCode("1"),
+            TVariableCode("2"),
+            TVariableCode("3"),
+            TVariableCode("4"),
+        ]
+        self.requestsMock.get.return_value = MockRes()  # type: ignore
+
+        res = self._service.stats(varCodes, GeoDomain(""), [GeoDomain("")])
+
+        assert res == [
+            ["header1", "header2"],
+            ["a", "b"],
+            ["c", "d"],
+            ["e", "f"],
+            ["g", "h"],
+        ]
