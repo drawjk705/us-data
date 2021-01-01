@@ -106,7 +106,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 "name": "name1",
                 "limit": 1,
                 "predicateOnly": True,
-                "predicateType": "pt1",
+                "predicateType": "string",
             },
             {
                 "code": "456",
@@ -115,7 +115,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 "name": "name2",
                 "limit": 2,
                 "predicateOnly": False,
-                "predicateType": "pt2",
+                "predicateType": "int",
             },
         ]
 

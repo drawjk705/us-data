@@ -19,7 +19,7 @@ def injectMockerToClass(request: FixtureRequest, mocker: MockerFixture):
     request.cls.mocker = mocker  # type: ignore
 
 
-class RequestCls:
+class _RequestCls:
     class Obj:
         serviceType: Any
         _service: Any
@@ -30,7 +30,7 @@ class RequestCls:
 
 @pytest.fixture(scope="function")
 def serviceFixture(request: FixtureRequest):
-    req = cast(RequestCls, request)
+    req = cast(_RequestCls, request)
     obj = req.cls
 
     if obj.serviceType is None:
