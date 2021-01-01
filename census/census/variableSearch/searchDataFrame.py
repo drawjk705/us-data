@@ -23,7 +23,9 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
             regex, case=False
         )
 
-        return groups[series]
+        return groups[series].reset_index(
+            drop=True,
+        )
 
     def searchVariables(
         self,
