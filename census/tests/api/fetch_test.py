@@ -16,7 +16,7 @@ class ApiServiceWrapper(ApiFetchService):
 
 
 @pytest.mark.usefixtures(FixtureNames.apiFixture, FixtureNames.serviceFixture)
-class TestApiFetchService(ApiServiceTestFixture[ApiFetchService]):
+class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     serviceType = ApiServiceWrapper
 
     @pytest.mark.parametrize(
@@ -47,19 +47,19 @@ class TestApiFetchService(ApiServiceTestFixture[ApiFetchService]):
     ):
         self._service.geographyCodes(domain, parentDomains)
 
-        self.requestsMock.get.assert_called_once_with(expectedRoute)
+        self.requestsMock.get.assert_called_once_with(expectedRoute)  # type: ignore
 
     def test_groupData_callsFetch(self):
         self._service.groupData()
 
-        self.requestsMock.get.assert_called_once_with(
+        self.requestsMock.get.assert_called_once_with(  # type: ignore
             "https://api.census.gov/data/2019/acs/acs1/groups.json"
         )
 
     def test_supportedGeographies_callsFetch(self):
         self._service.supportedGeographies()
 
-        self.requestsMock.get.assert_called_once_with(
+        self.requestsMock.get.assert_called_once_with(  # type: ignore
             "https://api.census.gov/data/2019/acs/acs1/geography.json"
         )
 
@@ -68,6 +68,6 @@ class TestApiFetchService(ApiServiceTestFixture[ApiFetchService]):
 
         self._service.variablesForGroup(group)
 
-        self.requestsMock.get.assert_called_with(
+        self.requestsMock.get.assert_called_with(  # type: ignore
             f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
         )

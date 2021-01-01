@@ -10,4 +10,7 @@ test:
 	clear
 	pytest -vv -s -k $(TEST_PATTERN)
 
-.PHONY: init test
+clean_pycache:
+	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf
+
+.PHONY: init test clean_pycache

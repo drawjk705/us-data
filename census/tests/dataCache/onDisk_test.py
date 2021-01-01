@@ -21,7 +21,7 @@ def pathMock(mocker: MockerFixture) -> Mock:
 
 @pytest.fixture
 def shutilMock(mocker: MockerFixture) -> Mock:
-    return mocker.patch("census.variableRetrieval.onDiskCache.shutil.rmtree")
+    return mocker.patch("census.dataCache.onDisk.shutil.rmtree")
 
 
 @pytest.mark.usefixtures(FixtureNames.injectMockerToClass)
