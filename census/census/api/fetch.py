@@ -1,3 +1,4 @@
+from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config
 from collections import OrderedDict
@@ -12,6 +13,9 @@ from census.api.models import (
     GroupVariable,
 )
 from census.models import GeoDomain
+
+# we can query only 50 variables at a time, max
+MAX_QUERY_SIZE = 50
 
 
 class ApiFetchService(IApiFetchService):
@@ -51,26 +55,40 @@ class ApiFetchService(IApiFetchService):
     def variablesForGroup(self, group: str) -> List[GroupVariable]:
         res = self.__fetch(route=f"/groups/{group}.json")
 
-        return self._parser.parseVariableData(res)
+        return self._parser.parseGroupVariables(res)
 
     def stats(
         self,
-        variables: List[GroupVariable],
+        variablesCodes: List[str],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain],
     ):
-        varStr = "NAME" + ",".join([variable.code for variable in variables])
+        res: List[List[str]] = []
 
-        domainStr = "for=" + str(forDomain)
-        inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
+        for i, codes in enumerate(chunk(variablesCodes, MAX_QUERY_SIZE)):
+            varStr = "NAME" + ",".join(codes)
 
-        if len(inDomainStr) == 0:
-            domainStr += "&"
-            domainStr += inDomainStr
+            domainStr = "for=" + str(forDomain)
+            inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
 
-        route = f"{varStr}?{domainStr}"
+            if len(inDomainStr) == 0:
+                domainStr += "&"
+                domainStr += inDomainStr
 
-        res = self.__fetch(route)
+            route = f"{varStr}?{domainStr}"
+
+            resp = self.__fetch(route)
+
+            if i > 0:
+                res += resp[1:]
+            else:
+                res += resp
+
+        # not doing any serializing here, because this is a bit more
+        # complicated (we need to convert the variables to the appropriate
+        # data types further up when we're working with dataFrames; there's
+        # no real good way to do it down here)
+        return res
 
     def __fetch(self, route: str = "") -> Any:
         url = self.__url + route

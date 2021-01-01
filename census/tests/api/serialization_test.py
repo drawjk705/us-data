@@ -50,7 +50,7 @@ def test_parseVariableData(
     expectedVar2 = GroupVariable.fromJson(varCode2, var2)
     expected = [expectedVar1, expectedVar2]
 
-    actual = service.parseVariableData(variables)
+    actual = service.parseGroupVariables(variables)
 
     assert actual == expected
 

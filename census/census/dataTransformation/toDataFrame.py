@@ -1,6 +1,6 @@
 from census.dataTransformation.interface import IDataTransformer
 from collections import OrderedDict
-from typing import Dict, List, Union
+from typing import Dict, List, Type, Union
 
 import pandas as pd
 from census.api.models import GeographyItem
@@ -56,3 +56,41 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
             )
 
         return pd.DataFrame(variableDictList)
+
+    def stats(
+        self, results: List[List[str]], queriedVariables: List[GroupVariable]
+    ) -> pd.DataFrame:
+        df = pd.DataFrame(results[1:], columns=results[0])
+
+        columnsList = df.columns.tolist()
+        columnsSet = set(columnsList)
+        # just as as precaution
+        relevantVariables = list(
+            filter(lambda v: v.code in columnsSet, queriedVariables)
+        )
+
+        if len(relevantVariables) < len(queriedVariables):
+            raise Exception("Could not match all variables")
+
+        # convert columns to proper data types
+        variableToDataType: Dict[str, Union[Type[int], Type[float]]] = {}
+
+        for variable in relevantVariables:
+            code = variable.code
+            dataType = variable.predicateType
+
+            if dataType == "int":
+                variableToDataType.update({code: int})
+            elif dataType == "float":
+                variableToDataType.update({code: float})
+
+        df = df.astype(variableToDataType)  # type: ignore
+
+        # reshuffle the columns
+        nameCol = columnsList[0]
+        variableCols = columnsList[1 : len(queriedVariables) + 1]
+        geoCols = columnsList[1 + len(queriedVariables) :]
+
+        reorderedColumns = [nameCol] + geoCols + variableCols
+
+        return df[reorderedColumns]

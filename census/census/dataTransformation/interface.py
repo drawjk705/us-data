@@ -26,3 +26,9 @@ class IDataTransformer(Generic[T]):
     @abstractmethod
     def variables(self, variables: List[GroupVariable]) -> T:
         pass
+
+    @abstractmethod
+    def stats(
+        self, results: List[List[str]], queriedVariables: List[GroupVariable]
+    ) -> T:
+        pass

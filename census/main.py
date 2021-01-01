@@ -1,58 +1,50 @@
-# from census.models import GeoDomain
-# from census.utils.configureLogger import configureLogger
-# from census.variableRetrieval.variableRetriever import VariableRetriever
+from census.api.models import GroupVariable
+from census.dataTransformation.toDataFrame import DataFrameTransformer
 
 
-# configureLogger("census.log")
+res = [
+    ["NAME", "B01001_001E", "B01001_002E", "B01001_003E", "state", "county"],
+    ["Sedgwick County, Kansas", "516042", "254525", "17590", "20", "173"],
+    ["Douglas County, Kansas", "122259", "59682", "3095", "20", "045"],
+    ["Shawnee County, Kansas", "176875", "85685", "5244", "20", "177"],
+    ["Johnson County, Kansas", "602401", "295214", "18934", "20", "091"],
+    ["Wyandotte County, Kansas", "165429", "81928", "6716", "20", "209"],
+    ["Butler County, Kansas", "66911", "33786", "2355", "20", "015"],
+    ["Leavenworth County, Kansas", "81758", "43759", "2581", "20", "103"],
+    ["Riley County, Kansas", "74232", "39233", "1546", "20", "161"],
+]
 
-# c = VariableRetriever(2019, shouldLoadFromExistingCache=True)
-# supportedGeos = c.getSupportedGeographies()
+varJson = {
+    "B01001_001E": {
+        "label": "Estimate!!Total:",
+        "concept": "SEX BY AGE",
+        "predicateType": "string",
+        "group": "B01001",
+        "limit": 0,
+        "predicateOnly": True,
+    },
+    "B01001_002E": {
+        "label": "Estimate!!Total:!!Male:",
+        "concept": "SEX BY AGE",
+        "predicateType": "int",
+        "group": "B01001",
+        "limit": 0,
+        "predicateOnly": True,
+    },
+    "B01001_003E": {
+        "label": "Estimate!!Total:!!Male:!!Under 5 years",
+        "concept": "SEX BY AGE",
+        "predicateType": "int",
+        "group": "B01001",
+        "limit": 0,
+        "predicateOnly": True,
+    },
+}
 
-# c.getGeographyCodes(
-#     forDomain=GeoDomain("county"), inDomains=[GeoDomain("state", "01"), GeoDomain("us")]
-# )
+groupVars = [GroupVariable.fromJson(key, value) for key, value in varJson.items()]
 
+t = DataFrameTransformer()
 
-from pprint import pprint
+df = t.stats(res, groupVars)
 
-from census.api.models import GeographyClauseSet, GeographyItem
-
-
-gi1 = GeographyItem.makeItem(
-    name="congressional district",
-    hierarchy="500",
-    clauses=[
-        GeographyClauseSet.makeSet(forClause="congressional district:*", inClauses=[]),
-        GeographyClauseSet.makeSet(
-            forClause="congressional district:*",
-            inClauses=["state:*"],
-        ),
-        GeographyClauseSet.makeSet(
-            forClause="congressional district:CODE",
-            inClauses=["state:CODE"],
-        ),
-    ],
-)
-
-gi2 = GeographyItem.makeItem(
-    name="congressional district",
-    hierarchy="500",
-    clauses=[
-        GeographyClauseSet.makeSet(
-            forClause="congressional district:*",
-            inClauses=["state:*"],
-        ),
-        GeographyClauseSet.makeSet(
-            forClause="congressional district:CODE",
-            inClauses=["state:CODE"],
-        ),
-        GeographyClauseSet.makeSet(forClause="congressional district:*", inClauses=[]),
-    ],
-)
-
-print("ONE")
-print("-------------")
-pprint(gi1)
-print("\nTWO")
-print("-------------")
-pprint(gi1)
+print(df)
