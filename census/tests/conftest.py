@@ -38,11 +38,17 @@ def serviceFixture(request: FixtureRequest):
 
     dependencies: Dict[str, MagicMock] = {}
 
+    # this lets us see all of the service's constructor types
     for depName, depType in inspect.signature(obj.serviceType).parameters.items():
+        # this condition will be true if the service inherits
+        # from a generic class
         if hasattr(depType.annotation, "__origin__"):
             dependencies.update({depName: MagicMock(depType.annotation.__origin__)})
         else:
             dependencies.update({depName: MagicMock(depType.annotation)})
 
+    # we call the service's constructor with the mocked dependencies
+    # and set the test class obj's _service attribute to hold this service
     obj._service = obj.serviceType(**dependencies)
+    # and we do the same with the test class obj's _dependencies attribute
     obj._dependencies = dependencies
