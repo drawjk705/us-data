@@ -1,6 +1,6 @@
 from census.variableStorage.models import CodeSet, TGroupCode, TVariableCode
 from functools import cache
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, cast
 
 import pandas as pd
 from census.api.interface import IApiFetchService
@@ -41,9 +41,11 @@ class VariableStorageService(IVariableStorageService[pd.DataFrame]):
 
     @cache
     def __getGroups(self) -> pd.DataFrame:
-        df = self._cache.get(GROUPS_FILE) or pd.DataFrame()
+        df = self._cache.get(GROUPS_FILE)
+        if df is None:
+            df = pd.DataFrame()
 
-        if not df.any():  # type: ignore
+        if df.empty:
             res = self._api.groupData()
             df = self._transformer.groups(res)
 
@@ -58,15 +60,18 @@ class VariableStorageService(IVariableStorageService[pd.DataFrame]):
 
     @cache
     def __getSupportedGeographies(self) -> pd.DataFrame:
-        df = self._cache.get(SUPPORTED_GEOS_FILE) or pd.DataFrame()
+        df = self._cache.get(SUPPORTED_GEOS_FILE)
 
-        if not df.any():  # type: ignore
+        if df is None:
+            df = pd.DataFrame
+
+        if df.empty:
             res = self._api.supportedGeographies()
             df = self._transformer.supportedGeographies(res)
 
             self._cache.put(SUPPORTED_GEOS_FILE, df)
 
-        return df
+        return cast(pd.DataFrame, df)
 
     def getGeographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
@@ -93,10 +98,12 @@ class VariableStorageService(IVariableStorageService[pd.DataFrame]):
         for group in groups:
             resource = f"{VARIABLES_DIR}/{group}.csv"
 
-            df = self._cache.get(resource) or pd.DataFrame()
+            df = self._cache.get(resource)
+            if df is None:
+                df = pd.DataFrame()
 
-            if df.any():  # type: ignore
-                if not allVars.any():  # type: ignore
+            if not df.empty:
+                if allVars.empty:
                     allVars = df
                 else:
                     allVars.append(df, ignore_index=True)  # type: ignore
@@ -106,7 +113,7 @@ class VariableStorageService(IVariableStorageService[pd.DataFrame]):
 
                 self._cache.put(resource, df)
 
-                if not allVars.any():  # type: ignore
+                if allVars.empty:
                     allVars = df
                 else:
                     allVars.append(df, ignore_index=True)

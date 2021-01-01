@@ -1,4 +1,4 @@
-from typing import Generic, Mapping, NewType, TypeVar, Union
+from typing import Generator, Generic, Mapping, NewType, Tuple, TypeVar, Union
 
 
 TVariableCode = NewType("TVariableCode", str)
@@ -26,9 +26,13 @@ class CodeSet(Generic[_TCode]):
             self.__setattr__(k, v)  # type: ignore
 
     # type: ignore
-    def addCodes(self, **codes: Mapping[str, _TCode]) -> None:
+    def addCodes(self, **codes: Mapping[_TCode, Code[_TCode]]) -> None:
         for k, v in codes.items():
             self.__setattr__(k, v)  # type: ignore
 
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
+
+    def items(self) -> Generator[Tuple[_TCode, Code[_TCode]], None, None]:
+        for codeStr, codeObj in self.__dict__.items():
+            yield codeStr, codeObj  # type: ignore

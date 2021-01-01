@@ -1,44 +1,24 @@
 from census.variableStorage.models import TGroupCode
-from census.variableStorage.toDataFrame import VariableStorageService
+from census.variableStorage.storeInDataFrame import VariableStorageService
 from census.models import GeoDomain
-from typing import Any, List, Tuple, cast
+from typing import List, Tuple, cast
 
 from _pytest.monkeypatch import MonkeyPatch
-from tests.base import FixtureNames, ServiceTestFixture
+from tests.serviceTestFixtures import ServiceTestFixture
 import pandas
 import pytest
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 # pyright: reportPrivateUsage = false
 
 
-class MockDf:
-    isEmpty: bool
-
-    def __init__(self, isEmpty: bool) -> None:
-        self.isEmpty = isEmpty
-
-    def any(self) -> bool:
-        return not self.isEmpty
-
-    def __getitem__(self, *args: Any) -> Any:
-        return self
-
-    def append(self, *args: Any, **kwargs: Any) -> None:
-        pass
-
-    def to_dict(self, *args: Any) -> None:
-        pass
-
-
-emptyDf = MockDf(isEmpty=True)
-fullDf = MockDf(isEmpty=False)
+emptyDf = pandas.DataFrame()
+fullDf = pandas.DataFrame({"col": [1, 2, 3]})
 
 apiRetval = "banana"
 transformerRetval = "apple"
 
 
-@pytest.mark.usefixtures(FixtureNames.serviceFixture, FixtureNames.injectMockerToClass)
 class TestVariableStorageService(ServiceTestFixture[VariableStorageService]):
     serviceType = VariableStorageService
 
@@ -55,7 +35,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableStorageService]):
         api, transformer, cache = self._getDependencies()
 
         self.mocker.patch.object(
-            cache, "get", return_value=fullDf if isCacheHit else emptyDf
+            cache, "get", return_value=fullDf if isCacheHit else None
         )
 
         cachePut = self.mocker.patch.object(cache, "put")
@@ -80,13 +60,6 @@ class TestVariableStorageService(ServiceTestFixture[VariableStorageService]):
             popCodes.assert_called_once_with(
                 transformerRetval, self._service.groupCodes, TGroupCode, "description"
             )
-
-    def _getDependencies(self) -> Tuple[MagicMock, ...]:
-        return (
-            self._dependencies["api"],
-            self._dependencies["transformer"],
-            self._dependencies["cache"],
-        )
 
     @pytest.mark.parametrize("isCacheHit", (True, False))
     def test_getSupportedGeographies(self, isCacheHit: bool):
@@ -149,13 +122,20 @@ class TestVariableStorageService(ServiceTestFixture[VariableStorageService]):
 
         self.mocker.patch.object(self._service, "_populateCodes")
 
-        _, _, cache = self._getDependencies()
+        _, transformer, cache = self._getDependencies()
 
-        self.mocker.patch.object(emptyDf, "any", return_value=True)
+        self.mocker.patch.object(transformer, "variables", return_value=fullDf)
 
-        def cacheGetSideEffect(resource: str) -> MockDf:
+        def cacheGetSideEffect(resource: str) -> pandas.DataFrame:
             return fullDf if cacheHitGroup in resource else emptyDf
 
         self.mocker.patch.object(cache, "get", side_effect=cacheGetSideEffect)
 
         self._service.getVariablesByGroup([cacheHitGroup, cacheMissGroup])
+
+    def _getDependencies(self) -> Tuple[MagicMock, ...]:
+        return (
+            self._dependencies["api"],
+            self._dependencies["transformer"],
+            self._dependencies["cache"],
+        )

@@ -1,9 +1,10 @@
+# pyright: reportMissingTypeStubs=false
+
+import numpy as np
 from census.variableStorage.models import TGroupCode, TVariableCode
-from typing import Any, Dict, List
 from _pytest.monkeypatch import MonkeyPatch
-import pandas
-from census.dataTransformation.toDataFrame import DataFrameTransformer
-from tests.base import FixtureNames, ServiceTestFixture
+from census.dataTransformation.transformToDataFrame import DataFrameTransformer
+from tests.serviceTestFixtures import ServiceTestFixture
 from census.api.models import (
     GeographyClauseSet,
     GeographyItem,
@@ -22,7 +23,6 @@ def pandasMock(mocker: MockFixture) -> Mock:
     return mocker.patch("pandas.DataFrame")
 
 
-@pytest.mark.usefixtures(FixtureNames.serviceFixture, FixtureNames.injectMockerToClass)
 class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
 
     serviceType = DataFrameTransformer
@@ -159,35 +159,16 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
             ),
         ]
 
-        class _MockDf:
-            class _Cols:
-                def __init__(self, cols: List[str]) -> None:
-                    self.cols = cols
+        res = self._service.stats(results, queriedVariables)
 
-                def tolist(self):
-                    return self.cols
-
-            columns = _Cols(results[0])
-            types = {}
-
-            def __init__(self, *args: Any, **kwargs: Any) -> None:
-                pass
-
-            def astype(self, types: Dict[Any, Any]):
-                self.types = types
-                return self
-
-            def __getitem__(self, items: List[str]):
-                self.columns = self._Cols(items)
-
-        mockDf = _MockDf()
-
-        monkeypatch.setattr(pandas, "DataFrame", lambda *args, **kwargs: mockDf)  # type: ignore
-
-        self._service.stats(results, queriedVariables)
-
-        assert mockDf.types == dict(var2=int)
-        assert mockDf.columns.tolist() == [
+        assert res.dtypes.to_dict() == {
+            "header 1": np.dtype("O"),
+            "header 2": np.dtype("O"),
+            "header 3": np.dtype("O"),
+            "var1": np.dtype("O"),
+            "var2": np.dtype("int64"),
+        }
+        assert res.columns.tolist() == [
             "header 1",
             "header 2",
             "header 3",

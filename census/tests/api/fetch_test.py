@@ -7,7 +7,7 @@ from census.api.interface import IApiSerializationService
 import pytest
 from census.api.fetch import ApiFetchService
 from census.models import DatasetType, GeoDomain, SurveyType
-from tests.base import ApiServiceTestFixture, FixtureNames
+from tests.serviceTestFixtures import ApiServiceTestFixture
 
 mockConfig = Config(year=2019, datasetType=DatasetType.ACS, surveyType=SurveyType.ACS1)
 
@@ -17,11 +17,6 @@ class ApiServiceWrapper(ApiFetchService):
         super().__init__(config=mockConfig, parser=parser)
 
 
-@pytest.mark.usefixtures(
-    FixtureNames.apiFixture,
-    FixtureNames.serviceFixture,
-    FixtureNames.injectMockerToClass,
-)
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     serviceType = ApiServiceWrapper
 

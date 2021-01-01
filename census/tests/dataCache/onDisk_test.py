@@ -6,7 +6,7 @@ import pytest
 from census.config import Config
 from census.dataCache.onDisk import OnDiskCache
 from pytest_mock.plugin import MockerFixture
-from tests.base import FixtureNames, ServiceTestFixture
+from tests.serviceTestFixtures import ServiceTestFixture
 
 
 @pytest.fixture
@@ -24,8 +24,13 @@ def shutilMock(mocker: MockerFixture) -> Mock:
     return mocker.patch("census.dataCache.onDisk.shutil.rmtree")
 
 
-@pytest.mark.usefixtures(FixtureNames.injectMockerToClass)
+class DummyClass:
+    pass
+
+
 class TestOnDiskCache(ServiceTestFixture[Any]):
+    serviceType = DummyClass
+
     @pytest.mark.parametrize("pathExists", [(True), (False)])
     def test_cacheInit(
         self,

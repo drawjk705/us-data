@@ -36,7 +36,14 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         logging.info(f"searching variables for pattern `{regex}` by {searchBy}")
 
-        variables = self._variableStorage.getVariablesByGroup(inGroups)
+        groupCodes = inGroups
+
+        if len(inGroups) > 0:
+            groupCodes = [
+                groupCode for groupCode, _ in self._variableStorage.groupCodes.items()
+            ]
+
+        variables = self._variableStorage.getVariablesByGroup(groupCodes)
 
         series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
 
