@@ -1,3 +1,4 @@
+from census.api.interface import IApiSerializationService
 from typing import Any, Dict, List, OrderedDict
 from census.api.models import (
     GeographyClauseSet,
@@ -8,13 +9,12 @@ from census.api.models import (
 )
 
 
-class ApiSerializationService:
+class ApiSerializationService(IApiSerializationService):
     """
     Serialization layer between the raw API results & models
     """
 
-    @staticmethod
-    def parseVariableData(variableData: Any) -> List[GroupVariable]:
+    def parseVariableData(self, variableData: Any) -> List[GroupVariable]:
         """parseVariableData
 
         Parses an API response for variable retrieval, e.g.:
@@ -56,8 +56,8 @@ class ApiSerializationService:
 
         return variables
 
-    @staticmethod
     def parseSupportedGeographies(
+        self,
         supportedGeosResponse: Any,
     ) -> OrderedDict[str, GeographyItem]:
         """
@@ -149,8 +149,9 @@ class ApiSerializationService:
             sorted(supportedGeographies.items(), key=lambda t: t[1].hierarchy)
         )
 
-    @staticmethod
-    def parseGroups(groupsRes: Dict[str, List[Dict[str, str]]]) -> Dict[str, Group]:
+    def parseGroups(
+        self, groupsRes: Dict[str, List[Dict[str, str]]]
+    ) -> Dict[str, Group]:
         """
         Parses a /groups.json response from the census API, e.g.:
 

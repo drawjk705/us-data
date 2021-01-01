@@ -1,12 +1,13 @@
-from abc import abstractmethod
-from census.variableRetrieval.models import VariableCodes
+from abc import ABC, abstractmethod
 from typing import Generic, List, TypeVar
+
 from census.models import GeoDomain
+from census.variableRetrieval.models import VariableCodes
 
 T = TypeVar("T")
 
 
-class IVariableRetrievalService(Generic[T]):
+class IVariableRetrievalService(ABC, Generic[T]):
     # these will be useful for jupyter
     variableCodes: VariableCodes
     groupCodes: VariableCodes

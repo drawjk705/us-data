@@ -1,13 +1,13 @@
-from census.utils.unique import getUnique
-from census.models import GeoDomain
-from census.dataTransformation.IDataTransformer import IDataTransformer
-from census.api.fetch import ApiFetchService
-from census.variableRetrieval.ICache import ICache
-from census.variableRetrieval.IVariableRetrievalService import IVariableRetrievalService
 from functools import cache
 from typing import Dict, List, Tuple
 
 import pandas as pd
+from census.api.interface import IApiFetchService
+from census.dataCache.interface import ICache
+from census.dataTransformation.interface import IDataTransformer
+from census.models import GeoDomain
+from census.utils.unique import getUnique
+from census.variableRetrieval.interface import IVariableRetrievalService
 from census.variableRetrieval.models import VariableCode, VariableCodes
 
 GROUPS_FILE = "groups.csv"
@@ -19,35 +19,35 @@ QUERY_RESULTS_DIR = "queryResults"
 
 class VariablesToDataFrameService(IVariableRetrievalService[pd.DataFrame]):
 
-    __cache: ICache[pd.DataFrame]
-    __api: ApiFetchService
-    __transformer: IDataTransformer[pd.DataFrame]
+    _cache: ICache[pd.DataFrame]
+    _api: IApiFetchService
+    _transformer: IDataTransformer[pd.DataFrame]
 
     def __init__(
         self,
         cache: ICache[pd.DataFrame],
         transformer: IDataTransformer[pd.DataFrame],
-        api: ApiFetchService,
+        api: IApiFetchService,
     ):
         # these are inherited from the base class
         self.groupCodes = VariableCodes()
         self.variableCodes = VariableCodes()
-        self.__cache = cache
-        self.__api = api
-        self.__transformer = transformer
+        self._cache = cache
+        self._api = api
+        self._transformer = transformer
 
     def getGroups(self) -> pd.DataFrame:
         return self.__getGroups()
 
     @cache
     def __getGroups(self) -> pd.DataFrame:
-        df = self.__cache.get(GROUPS_FILE) or pd.DataFrame()
+        df = self._cache.get(GROUPS_FILE) or pd.DataFrame()
 
-        if df.empty:
-            res = self.__api.groupData()
-            df = self.__transformer.groups(res)
+        if not df.any():  # type: ignore
+            res = self._api.groupData()
+            df = self._transformer.groups(res)
 
-            self.__cache.put(GROUPS_FILE, df)
+            self._cache.put(GROUPS_FILE, df)
 
         self._populateCodes(df, self.groupCodes, "description")
 
@@ -58,13 +58,13 @@ class VariablesToDataFrameService(IVariableRetrievalService[pd.DataFrame]):
 
     @cache
     def __getSupportedGeographies(self) -> pd.DataFrame:
-        df = self.__cache.get(SUPPORTED_GEOS_FILE) or pd.DataFrame()
+        df = self._cache.get(SUPPORTED_GEOS_FILE) or pd.DataFrame()
 
-        if df.empty:
-            res = self.__api.supportedGeographies()
-            df = self.__transformer.supportedGeographies(res)
+        if not df.any():  # type: ignore
+            res = self._api.supportedGeographies()
+            df = self._transformer.supportedGeographies(res)
 
-            self.__cache.put(SUPPORTED_GEOS_FILE, df)
+            self._cache.put(SUPPORTED_GEOS_FILE, df)
 
         return df
 
@@ -79,8 +79,8 @@ class VariablesToDataFrameService(IVariableRetrievalService[pd.DataFrame]):
     def __getGeographyCodes(
         self, forDomain: GeoDomain, inDomains: Tuple[GeoDomain, ...] = ()
     ) -> pd.DataFrame:
-        res = self.__api.geographyCodes(forDomain, list(inDomains))
-        df = self.__transformer.geographyCodes(res)
+        res = self._api.geographyCodes(forDomain, list(inDomains))
+        df = self._transformer.geographyCodes(res)
         return df
 
     def getVariablesByGroup(self, groups: List[str]) -> pd.DataFrame:
@@ -93,20 +93,20 @@ class VariablesToDataFrameService(IVariableRetrievalService[pd.DataFrame]):
         for group in groups:
             resource = f"{VARIABLES_DIR}/{group}.csv"
 
-            df = self.__cache.get(resource) or pd.DataFrame()
+            df = self._cache.get(resource) or pd.DataFrame()
 
-            if not df.empty:
-                if allVars.empty:  # type: ignore
+            if df.any():  # type: ignore
+                if not allVars.any():  # type: ignore
                     allVars = df
                 else:
                     allVars.append(df, ignore_index=True)  # type: ignore
             else:
-                res = self.__api.variables(group)
-                df = self.__transformer.variables(res)
+                res = self._api.variablesForGroup(group)
+                df = self._transformer.variables(res)
 
-                self.__cache.put(resource, df)
+                self._cache.put(resource, df)
 
-                if allVars.empty:
+                if not allVars.any():  # type: ignore
                     allVars = df
                 else:
                     allVars.append(df, ignore_index=True)

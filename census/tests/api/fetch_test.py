@@ -1,85 +1,73 @@
-from census.config import Config
-from census.api.fetch import ApiFetchService
-from census.api.serialization import ApiSerializationService
 from typing import List
-from unittest.mock import MagicMock, Mock, patch
+from census.config import Config
+from census.api.interface import IApiSerializationService
 
-import hypothesis.strategies as st
 import pytest
+from census.api.fetch import ApiFetchService
 from census.models import DatasetType, GeoDomain, SurveyType
-from hypothesis.core import given
-from pytest_mock import MockerFixture
+from tests.base import ApiServiceTestFixture, FixtureNames
+
+mockConfig = Config(year=2019, datasetType=DatasetType.ACS, surveyType=SurveyType.ACS1)
 
 
-@pytest.fixture(scope="module")
-def service() -> ApiFetchService:
-    config = Config(2019, DatasetType.ACS, SurveyType.ACS1)
-    serializer = MagicMock(ApiSerializationService)
-    fetchService = ApiFetchService(config, serializer)
-
-    return fetchService
+class ApiServiceWrapper(ApiFetchService):
+    def __init__(self, parser: IApiSerializationService) -> None:
+        super().__init__(config=mockConfig, parser=parser)
 
 
-@pytest.fixture()
-def fetchMock(mocker: MockerFixture) -> Mock:
-    return mocker.patch("census.api.fetch.requests.get")
+@pytest.mark.usefixtures(FixtureNames.apiFixture, FixtureNames.serviceFixture)
+class TestApiFetchService(ApiServiceTestFixture[ApiFetchService]):
+    serviceType = ApiServiceWrapper
 
-
-@pytest.mark.parametrize(
-    ["domain", "parentDomains", "expectedRoute"],
-    [
-        (
-            GeoDomain("state"),
-            [GeoDomain("us")],
-            "https://api.census.gov/data/2019/acs/acs1?get=NAME&for=state:*&in=us:*",
-        ),
-        (
-            GeoDomain("county", "01"),
-            [GeoDomain("state", "01")],
-            f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01",
-        ),
-        (
-            GeoDomain("county", "01"),
-            [GeoDomain("state", "01"), GeoDomain("us")],
-            f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01&in=us:*",
-        ),
-    ],
-)
-def test_geographyCodes(
-    service: ApiFetchService,
-    fetchMock: Mock,
-    domain: GeoDomain,
-    parentDomains: List[GeoDomain],
-    expectedRoute: str,
-):
-    service.geographyCodes(domain, parentDomains)
-
-    fetchMock.assert_called_once_with(expectedRoute)
-
-
-def test_groupData_callsFetch(service: ApiFetchService, fetchMock: Mock):
-    service.groupData()
-
-    fetchMock.assert_called_once_with(
-        "https://api.census.gov/data/2019/acs/acs1/groups.json"
+    @pytest.mark.parametrize(
+        ["domain", "parentDomains", "expectedRoute"],
+        [
+            (
+                GeoDomain("state"),
+                [GeoDomain("us")],
+                "https://api.census.gov/data/2019/acs/acs1?get=NAME&for=state:*&in=us:*",
+            ),
+            (
+                GeoDomain("county", "01"),
+                [GeoDomain("state", "01")],
+                f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01",
+            ),
+            (
+                GeoDomain("county", "01"),
+                [GeoDomain("state", "01"), GeoDomain("us")],
+                f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01&in=us:*",
+            ),
+        ],
     )
+    def test_geographyCodes(
+        self,
+        domain: GeoDomain,
+        parentDomains: List[GeoDomain],
+        expectedRoute: str,
+    ):
+        self._service.geographyCodes(domain, parentDomains)
 
+        self.requestsMock.get.assert_called_once_with(expectedRoute)
 
-def test_supportedGeographies_callsFetch(
-    service: ApiFetchService, fetchMock: Mock, mocker: MockerFixture
-):
-    service.supportedGeographies()
+    def test_groupData_callsFetch(self):
+        self._service.groupData()
 
-    fetchMock.assert_called_once_with(
-        "https://api.census.gov/data/2019/acs/acs1/geography.json"
-    )
+        self.requestsMock.get.assert_called_once_with(
+            "https://api.census.gov/data/2019/acs/acs1/groups.json"
+        )
 
+    def test_supportedGeographies_callsFetch(self):
+        self._service.supportedGeographies()
 
-@given(group=st.text())
-def test_variable_callsFetch(service: ApiFetchService, group: str):
-    with patch("census.api.fetch.requests.get") as fetchMock:
-        service.variables(group)
+        self.requestsMock.get.assert_called_once_with(
+            "https://api.census.gov/data/2019/acs/acs1/geography.json"
+        )
 
-        fetchMock.assert_called_with(
+    def test_variable_callsFetch(self):
+        group = "abc123"
+
+        self._service.variablesForGroup(group)
+
+        self.requestsMock.get.assert_called_with(
             f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
         )

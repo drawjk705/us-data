@@ -1,10 +1,10 @@
-from census.config import Config
-from census.variableRetrieval.ICache import ICache
 import logging
 import shutil
 from pathlib import Path
 
 import pandas as pd
+from census.config import Config
+from census.dataCache.interface import ICache
 
 CACHE_DIR = "cache"
 

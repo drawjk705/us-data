@@ -1,4 +1,4 @@
-from census.dataTransformation.IDataTransformer import IDataTransformer
+from census.dataTransformation.interface import IDataTransformer
 from collections import OrderedDict
 from typing import Dict, List, Union
 

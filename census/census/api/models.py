@@ -1,6 +1,6 @@
 from census.utils.unique import getUnique
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, OrderedDict, Tuple
 
 
 @dataclass(frozen=True)
@@ -103,3 +103,15 @@ class GroupVariable:
         return cls(
             code, groupCode, groupConcept, label, limit, predicateOnly, predicateType
         )
+
+
+@dataclass
+class DataRow:
+    @classmethod
+    def fromJson(cls, jsondata: List[str], topRow: List[str]):
+        variableRows: OrderedDict[str, str] = OrderedDict({})
+
+        for col in topRow[0:]:
+            pass
+
+        name = jsondata[0]
