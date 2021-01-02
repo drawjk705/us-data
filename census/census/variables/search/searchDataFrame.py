@@ -1,23 +1,22 @@
-from census.variableStorage.models import TGroupCode
-from census.variableStorage.interface import IVariableStorageService
+from census.variables.repository.interface import IVariableRepository
+from census.variables.search.interface import IVariableSearchService
+from census.variables.models import TGroupCode
 from typing import List, Literal
 import pandas as pd
 
 import logging
 
-from census.variableSearch.interface import IVariableSearchService
-
 
 class VariableSearchService(IVariableSearchService[pd.DataFrame]):
-    _variableStorage: IVariableStorageService[pd.DataFrame]
+    _variableRepository: IVariableRepository[pd.DataFrame]
 
-    def __init__(self, variableStorage: IVariableStorageService[pd.DataFrame]) -> None:
-        self._variableStorage = variableStorage
+    def __init__(self, variableRepository: IVariableRepository[pd.DataFrame]) -> None:
+        self._variableRepository = variableRepository
 
     def searchGroups(self, regex: str) -> pd.DataFrame:
         logging.info(f"searching groups for regex: `{regex}`")
 
-        groups = self._variableStorage.getGroups()
+        groups = self._variableRepository.getGroups()
 
         series: pd.Series[bool] = groups["description"].str.contains(  # type: ignore
             regex, case=False
@@ -42,10 +41,11 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         if len(inGroups) > 0:
             groupCodes = [
-                groupCode for groupCode, _ in self._variableStorage.groupCodes.items()
+                groupCode
+                for groupCode, _ in self._variableRepository.groupCodes.items()
             ]
 
-        variables = self._variableStorage.getVariablesByGroup(groupCodes)
+        variables = self._variableRepository.getVariablesByGroup(groupCodes)
 
         series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
 

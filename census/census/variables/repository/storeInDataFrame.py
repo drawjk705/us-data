@@ -1,14 +1,14 @@
-from census.variableStorage.models import CodeSet, TGroupCode, TVariableCode
+from census.variables.models import CodeSet, TGroupCode, TVariableCode
 from functools import cache
 from typing import Any, Dict, List, Tuple, Union, cast
 
 import pandas as pd
 from census.api.interface import IApiFetchService
-from census.dataCache.interface import ICache
+from census.variables.persistence.interface import ICache
 from census.dataTransformation.interface import IDataTransformer
 from census.models import GeoDomain
 from census.utils.unique import getUnique
-from census.variableStorage.interface import IVariableStorageService
+from census.variables.repository.interface import IVariableRepository
 
 GROUPS_FILE = "groups.csv"
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
@@ -17,7 +17,7 @@ VARIABLES_DIR = "variables"
 QUERY_RESULTS_DIR = "queryResults"
 
 
-class VariableStorageService(IVariableStorageService[pd.DataFrame]):
+class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     _cache: ICache[pd.DataFrame]
     _api: IApiFetchService

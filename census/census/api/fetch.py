@@ -1,4 +1,4 @@
-from census.variableStorage.models import TVariableCode
+from census.variables.models import TVariableCode
 from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config

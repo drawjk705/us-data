@@ -1,6 +1,5 @@
-from typing import Dict, Generic, Tuple, Type, TypeVar
+from typing import Any, Dict, Generic, Type, TypeVar, cast
 from unittest.mock import MagicMock
-from abc import abstractmethod
 
 
 from pytest_mock.plugin import MockerFixture
@@ -18,9 +17,8 @@ class ServiceTestFixture(Generic[_T]):
     serviceType: Type[_T]
     mocker: MockerFixture
 
-    @abstractmethod
-    def _getDependencies(self) -> Tuple[MagicMock, ...]:
-        pass
+    def mockDep(self, dependency: Any) -> MagicMock:
+        return cast(MagicMock, dependency)
 
 
 @pytest.mark.usefixtures("apiFixture")

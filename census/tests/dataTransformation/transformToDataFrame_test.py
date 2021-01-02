@@ -1,7 +1,7 @@
 # pyright: reportMissingTypeStubs=false
 
 import numpy as np
-from census.variableStorage.models import TGroupCode, TVariableCode
+from census.variables.models import TGroupCode, TVariableCode
 from _pytest.monkeypatch import MonkeyPatch
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
 from tests.serviceTestFixtures import ServiceTestFixture

@@ -1,4 +1,4 @@
-from census.variableStorage.models import TVariableCode
+from census.variables.models import TVariableCode
 from typing import List
 from unittest.mock import call
 from census.config import Config

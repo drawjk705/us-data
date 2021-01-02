@@ -1,4 +1,4 @@
-from census.variableStorage.models import TGroupCode
+from census.variables.models import TGroupCode
 from typing import Generic, List, Literal, TypeVar
 from abc import ABC, abstractmethod
 

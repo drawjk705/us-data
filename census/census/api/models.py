@@ -1,4 +1,4 @@
-from census.variableStorage.models import TGroupCode, TVariableCode
+from census.variables.models import TGroupCode, TVariableCode
 from census.utils.unique import getUnique
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Tuple

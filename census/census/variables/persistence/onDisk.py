@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 from census.config import Config
-from census.dataCache.interface import ICache
+from census.variables.persistence.interface import ICache
 
 CACHE_DIR = "cache"
 

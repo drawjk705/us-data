@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 from census.config import Config
-from census.dataCache.onDisk import OnDiskCache
+from census.variables.persistence.onDisk import OnDiskCache
 from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
 
@@ -21,7 +21,7 @@ def pathMock(mocker: MockerFixture) -> Mock:
 
 @pytest.fixture
 def shutilMock(mocker: MockerFixture) -> Mock:
-    return mocker.patch("census.dataCache.onDisk.shutil.rmtree")
+    return mocker.patch("census.variables.persistence.onDisk.shutil.rmtree")
 
 
 class DummyClass:

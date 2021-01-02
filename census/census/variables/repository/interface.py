@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from typing import Generic, List, TypeVar
 
 from census.models import GeoDomain
-from census.variableStorage.models import CodeSet, TGroupCode, TVariableCode
+from census.variables.models import CodeSet, TGroupCode, TVariableCode
 
 T = TypeVar("T")
 
 
-class IVariableStorageService(ABC, Generic[T]):
+class IVariableRepository(ABC, Generic[T]):
     # these will be useful for jupyter
     variableCodes: CodeSet[TVariableCode]
     groupCodes: CodeSet[TGroupCode]
