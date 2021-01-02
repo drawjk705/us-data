@@ -21,8 +21,6 @@ transformerRetval = "apple"
 
 
 class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
-    serviceType = VariableRepository
-
     @pytest.mark.parametrize("isCacheHit", (True, False))
     def test_getGroups_givenCacheRetval(
         self,

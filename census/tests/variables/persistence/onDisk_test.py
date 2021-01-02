@@ -1,5 +1,4 @@
 import pathlib
-from typing import Any
 from unittest.mock import MagicMock, Mock
 
 import pytest
@@ -28,9 +27,9 @@ class DummyClass:
     pass
 
 
-class TestOnDiskCache(ServiceTestFixture[Any]):
-    serviceType = DummyClass
-
+# we're using a dummy class here, since we're specifically
+# testing the cache's constructor
+class TestOnDiskCache(ServiceTestFixture[DummyClass]):
     @pytest.mark.parametrize("pathExists", [(True), (False)])
     def test_cacheInit(
         self,

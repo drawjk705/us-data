@@ -18,8 +18,6 @@ class ApiServiceWrapper(ApiFetchService):
 
 
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
-    serviceType = ApiServiceWrapper
-
     @pytest.mark.parametrize(
         ["domain", "parentDomains", "expectedRoute"],
         [

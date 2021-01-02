@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, Type, TypeVar, cast
+from typing import Any, Dict, Generic, TypeVar, cast
 from unittest.mock import MagicMock
 
 
@@ -14,7 +14,6 @@ _T = TypeVar("_T")
 class ServiceTestFixture(Generic[_T]):
     _service: _T
     _dependencies: Dict[str, MagicMock]
-    serviceType: Type[_T]
     mocker: MockerFixture
 
     def mockDep(self, dependency: Any) -> MagicMock:

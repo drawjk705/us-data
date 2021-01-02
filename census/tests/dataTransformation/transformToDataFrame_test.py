@@ -2,7 +2,6 @@
 
 import numpy as np
 from census.variables.models import TGroupCode, TVariableCode
-from _pytest.monkeypatch import MonkeyPatch
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
 from tests.serviceTestFixtures import ServiceTestFixture
 from census.api.models import (
@@ -132,7 +131,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
 
         pandasMock.assert_called_once_with(expectedCall)
 
-    def test_stats(self, monkeypatch: MonkeyPatch):
+    def test_stats(self):
         results = [
             ["header 1", "var1", "var2", "header 2", "header 3"],
             ["1", "2", "3", "4", "5"],

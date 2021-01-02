@@ -6,8 +6,6 @@ from tests.serviceTestFixtures import ServiceTestFixture
 
 
 class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
-    serviceType = VariableSearchService
-
     def test_searchGroups(self):
         variableStorage = self.mockDep(self._service._variableRepository)
         foundDf = pandas.DataFrame(
