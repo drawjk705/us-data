@@ -10,7 +10,7 @@ from census.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
 
 
-class CensusStatisticToDataFrameService(ICensusStatisticsService[pd.DataFrame]):
+class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _api: IApiFetchService
     _transformer: IDataTransformer[pd.DataFrame]
 

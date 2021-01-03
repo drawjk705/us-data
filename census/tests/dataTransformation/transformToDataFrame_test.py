@@ -81,7 +81,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
             {"code": "2", "description": "desc2"},
         ]
 
-        self._service.groupData(groupData)
+        self._service.groups(groupData)
 
         pandasMock.assert_called_once_with(expectedCalledWith)
 

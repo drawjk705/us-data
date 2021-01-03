@@ -1,4 +1,5 @@
-from census.variables.models import CodeSet, TGroupCode, TVariableCode
+import logging
+from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
 from functools import cache
 from typing import Any, Dict, List, Tuple, Union, cast
 
@@ -15,6 +16,8 @@ SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
 
 VARIABLES_DIR = "variables"
 QUERY_RESULTS_DIR = "queryResults"
+
+LOG_PREFIX = "[Variable Repository]"
 
 
 class VariableRepository(IVariableRepository[pd.DataFrame]):
@@ -51,7 +54,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
             self._cache.put(GROUPS_FILE, df)
 
-        self._populateCodes(df, self.groupCodes, TGroupCode, "description")
+        self._populateCodes(df, self.groupCodes, Code[TGroupCode], "description")
 
         return df
 
@@ -118,9 +121,20 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 else:
                     allVars.append(df, ignore_index=True)
 
-        self._populateCodes(allVars, self.variableCodes, TVariableCode, "name")
+        self._populateCodes(allVars, self.variableCodes, Code[TVariableCode], "name")
 
         return allVars
+
+    def getAllVariables(self) -> pd.DataFrame:
+        return self.__getAllVariables()
+
+    @cache
+    def __getAllVariables(self) -> pd.DataFrame:
+        self.__log("This is a costly operation, and may take time")
+
+        allGroups: List[str] = self.getGroups()["code"].to_list()  # type: ignore
+
+        return self.getVariablesByGroup([TGroupCode(code) for code in allGroups])
 
     def _populateCodes(
         self,
@@ -139,3 +153,6 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 for code in codesList
             }
         )
+
+    def __log(self, msg: str) -> None:
+        logging.info(f"{LOG_PREFIX} {msg}")

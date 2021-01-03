@@ -9,7 +9,7 @@ from census.api.models import Group, GroupVariable
 
 class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
     def supportedGeographies(
         self, supportedGeos: OrderedDict[str, GeographyItem]
@@ -31,7 +31,7 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def geographyCodes(self, geoCodes: List[List[str]]) -> pd.DataFrame:
         return pd.DataFrame(geoCodes[1:], columns=geoCodes[0])
 
-    def groupData(self, groups: Dict[str, Group]) -> pd.DataFrame:
+    def groups(self, groups: Dict[str, Group]) -> pd.DataFrame:
         groupsList = []
         for code, groupObj in groups.items():
             groupDict = {"code": code, "description": groupObj.description}

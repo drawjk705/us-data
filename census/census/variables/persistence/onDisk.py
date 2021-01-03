@@ -6,28 +6,26 @@ import pandas as pd
 from census.config import Config
 from census.variables.persistence.interface import ICache
 
-CACHE_DIR = "cache"
-
 LOG_PREFIX = "[On-Disk Cache]"
 
 
 class OnDiskCache(ICache[pd.DataFrame]):
     __shouldLoadFromExistingCache: bool
     __cachePath: Path
+    _config: Config
 
     def __init__(
         self,
         config: Config,
-        cacheDir: str = CACHE_DIR,
-        shouldLoadFromExistingCache: bool = False,
     ) -> None:
+        self._config = config
         self.__cachePath = Path(
-            f"{cacheDir}/{config.year}/{config.datasetType.value}/{config.surveyType.value}"
+            f"{config.cacheDir}/{config.year}/{config.datasetType.value}/{config.surveyType.value}"
         )
 
         logging.info(f"{LOG_PREFIX} creating cache for {self.__cachePath}")
 
-        self.__shouldLoadFromExistingCache = shouldLoadFromExistingCache
+        self.__shouldLoadFromExistingCache = config.shouldLoadFromExistingCache
 
         self.__setUpOnDiskCache()
 
@@ -37,8 +35,8 @@ class OnDiskCache(ICache[pd.DataFrame]):
         if not self.__shouldLoadFromExistingCache:
             self.__log("purging on disk cache")
 
-            if Path(CACHE_DIR).exists():
-                shutil.rmtree(CACHE_DIR)
+            if Path(self._config.cacheDir).exists():
+                shutil.rmtree(self._config.cacheDir)
 
         self.__cachePath.mkdir(parents=True, exist_ok=True)
 

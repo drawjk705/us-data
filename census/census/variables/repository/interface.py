@@ -27,3 +27,7 @@ class IVariableRepository(ABC, Generic[T]):
     @abstractmethod
     def getVariablesByGroup(self, groups: List[TGroupCode]) -> T:
         pass
+
+    @abstractmethod
+    def getAllVariables(self) -> T:
+        pass
