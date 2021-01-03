@@ -1,15 +1,15 @@
 import logging
-from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
 from functools import cache
 from typing import Any, Dict, List, Tuple, Union, cast
-
+from tqdm.notebook import tqdm  # type: ignore
 
 import pandas as pd
 from census.api.interface import IApiFetchService
-from census.variables.persistence.interface import ICache
 from census.dataTransformation.interface import IDataTransformer
 from census.models import GeoDomain
 from census.utils.unique import getUnique
+from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
+from census.variables.persistence.interface import ICache
 from census.variables.repository.interface import IVariableRepository
 
 GROUPS_FILE = "groups.csv"
@@ -99,7 +99,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
     def __getVariablesByGroup(self, groups: Tuple[TGroupCode, ...]) -> pd.DataFrame:
         allVars = pd.DataFrame()
 
-        for group in groups:
+        for group in tqdm(groups):
             resource = f"{VARIABLES_DIR}/{group}.csv"
 
             df = self._cache.get(resource)
@@ -110,9 +110,9 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 if allVars.empty:
                     allVars = df
                 else:
-                    allVars.append(df, ignore_index=True)  # type: ignore
+                    allVars = allVars.append(df, ignore_index=True)  # type: ignore
             else:
-                res = self._api.variablesForGroup(group)
+                res = self._api.variablesForGroup(cast(TGroupCode, group))
                 df = self._transformer.variables(res)
 
                 self._cache.put(resource, df)
@@ -120,7 +120,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 if allVars.empty:
                     allVars = df
                 else:
-                    allVars.append(df, ignore_index=True)
+                    allVars = allVars.append(df, ignore_index=True)
 
         self._populateCodes(allVars, self.variableCodes, Code[TVariableCode], "name")
 

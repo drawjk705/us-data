@@ -1,6 +1,6 @@
-from census.variables.models import TGroupCode
+from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
 from census.models import GeoDomain
-from typing import List, cast
+from typing import Any, List, cast
 
 from census.variables.repository.storeInDataFrame import VariableRepository
 
@@ -137,3 +137,23 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
         self.mocker.patch.object(cache, "get", side_effect=cacheGetSideEffect)
 
         self._service.getVariablesByGroup([cacheHitGroup, cacheMissGroup])
+
+    @pytest.mark.parametrize("codeCtor", (Code[TGroupCode], Code[TVariableCode]))
+    def test_populateCodes(self, codeCtor: Any):
+        sourceDf = pandas.DataFrame(
+            {
+                "code": ["code1", "code2", "code3", "code4"],
+                "meaning": ["one", "two", "three", "four"],
+            }
+        )
+        codes = CodeSet[Any]()
+        expectedCodes = CodeSet(
+            code1=codeCtor("code1", "one"),
+            code2=codeCtor("code2", "two"),
+            code3=codeCtor("code3", "three"),
+            code4=codeCtor("code4", "four"),
+        )
+
+        self._service._populateCodes(sourceDf, codes, codeCtor, "meaning")
+
+        assert codes == expectedCodes

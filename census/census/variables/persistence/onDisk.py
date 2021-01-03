@@ -53,7 +53,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         path = self.__cachePath / Path(resource)
 
         if not path.exists():
-            logging.info(f"{LOG_PREFIX} cache miss for {path}")
+            self.__log(f"cache miss for {path}")
             return pd.DataFrame()
 
         self.__log(f"cache hit for {path}")
@@ -61,4 +61,4 @@ class OnDiskCache(ICache[pd.DataFrame]):
         return pd.read_csv(path.absolute())  # type: ignore
 
     def __log(self, msg: str) -> None:
-        logging.info(f"{LOG_PREFIX} {msg}")
+        logging.debug(f"{LOG_PREFIX} {msg}")

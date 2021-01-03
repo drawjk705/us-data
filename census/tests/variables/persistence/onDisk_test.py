@@ -1,5 +1,5 @@
 import pathlib
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 import pytest
 from census.config import Config
@@ -9,8 +9,8 @@ from tests.serviceTestFixtures import ServiceTestFixture
 
 
 @pytest.fixture
-def config() -> MagicMock:
-    return MagicMock(Config)
+def config() -> Config:
+    return Config(cacheDir="cache")
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         self,
         pathMock: Mock,
         shutilMock: Mock,
-        config: MagicMock,
+        config: Config,
         pathExists: bool,
     ):
         self.mocker.patch.object(pathlib.Path, "exists", lambda _: pathExists)  # type: ignore

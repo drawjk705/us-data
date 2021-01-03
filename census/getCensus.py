@@ -22,7 +22,7 @@ from census.api.fetch import ApiFetchService
 from census.api.serialization import ApiSerializationService
 from census.config import Config
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
-from census.main.census import Census
+from census.client.census import Census
 from census.models import DatasetType, SurveyType
 
 serializer = ApiSerializationService()
