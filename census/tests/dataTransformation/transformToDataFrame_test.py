@@ -1,15 +1,10 @@
 # pyright: reportMissingTypeStubs=false
 
 import numpy as np
-from census.variables.models import TGroupCode, TVariableCode
+from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
 from tests.serviceTestFixtures import ServiceTestFixture
-from census.api.models import (
-    GeographyClauseSet,
-    GeographyItem,
-    Group,
-    GroupVariable,
-)
+from census.api.models import GeographyClauseSet, GeographyItem
 from collections import OrderedDict
 from unittest.mock import MagicMock, Mock
 
@@ -88,8 +83,8 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
     def test_variables(self, pandasMock: Mock):
         variables = [
             GroupVariable(
-                code=TVariableCode("123"),
-                groupCode=TGroupCode("g123"),
+                code=VariableCode("123"),
+                groupCode=GroupCode("g123"),
                 groupConcept="gCon1",
                 name="name1",
                 limit=1,
@@ -97,8 +92,8 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 predicateType="string",
             ),
             GroupVariable(
-                code=TVariableCode("456"),
-                groupCode=TGroupCode("g456"),
+                code=VariableCode("456"),
+                groupCode=GroupCode("g456"),
                 groupConcept="gCon2",
                 name="name2",
                 limit=2,
@@ -134,29 +129,10 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
     def test_stats(self):
         results = [
             ["header 1", "var1", "var2", "header 2", "header 3"],
-            ["1", "2", "3", "4", "5"],
-            ["6", "7", "8", "9", "10"],
+            ["1", 4, 0.2, "4", "5"],
+            ["6", 4, 0.2, "9", "10"],
         ]
-        queriedVariables = [
-            GroupVariable(
-                code=TVariableCode("var1"),
-                groupCode=TGroupCode(""),
-                groupConcept="",
-                name="",
-                limit=0,
-                predicateOnly=False,
-                predicateType="string",
-            ),
-            GroupVariable(
-                code=TVariableCode("var2"),
-                groupCode=TGroupCode(""),
-                groupConcept="",
-                name="",
-                limit=0,
-                predicateOnly=False,
-                predicateType="int",
-            ),
-        ]
+        queriedVariables = [VariableCode("var1"), VariableCode("var2")]
 
         res = self._service.stats(results, queriedVariables)
 
@@ -164,8 +140,8 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
             "header 1": np.dtype("O"),
             "header 2": np.dtype("O"),
             "header 3": np.dtype("O"),
-            "var1": np.dtype("O"),
-            "var2": np.dtype("int64"),
+            "var1": np.dtype("int64"),
+            "var2": np.dtype("float64"),
         }
         assert res.columns.tolist() == [
             "header 1",

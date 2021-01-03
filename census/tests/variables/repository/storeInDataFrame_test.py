@@ -1,6 +1,6 @@
-from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
+from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 from census.models import GeoDomain
-from typing import Any, List, cast
+from typing import List, cast
 
 from census.variables.repository.storeInDataFrame import VariableRepository
 
@@ -13,147 +13,145 @@ from unittest.mock import MagicMock
 # pyright: reportPrivateUsage = false
 
 
-emptyDf = pandas.DataFrame()
-fullDf = pandas.DataFrame({"col": [1, 2, 3]})
-
 apiRetval = "banana"
-transformerRetval = "apple"
 
 
 class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
     @pytest.mark.parametrize("isCacheHit", (True, False))
-    def test_getGroups_givenCacheRetval(
-        self,
-        isCacheHit: bool,
-        monkeypatch: MonkeyPatch,
-    ):
-        monkeypatch.setattr(pandas, "DataFrame", lambda: emptyDf)
-
-        popCodes = self.mocker.patch.object(self._service, "_populateCodes")
-
-        api = self.mockDep(self._service._api)
-        transformer = self.mockDep(self._service._transformer)
-        cache = self.mockDep(self._service._cache)
+    def test_getGroups_givenCacheRetval(self, isCacheHit: bool):
+        fullDf = pandas.DataFrame(
+            [
+                Group("1", "desc1").__dict__,
+                Group("2", "desc2").__dict__,
+            ]
+        )
 
         self.mocker.patch.object(
-            cache, "get", return_value=fullDf if isCacheHit else None
+            self._service._cache, "get", return_value=fullDf if isCacheHit else None
         )
 
-        cachePut = self.mocker.patch.object(cache, "put")
-        transGroups = self.mocker.patch.object(
-            transformer, "groups", return_value=transformerRetval
+        apiFetch = self.mocker.patch.object(
+            self._service._api, "groupData", return_value=apiRetval
         )
-        apiGroup = self.mocker.patch.object(api, "groupData", return_value=apiRetval)
+
+        transform = self.mocker.patch.object(
+            self._service._transformer, "groups", return_value=fullDf
+        )
 
         self._service.getGroups()
 
         if isCacheHit:
-            apiGroup.assert_not_called()
-            transGroups.assert_not_called()
-            cachePut.assert_not_called()
-            popCodes.assert_called_once_with(
-                fullDf, self._service.groupCodes, TGroupCode, "description"
-            )
+            apiFetch.assert_not_called()
+            transform.assert_not_called()
+            self.mockDep(self._service._cache.put).assert_not_called()
         else:
-            apiGroup.assert_called_once()
-            transGroups.assert_called_once_with(apiRetval)
-            cachePut.assert_called_once_with("groups.csv", transformerRetval)
-            popCodes.assert_called_once_with(
-                transformerRetval, self._service.groupCodes, TGroupCode, "description"
+            apiFetch.assert_called_once()
+            transform.assert_called_once_with(apiRetval)
+            self.mockDep(self._service._cache.put).assert_called_once_with(
+                "groups.csv", fullDf
             )
 
     @pytest.mark.parametrize("isCacheHit", (True, False))
     def test_getSupportedGeographies(self, isCacheHit: bool):
-        api = self.mockDep(self._service._api)
-        transformer = self.mockDep(self._service._transformer)
-        cache = self.mockDep(self._service._cache)
+        fullDf = pandas.DataFrame(
+            [
+                {"name": "us", "hierarchy": 1, "for": "this", "in": "that"},
+                {"name": "them", "hierarchy": 2, "for": "that", "in": "this"},
+            ]
+        )
 
         self.mocker.patch.object(
-            cache, "get", return_value=fullDf if isCacheHit else emptyDf
+            self._service._cache, "get", return_value=fullDf if isCacheHit else None
+        )
+        apiFetch = self.mocker.patch.object(
+            self._service._api, "supportedGeographies", return_value=apiRetval
         )
 
-        cachePutMock = self.mocker.patch.object(cache, "put")
-
-        apiFetchMock = self.mocker.patch.object(
-            api, "supportedGeographies", return_value=apiRetval
-        )
-
-        transGeoMock = self.mocker.patch.object(
-            transformer, "supportedGeographies", return_value=transformerRetval
+        transform = self.mocker.patch.object(
+            self._service._transformer, "supportedGeographies", return_value=fullDf
         )
 
         self._service.getSupportedGeographies()
 
         if isCacheHit:
-            apiFetchMock.assert_not_called()
-            transGeoMock.assert_not_called()
-            cachePutMock.assert_not_called()
+            apiFetch.assert_not_called()
+            transform.assert_not_called()
+            self.mockDep(self._service._cache.put).assert_not_called()
         else:
-            apiFetchMock.assert_called_once()
-            transGeoMock.assert_called_once_with(apiRetval)
-            cachePutMock.assert_called_once_with(
-                "supportedGeographies.csv", transformerRetval
+            apiFetch.assert_called_once()
+            transform.assert_called_once_with(apiRetval)
+            self.mockDep(self._service._cache.put).assert_called_once_with(
+                "supportedGeographies.csv", fullDf
             )
 
     def test_getGeographyCodes(self):
         forDomain = MagicMock()
         inDomains = [MagicMock()]
 
-        api = self.mockDep(self._service._api)
-        transformer = self.mockDep(self._service._transformer)
-
-        apiGeoMock = self.mocker.patch.object(
-            api, "geographyCodes", return_value=apiRetval
+        fullDf = pandas.DataFrame(
+            [
+                {
+                    "name": "banana",
+                    "state": "01",
+                },
+                {
+                    "name": "apple",
+                    "state": "01",
+                },
+            ]
         )
-        transMock = self.mocker.patch.object(
-            transformer, "geographyCodes", return_value=transformerRetval
+
+        apiFetch = self.mocker.patch.object(
+            self._service._api, "geographyCodes", return_value=apiRetval
+        )
+        transform = self.mocker.patch.object(
+            self._service._transformer, "geographyCodes", return_value=fullDf
         )
 
         res = self._service.getGeographyCodes(
             forDomain, cast(List[GeoDomain], inDomains)
         )
 
-        apiGeoMock.assert_called_once_with(forDomain, inDomains)
-        transMock.assert_called_once_with(apiRetval)
+        apiFetch.assert_called_once_with(forDomain, inDomains)
+        transform.assert_called_once_with(apiRetval)
 
-        assert res == transformerRetval
+        assert res.to_dict() == fullDf.to_dict()
 
-    def test_getVariablesByGroup(self, monkeypatch: MonkeyPatch):
-        cacheHitGroup = TGroupCode("hit")
-        cacheMissGroup = TGroupCode("miss")
+    def test_getVariablesByGroup(self):
+        cacheHitGroup = GroupCode("hit")
+        cacheMissGroup = GroupCode("miss")
+
+        variables = pandas.DataFrame(
+            [
+                GroupVariable(
+                    code=VariableCode("1"),
+                    groupCode=GroupCode("G1"),
+                    groupConcept="fruit",
+                    limit=0,
+                    name="variable 1",
+                    predicateOnly=False,
+                    predicateType="int",
+                ).__dict__,
+                GroupVariable(
+                    code=VariableCode("2"),
+                    groupCode=GroupCode("G1"),
+                    groupConcept="fruit",
+                    limit=0,
+                    name="variable 2",
+                    predicateOnly=False,
+                    predicateType="int",
+                ).__dict__,
+            ]
+        )
 
         transformer = self.mockDep(self._service._transformer)
         cache = self.mockDep(self._service._cache)
 
-        monkeypatch.setattr(pandas, "DataFrame", lambda: emptyDf)
-
-        self.mocker.patch.object(self._service, "_populateCodes")
-
-        self.mocker.patch.object(transformer, "variables", return_value=fullDf)
+        self.mocker.patch.object(transformer, "variables", return_value=variables)
 
         def cacheGetSideEffect(resource: str) -> pandas.DataFrame:
-            return fullDf if cacheHitGroup in resource else emptyDf
+            return variables if cacheHitGroup in resource else pandas.DataFrame()
 
         self.mocker.patch.object(cache, "get", side_effect=cacheGetSideEffect)
 
         self._service.getVariablesByGroup([cacheHitGroup, cacheMissGroup])
-
-    @pytest.mark.parametrize("codeCtor", (Code[TGroupCode], Code[TVariableCode]))
-    def test_populateCodes(self, codeCtor: Any):
-        sourceDf = pandas.DataFrame(
-            {
-                "code": ["code1", "code2", "code3", "code4"],
-                "meaning": ["one", "two", "three", "four"],
-            }
-        )
-        codes = CodeSet[Any]()
-        expectedCodes = CodeSet(
-            code1=codeCtor("code1", "one"),
-            code2=codeCtor("code2", "two"),
-            code3=codeCtor("code3", "three"),
-            code4=codeCtor("code4", "four"),
-        )
-
-        self._service._populateCodes(sourceDf, codes, codeCtor, "meaning")
-
-        assert codes == expectedCodes

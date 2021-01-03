@@ -1,7 +1,6 @@
-from census.variables.models import TGroupCode, TVariableCode
 from census.utils.unique import getUnique
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 @dataclass(frozen=True)
@@ -59,58 +58,3 @@ class GeographyResponse:
     def __init__(self, fips: List[Dict[Any, Any]], **_) -> None:
         for fip in fips:
             self.fips.append(GeographyResponseItem(fip))
-
-
-@dataclass
-class Group:
-    code: TGroupCode
-    description: str
-    variables: str
-
-    def __init__(
-        self,
-        code: str = "",
-        description: str = "",
-        variables: str = "",
-    ) -> None:
-        self.code = TGroupCode(code)
-        self.description = description
-        self.variables = variables
-
-    @classmethod
-    def fromJson(cls, jsonDict: Dict[str, str]):
-        code = jsonDict["name"]
-        description = jsonDict["description"]
-        variables = jsonDict["variables"]
-
-        return cls(code, description, variables)
-
-
-@dataclass
-class GroupVariable:
-    code: TVariableCode
-    groupCode: TGroupCode
-    groupConcept: str
-    name: str
-    limit: int
-    predicateOnly: bool
-    predicateType: Literal["string", "int", "float"]
-
-    @classmethod
-    def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
-        groupCode = jsonData["group"]
-        groupConcept = jsonData["concept"]
-        label = jsonData["label"]
-        limit = jsonData["limit"]
-        predicateOnly = jsonData["predicateOnly"]
-        predicateType = jsonData["predicateType"]
-
-        return cls(
-            TVariableCode(code),
-            groupCode,
-            groupConcept,
-            label,
-            limit,
-            predicateOnly,
-            predicateType,
-        )

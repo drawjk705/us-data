@@ -8,7 +8,7 @@ init:
 
 test:
 	clear
-	pytest -vv -s -k $(TEST_PATTERN)
+	pytest -vv -k $(TEST_PATTERN)
 
 clean_pycache:
 	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf

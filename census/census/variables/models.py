@@ -1,60 +1,84 @@
+# from dataclasses import dataclass
 from dataclasses import dataclass
-from typing import Any, Generator, Generic, Mapping, NewType, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Literal, NewType
 
 
-TVariableCode = NewType("TVariableCode", str)
-TGroupCode = NewType("TGroupCode", str)
-
-
-_TCode = TypeVar("_TCode", bound=Union[TVariableCode, TGroupCode])
+VariableCode = NewType("VariableCode", str)
+GroupCode = NewType("GroupCode", str)
 
 
 @dataclass
-class Code(Generic[_TCode]):
-    code: _TCode
-    meaning: str
+class Group:
+    code: GroupCode
+    description: str
+    variables: str
 
-    def __repr__(self) -> str:
-        return {"code": self.code, "meaning": self.meaning}.__repr__()
+    def __init__(
+        self,
+        code: str = "",
+        description: str = "",
+        variables: str = "",
+    ) -> None:
+        self.code = GroupCode(code)
+        self.description = description
+        self.variables = variables
+
+    @classmethod
+    def fromJson(cls, jsonDict: Dict[str, str]):
+        code = jsonDict["name"]
+        description = jsonDict["description"]
+        variables = jsonDict["variables"]
+
+        return cls(code, description, variables)
+
+    @classmethod
+    def fromDfRecord(cls, record: Dict[str, Any]):
+        return cls(GroupCode(record["code"]), record["description"])
 
     def __hash__(self) -> int:
-        return hash(self.code) + hash(self.meaning)
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, type(self)):
-            return False
-        return self.code == o.code and self.meaning == o.meaning
+        return hash(self.code)
 
 
 @dataclass
-class CodeSet(Generic[_TCode]):
-    def __init__(self, **kwargs: Any) -> None:  # type: ignore
-        for k, v in kwargs.items():
-            self.__setattr__(k, v)  # type: ignore
+class GroupVariable:
+    code: VariableCode
+    groupCode: GroupCode
+    groupConcept: str
+    name: str
+    limit: int
+    predicateOnly: bool
+    predicateType: Literal["string", "int", "float"]
 
-    # type: ignore
-    def addCodes(self, **codes: Mapping[_TCode, Code[_TCode]]) -> None:
-        for k, v in codes.items():
-            self.__setattr__(k, v)  # type: ignore
+    @classmethod
+    def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
+        groupCode = jsonData["group"]
+        groupConcept = jsonData["concept"]
+        label = jsonData["label"]
+        limit = jsonData["limit"]
+        predicateOnly = jsonData["predicateOnly"]
+        predicateType = jsonData["predicateType"]
 
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
+        return cls(
+            VariableCode(code),
+            groupCode,
+            groupConcept,
+            label,
+            limit,
+            predicateOnly,
+            predicateType,
+        )
 
-    def __len__(self) -> int:
-        return len(self.__dict__)
-
-    def __getitem__(self, code: str) -> Code[_TCode]:
-        return self.__dict__[code]
-
-    def items(self) -> Generator[Tuple[_TCode, Code[_TCode]], None, None]:
-        for codeStr, codeObj in self.__dict__.items():
-            yield codeStr, codeObj  # type: ignore
+    @classmethod
+    def fromDfRecord(cls, record: Dict[str, Any]):
+        return cls(
+            VariableCode(record["code"]),
+            GroupCode(record["groupCode"]),
+            record["groupConcept"],
+            record["name"],
+            record["limit"],
+            record["predicateOnly"],
+            record["predicateType"],
+        )
 
     def __hash__(self) -> int:
-        return sum(hash(k) + hash(v) for k, v in self.__dict__.items())
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, type(self)):
-            return False
-
-        return hash(self) == hash(o)
+        return hash(self.code)

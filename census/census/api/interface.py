@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from census.variables.models import TVariableCode
+from census.variables.models import Group, GroupVariable, VariableCode
 from typing import Any, Dict, List, OrderedDict
 from census.models import GeoDomain
-from census.api.models import GeographyItem, Group, GroupVariable
+from census.api.models import GeographyItem
 
 
 class IApiFetchService(ABC):
@@ -27,7 +27,7 @@ class IApiFetchService(ABC):
     @abstractmethod
     def stats(
         self,
-        variablesCodes: List[TVariableCode],
+        variablesCodes: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
     ) -> Any:

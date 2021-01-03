@@ -1,12 +1,7 @@
+from census.variables.models import Group, GroupVariable
 from census.api.interface import IApiSerializationService
 from typing import Any, Dict, List, OrderedDict
-from census.api.models import (
-    GeographyClauseSet,
-    GeographyItem,
-    GeographyResponse,
-    Group,
-    GroupVariable,
-)
+from census.api.models import GeographyClauseSet, GeographyItem, GeographyResponse
 
 
 class ApiSerializationService(IApiSerializationService):

@@ -1,6 +1,6 @@
 import logging
 from functools import cache
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import List, Tuple, cast
 from tqdm.notebook import tqdm  # type: ignore
 
 import pandas as pd
@@ -8,7 +8,7 @@ from census.api.interface import IApiFetchService
 from census.dataTransformation.interface import IDataTransformer
 from census.models import GeoDomain
 from census.utils.unique import getUnique
-from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
+from census.variables.models import Group, GroupVariable, GroupCode
 from census.variables.persistence.interface import ICache
 from census.variables.repository.interface import IVariableRepository
 
@@ -34,8 +34,8 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         api: IApiFetchService,
     ):
         # these are inherited from the base class
-        self.groupCodes = CodeSet[TGroupCode]()
-        self.variableCodes = CodeSet[TVariableCode]()
+        self.groups = dict()
+        self.variables = dict()
         self._cache = cache
         self._api = api
         self._transformer = transformer
@@ -55,7 +55,9 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
             self._cache.put(GROUPS_FILE, df)
 
-        self._populateCodes(df, self.groupCodes, Code[TGroupCode], "description")
+        for record in df.to_dict("records"):
+            group = Group.fromDfRecord(record)
+            self.groups.update({group.code: group})
 
         return df
 
@@ -67,7 +69,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         df = self._cache.get(SUPPORTED_GEOS_FILE)
 
         if df is None:
-            df = pd.DataFrame
+            df = pd.DataFrame()
 
         if df.empty:
             res = self._api.supportedGeographies()
@@ -75,7 +77,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
             self._cache.put(SUPPORTED_GEOS_FILE, df)
 
-        return cast(pd.DataFrame, df)
+        return df
 
     def getGeographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
@@ -92,11 +94,11 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         df = self._transformer.geographyCodes(res)
         return df
 
-    def getVariablesByGroup(self, groups: List[TGroupCode]) -> pd.DataFrame:
+    def getVariablesByGroup(self, groups: List[GroupCode]) -> pd.DataFrame:
         return self.__getVariablesByGroup(tuple(getUnique(groups)))
 
     @cache
-    def __getVariablesByGroup(self, groups: Tuple[TGroupCode, ...]) -> pd.DataFrame:
+    def __getVariablesByGroup(self, groups: Tuple[GroupCode, ...]) -> pd.DataFrame:
         allVars = pd.DataFrame()
 
         for group in tqdm(groups):
@@ -112,7 +114,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 else:
                     allVars = allVars.append(df, ignore_index=True)  # type: ignore
             else:
-                res = self._api.variablesForGroup(cast(TGroupCode, group))
+                res = self._api.variablesForGroup(cast(GroupCode, group))
                 df = self._transformer.variables(res)
 
                 self._cache.put(resource, df)
@@ -122,7 +124,9 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 else:
                     allVars = allVars.append(df, ignore_index=True)
 
-        self._populateCodes(allVars, self.variableCodes, Code[TVariableCode], "name")
+        for record in allVars.to_dict("records"):
+            var = GroupVariable.fromDfRecord(record)
+            self.variables.update({var.code: var})
 
         return allVars
 
@@ -135,25 +139,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         allGroups: List[str] = self.getGroups()["code"].to_list()  # type: ignore
 
-        return self.getVariablesByGroup([TGroupCode(code) for code in allGroups])
-
-    def _populateCodes(
-        self,
-        sourceDf: pd.DataFrame,
-        codes: Union[CodeSet[TVariableCode], CodeSet[TGroupCode]],
-        codeCtor: Any,
-        meaningCol: str,
-    ) -> None:
-        codesList: List[Dict[str, str]] = sourceDf[["code", meaningCol]].to_dict(
-            "records"
-        )
-
-        codes.addCodes(
-            **{
-                code["code"]: codeCtor(code["code"], code[meaningCol])
-                for code in codesList
-            }
-        )
+        return self.getVariablesByGroup([GroupCode(code) for code in allGroups])
 
     def __log(self, msg: str) -> None:
         logging.info(f"{LOG_PREFIX} {msg}")

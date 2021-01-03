@@ -1,4 +1,4 @@
-from census.variables.models import TVariableCode
+from census.variables.models import VariableCode
 from typing import List
 from unittest.mock import call
 from census.config import Config
@@ -75,10 +75,10 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
 
         varCodes = [
-            TVariableCode("1"),
-            TVariableCode("2"),
-            TVariableCode("3"),
-            TVariableCode("4"),
+            VariableCode("1"),
+            VariableCode("2"),
+            VariableCode("3"),
+            VariableCode("4"),
         ]
         forDomain = GeoDomain("banana")
         inDomains = [GeoDomain("phone", "92")]
@@ -105,10 +105,10 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
                     return [["header1", "header2"], ["e", "f"], ["g", "h"]]
 
         varCodes = [
-            TVariableCode("1"),
-            TVariableCode("2"),
-            TVariableCode("3"),
-            TVariableCode("4"),
+            VariableCode("1"),
+            VariableCode("2"),
+            VariableCode("3"),
+            VariableCode("4"),
         ]
         self.requestsMock.get.return_value = MockRes()  # type: ignore
 

@@ -1,10 +1,11 @@
+from census.variables.repository.interface import IVariableRepository
+from census.variables.models import VariableCode
 from census.utils.unique import getUnique
 from functools import cache
 from typing import List, Tuple
 
 import pandas as pd
 from census.api.interface import IApiFetchService
-from census.api.models import GroupVariable
 from census.dataTransformation.interface import IDataTransformer
 from census.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
@@ -13,23 +14,27 @@ from census.stats.interface import ICensusStatisticsService
 class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _api: IApiFetchService
     _transformer: IDataTransformer[pd.DataFrame]
+    _variableRepo: IVariableRepository[pd.DataFrame]
 
     def __init__(
-        self, api: IApiFetchService, transformer: IDataTransformer[pd.DataFrame]
+        self,
+        api: IApiFetchService,
+        transformer: IDataTransformer[pd.DataFrame],
+        variableRepo: IVariableRepository[pd.DataFrame],
     ) -> None:
         self._api = api
         self._transformer = transformer
+        self._variableRepo = variableRepo
 
     def getStats(
         self,
-        variablesToQuery: List[GroupVariable],
+        variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
     ) -> pd.DataFrame:
-        variableCodes = [v.code for v in variablesToQuery]
 
         return self.__getStats(
-            variablesToQuery=tuple(getUnique(variableCodes)),
+            variablesToQuery=tuple(getUnique(variablesToQuery)),
             forDomain=forDomain,
             inDomains=tuple(getUnique(inDomains)),
         )
@@ -37,13 +42,12 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     @cache
     def __getStats(
         self,
-        variablesToQuery: Tuple[GroupVariable],
+        variablesToQuery: Tuple[VariableCode],
         forDomain: GeoDomain,
         inDomains: Tuple[GeoDomain],
     ) -> pd.DataFrame:
-        variableCodes = [v.code for v in variablesToQuery]
 
-        apiRes = self._api.stats(variableCodes, forDomain, list(inDomains))
+        apiRes = self._api.stats(list(variablesToQuery), forDomain, list(inDomains))
         df = self._transformer.stats(apiRes, list(variablesToQuery))
 
         return df

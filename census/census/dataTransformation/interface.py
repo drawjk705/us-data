@@ -1,6 +1,7 @@
 from abc import abstractmethod
-from census.api.models import GeographyItem, Group, GroupVariable
-from typing import Dict, Generic, List, OrderedDict, TypeVar
+from census.variables.models import Group, GroupVariable, VariableCode
+from census.api.models import GeographyItem
+from typing import Any, Dict, Generic, List, OrderedDict, TypeVar
 
 T = TypeVar("T")
 
@@ -29,6 +30,6 @@ class IDataTransformer(Generic[T]):
 
     @abstractmethod
     def stats(
-        self, results: List[List[str]], queriedVariables: List[GroupVariable]
+        self, results: List[List[Any]], queriedVariables: List[VariableCode]
     ) -> T:
         pass

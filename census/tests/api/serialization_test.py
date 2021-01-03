@@ -1,8 +1,9 @@
+from census.variables.models import Group, GroupVariable
 from census.api.serialization import ApiSerializationService
 from typing import Any, Dict, Union
 import hypothesis.strategies as st
 import pytest
-from census.api.models import GeographyClauseSet, GeographyItem, Group, GroupVariable
+from census.api.models import GeographyClauseSet, GeographyItem
 from hypothesis import assume
 from hypothesis.core import given
 

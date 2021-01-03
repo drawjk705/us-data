@@ -63,3 +63,7 @@ def getCensus(
     configureLogger(logFile)
 
     return cast(Census, container.resolve(Census))
+
+
+c = getCensus(2019, shouldLoadFromExistingCache=True)
+c.getVariablesByGroup(["B17015"])
