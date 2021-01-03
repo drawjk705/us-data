@@ -1,6 +1,8 @@
 import logging
 import sys
 
+DEFAULT_LOGFILE = "census.log"
+
 
 def configureLogger(logFile: str):
     """

@@ -10,7 +10,7 @@ from tests.serviceTestFixtures import ServiceTestFixture
 
 @pytest.fixture
 def config() -> Config:
-    return Config(cacheDir="cache")
+    return Config(cacheDir="cache", shouldCacheOnDisk=True)
 
 
 @pytest.fixture

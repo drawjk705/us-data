@@ -1,27 +1,19 @@
 # from dataclasses import dataclass
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, NewType
+from typing import Any, Dict, Literal, NewType
+
+from attr import field
 
 
 VariableCode = NewType("VariableCode", str)
 GroupCode = NewType("GroupCode", str)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Group:
     code: GroupCode
     description: str
-    variables: str
-
-    def __init__(
-        self,
-        code: str = "",
-        description: str = "",
-        variables: str = "",
-    ) -> None:
-        self.code = GroupCode(code)
-        self.description = description
-        self.variables = variables
+    variables: str = field(default="")
 
     @classmethod
     def fromJson(cls, jsonDict: Dict[str, str]):
@@ -29,14 +21,11 @@ class Group:
         description = jsonDict["description"]
         variables = jsonDict["variables"]
 
-        return cls(code, description, variables)
+        return cls(GroupCode(code), description, variables)
 
     @classmethod
     def fromDfRecord(cls, record: Dict[str, Any]):
         return cls(GroupCode(record["code"]), record["description"])
-
-    def __hash__(self) -> int:
-        return hash(self.code)
 
 
 @dataclass
@@ -73,7 +62,7 @@ class GroupVariable:
         return cls(
             VariableCode(record["code"]),
             GroupCode(record["groupCode"]),
-            record["groupConcept"],
+            record["concept"],
             record["name"],
             record["limit"],
             record["predicateOnly"],

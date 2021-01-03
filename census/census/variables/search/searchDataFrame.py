@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
 from census.variables.search.interface import IVariableSearchService
 from census.variables.models import GroupCode
@@ -13,6 +14,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
     def __init__(self, variableRepository: IVariableRepository[pd.DataFrame]) -> None:
         self._variableRepository = variableRepository
 
+    @timer
     def searchGroups(self, regex: str) -> pd.DataFrame:
         logging.info(f"searching groups for regex: `{regex}`")
 
@@ -26,6 +28,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
             drop=True,
         )
 
+    @timer
     def searchVariables(
         self,
         regex: str,

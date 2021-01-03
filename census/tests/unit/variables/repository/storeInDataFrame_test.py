@@ -1,10 +1,9 @@
-from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
+from census.variables.models import Group, GroupCode, VariableCode
 from census.models import GeoDomain
 from typing import List, cast
 
 from census.variables.repository.storeInDataFrame import VariableRepository
 
-from _pytest.monkeypatch import MonkeyPatch
 from tests.serviceTestFixtures import ServiceTestFixture
 import pandas
 import pytest
@@ -21,8 +20,8 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
     def test_getGroups_givenCacheRetval(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [
-                Group("1", "desc1").__dict__,
-                Group("2", "desc2").__dict__,
+                Group(GroupCode("1"), "desc1").__dict__,
+                Group(GroupCode("2"), "desc2").__dict__,
             ]
         )
 
@@ -123,24 +122,24 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
 
         variables = pandas.DataFrame(
             [
-                GroupVariable(
+                dict(
                     code=VariableCode("1"),
                     groupCode=GroupCode("G1"),
-                    groupConcept="fruit",
+                    concept="fruit",
                     limit=0,
                     name="variable 1",
                     predicateOnly=False,
                     predicateType="int",
-                ).__dict__,
-                GroupVariable(
+                ),
+                dict(
                     code=VariableCode("2"),
                     groupCode=GroupCode("G1"),
-                    groupConcept="fruit",
+                    concept="fruit",
                     limit=0,
                     name="variable 2",
                     predicateOnly=False,
                     predicateType="int",
-                ).__dict__,
+                ),
             ]
         )
 

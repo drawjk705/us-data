@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 import logging
 from functools import cache
 from typing import List, Tuple, cast
@@ -40,6 +41,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         self._api = api
         self._transformer = transformer
 
+    @timer
     def getGroups(self) -> pd.DataFrame:
         return self.__getGroups()
 
@@ -61,6 +63,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         return df
 
+    @timer
     def getSupportedGeographies(self) -> pd.DataFrame:
         return self.__getSupportedGeographies()
 
@@ -79,6 +82,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         return df
 
+    @timer
     def getGeographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
     ) -> pd.DataFrame:
@@ -94,6 +98,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         df = self._transformer.geographyCodes(res)
         return df
 
+    @timer
     def getVariablesByGroup(self, groups: List[GroupCode]) -> pd.DataFrame:
         return self.__getVariablesByGroup(tuple(getUnique(groups)))
 
@@ -130,6 +135,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         return allVars
 
+    @timer
     def getAllVariables(self) -> pd.DataFrame:
         return self.__getAllVariables()
 
@@ -137,9 +143,20 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
     def __getAllVariables(self) -> pd.DataFrame:
         self.__log("This is a costly operation, and may take time")
 
-        allGroups: List[str] = self.getGroups()["code"].to_list()  # type: ignore
+        allVariables = self._api.allVariables()
+        df = self._transformer.variables(allVariables)
 
-        return self.getVariablesByGroup([GroupCode(code) for code in allGroups])
+        for groupCode, variables in df.groupby(["groupCode"]):
+
+            if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", variables):
+                # we don't need to update `self.variables` in this case
+                continue
+
+            for variableDict in cast(pd.DataFrame, variables).to_dict("records"):
+                variable = GroupVariable.fromDfRecord(variableDict)
+                self.variables.update({variable.code: variable})
+
+        return df
 
     def __log(self, msg: str) -> None:
         logging.info(f"{LOG_PREFIX} {msg}")

@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable
 from census.api.interface import IApiSerializationService
 from typing import Any, Dict, List, OrderedDict
@@ -5,6 +6,7 @@ from census.api.models import GeographyClauseSet, GeographyItem, GeographyRespon
 
 
 class ApiSerializationService(IApiSerializationService):
+    @timer
     def parseGroupVariables(self, groupVariables: Any) -> List[GroupVariable]:
         variables: List[GroupVariable] = []
         for varCode, varData in groupVariables["variables"].items():
@@ -13,6 +15,7 @@ class ApiSerializationService(IApiSerializationService):
 
         return variables
 
+    @timer
     def parseSupportedGeographies(
         self,
         supportedGeosResponse: Any,
@@ -59,6 +62,7 @@ class ApiSerializationService(IApiSerializationService):
             sorted(supportedGeographies.items(), key=lambda t: t[1].hierarchy)
         )
 
+    @timer
     def parseGroups(
         self, groupsRes: Dict[str, List[Dict[str, str]]]
     ) -> Dict[str, Group]:

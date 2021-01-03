@@ -1,8 +1,9 @@
+from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
 from census.variables.models import VariableCode
 from census.utils.unique import getUnique
 from functools import cache
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 from census.api.interface import IApiFetchService
@@ -26,6 +27,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         self._transformer = transformer
         self._variableRepo = variableRepo
 
+    @timer
     def getStats(
         self,
         variablesToQuery: List[VariableCode],
@@ -48,6 +50,16 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     ) -> pd.DataFrame:
 
         apiRes = self._api.stats(list(variablesToQuery), forDomain, list(inDomains))
-        df = self._transformer.stats(apiRes, list(variablesToQuery))
+
+        typeConversions: Dict[str, Any] = {}
+        for k, v in self._variableRepo.variables.items():
+            if k not in variablesToQuery:
+                continue
+            if v.predicateType == "float":
+                typeConversions.update({k: float})
+            elif v.predicateType == "int":
+                typeConversions.update({k: int})
+
+        df = self._transformer.stats(apiRes, list(variablesToQuery), typeConversions)
 
         return df

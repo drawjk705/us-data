@@ -86,8 +86,12 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self._service.stats(varCodes, forDomain, inDomains)
 
         assert self.requestsMock.get.call_args_list == [  # type: ignore
-            call("https://api.census.gov/data/2019/acs/acs1?get=NAME,1,2&for=banana:*"),
-            call("https://api.census.gov/data/2019/acs/acs1?get=NAME,3,4&for=banana:*"),
+            call(
+                "https://api.census.gov/data/2019/acs/acs1?get=NAME,1,2&for=banana:*&in=phone:92"
+            ),
+            call(
+                "https://api.census.gov/data/2019/acs/acs1?get=NAME,3,4&for=banana:*&in=phone:92"
+            ),
         ]
 
     def test_stats_returnsOnlyTopRow(self):

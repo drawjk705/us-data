@@ -1,5 +1,6 @@
 # pyright: reportMissingTypeStubs=false
 
+from typing import Any, Dict
 import numpy as np
 from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
@@ -68,8 +69,8 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
 
     def test_groupData(self, pandasMock: Mock):
         groupData = {
-            "1": Group(code="1", description="desc1"),
-            "2": Group(code="2", description="desc2"),
+            "1": Group(code=GroupCode("1"), description="desc1"),
+            "2": Group(code=GroupCode("2"), description="desc2"),
         }
         expectedCalledWith = [
             {"code": "1", "description": "desc1"},
@@ -129,12 +130,13 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
     def test_stats(self):
         results = [
             ["header 1", "var1", "var2", "header 2", "header 3"],
-            ["1", 4, 0.2, "4", "5"],
-            ["6", 4, 0.2, "9", "10"],
+            ["1", "4", "0.2", "4", "5"],
+            ["6", "4", "0.2", "9", "10"],
         ]
         queriedVariables = [VariableCode("var1"), VariableCode("var2")]
+        typeConversions: Dict[str, Any] = dict(var1=int, var2=float)
 
-        res = self._service.stats(results, queriedVariables)
+        res = self._service.stats(results, queriedVariables, typeConversions)
 
         assert res.dtypes.to_dict() == {
             "header 1": np.dtype("O"),

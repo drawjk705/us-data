@@ -1,6 +1,8 @@
-from census.api.constants import CACHE_DIR
 from dataclasses import dataclass
 from census.models import SurveyType, DatasetType
+
+
+CACHE_DIR = "cache"
 
 
 @dataclass(frozen=True)
@@ -20,3 +22,4 @@ class Config:
     surveyType: SurveyType = SurveyType.ACS1
     cacheDir: str = CACHE_DIR
     shouldLoadFromExistingCache: bool = False
+    shouldCacheOnDisk: bool = False

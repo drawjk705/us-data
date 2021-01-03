@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.dataTransformation.interface import IDataTransformer
 from collections import OrderedDict
@@ -11,6 +12,7 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def __init__(self) -> None:
         super().__init__()
 
+    @timer
     def supportedGeographies(
         self, supportedGeos: OrderedDict[str, GeographyItem]
     ) -> pd.DataFrame:
@@ -28,17 +30,20 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
 
         return pd.DataFrame(valuesFlattened)
 
+    @timer
     def geographyCodes(self, geoCodes: List[List[str]]) -> pd.DataFrame:
-        return pd.DataFrame(geoCodes[1:], columns=geoCodes[0])
+        return pd.DataFrame(geoCodes[1:], columns=geoCodes[0]).sort_values(by=["state"])
 
+    @timer
     def groups(self, groups: Dict[str, Group]) -> pd.DataFrame:
         groupsList = []
         for code, groupObj in groups.items():
             groupDict = {"code": code, "description": groupObj.description}
             groupsList.append(groupDict)
 
-        return pd.DataFrame(groupsList)
+        return pd.DataFrame(groupsList).sort_values(by="code")
 
+    @timer
     def variables(self, variables: List[GroupVariable]) -> pd.DataFrame:
         variableDictList: List[Dict[str, Union[str, int, bool]]] = []
 
@@ -55,10 +60,14 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
                 }
             )
 
-        return pd.DataFrame(variableDictList)
+        return pd.DataFrame(variableDictList).sort_values(by=["code"])
 
+    @timer
     def stats(
-        self, results: List[List[Any]], queriedVariables: List[VariableCode]
+        self,
+        results: List[List[Any]],
+        queriedVariables: List[VariableCode],
+        typeConversions: Dict[str, Any],
     ) -> pd.DataFrame:
         df = pd.DataFrame(results[1:], columns=results[0])
 
@@ -71,4 +80,4 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
 
         reorderedColumns = [nameCol] + geoCols + variableCols
 
-        return df[reorderedColumns]
+        return df[reorderedColumns].astype(typeConversions)

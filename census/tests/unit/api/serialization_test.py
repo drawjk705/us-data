@@ -1,4 +1,4 @@
-from census.variables.models import Group, GroupVariable
+from census.variables.models import Group, GroupCode, GroupVariable
 from census.api.serialization import ApiSerializationService
 from typing import Any, Dict, Union
 import hypothesis.strategies as st
@@ -151,12 +151,12 @@ def test_parseSupportedGeographies(
             },
             {
                 "B17015": Group(
-                    code="B17015",
+                    code=GroupCode("B17015"),
                     description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B17015.json",
                 ),
                 "B18104": Group(
-                    code="B18104",
+                    code=GroupCode("B18104"),
                     description="SEX BY AGE BY COGNITIVE DIFFICULTY",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
                 ),

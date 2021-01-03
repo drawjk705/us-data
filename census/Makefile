@@ -10,6 +10,10 @@ test:
 	clear
 	pytest -vv -k $(TEST_PATTERN)
 
+test-coverage:
+	clear
+	pytest --cov-report term-missing:skip-covered --cov=census tests/
+
 clean_pycache:
 	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf
 

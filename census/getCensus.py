@@ -1,8 +1,7 @@
 # pyright: reportMissingTypeStubs=false
 # pyright: reportUnknownMemberType=false
 
-from census.utils.configureLogger import configureLogger
-from census.api.constants import CACHE_DIR
+from census.utils.configureLogger import DEFAULT_LOGFILE, configureLogger
 from typing import cast
 
 import pandas
@@ -20,15 +19,13 @@ import punq
 
 from census.api.fetch import ApiFetchService
 from census.api.serialization import ApiSerializationService
-from census.config import Config
+from census.config import CACHE_DIR, Config
 from census.dataTransformation.transformToDataFrame import DataFrameTransformer
 from census.client.census import Census
 from census.models import DatasetType, SurveyType
 
 serializer = ApiSerializationService()
 transformer = DataFrameTransformer()
-
-DEFAULT_LOGFILE = "census.log"
 
 
 def getCensus(
@@ -37,10 +34,16 @@ def getCensus(
     surveyType: SurveyType = SurveyType.ACS1,
     cacheDir: str = CACHE_DIR,
     shouldLoadFromExistingCache: bool = False,
+    shouldCacheOnDisk: bool = False,
     logFile: str = DEFAULT_LOGFILE,
 ) -> Census:
     config = Config(
-        year, datasetType, surveyType, cacheDir, shouldLoadFromExistingCache
+        year,
+        datasetType,
+        surveyType,
+        cacheDir,
+        shouldLoadFromExistingCache,
+        shouldCacheOnDisk,
     )
 
     container = punq.Container()
@@ -62,8 +65,6 @@ def getCensus(
 
     configureLogger(logFile)
 
+    pandas.set_option("display.max_colwidth", -1)
+
     return cast(Census, container.resolve(Census))
-
-
-c = getCensus(2019, shouldLoadFromExistingCache=True)
-c.getVariablesByGroup(["B17015"])

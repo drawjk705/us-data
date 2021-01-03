@@ -30,6 +30,9 @@ class IDataTransformer(Generic[T]):
 
     @abstractmethod
     def stats(
-        self, results: List[List[Any]], queriedVariables: List[VariableCode]
+        self,
+        results: List[List[Any]],
+        queriedVariables: List[VariableCode],
+        typeConversions: Dict[str, Any],
     ) -> T:
         pass

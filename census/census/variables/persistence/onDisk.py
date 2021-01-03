@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 import logging
 import shutil
 from pathlib import Path
@@ -19,16 +20,22 @@ class OnDiskCache(ICache[pd.DataFrame]):
         config: Config,
     ) -> None:
         self._config = config
+
+        if not self._config.shouldCacheOnDisk:
+            self.__log("Not creating an on-disk cache")
+            return
+
         self.__cachePath = Path(
             f"{config.cacheDir}/{config.year}/{config.datasetType.value}/{config.surveyType.value}"
         )
 
-        logging.info(f"{LOG_PREFIX} creating cache for {self.__cachePath}")
+        self.__log(f"creating cache for {self.__cachePath}")
 
         self.__shouldLoadFromExistingCache = config.shouldLoadFromExistingCache
 
         self.__setUpOnDiskCache()
 
+    @timer
     def __setUpOnDiskCache(self) -> None:
         self.__log("setting up on disk cache")
 
@@ -40,16 +47,29 @@ class OnDiskCache(ICache[pd.DataFrame]):
 
         self.__cachePath.mkdir(parents=True, exist_ok=True)
 
-    def put(self, resource: str, data: pd.DataFrame) -> None:
+    @timer
+    def put(self, resource: str, data: pd.DataFrame) -> bool:
+        if not self._config.shouldCacheOnDisk:
+            return False
+
         path = self.__cachePath / Path(resource)
+
+        if path.exists():
+            self.__log(f"resource {resource} already exists; terminating")
+            return False
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
         self.__log(f"persisting {path} on disk")
 
-        data.to_csv(str(path.absolute()))
+        data.to_csv(str(path.absolute()), index=False)
+        return True
 
+    @timer
     def get(self, resource: str) -> pd.DataFrame:
+        if not self._config.shouldCacheOnDisk:
+            return pd.DataFrame()
+
         path = self.__cachePath / Path(resource)
 
         if not path.exists():

@@ -1,3 +1,4 @@
+from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
@@ -25,6 +26,7 @@ class ApiFetchService(IApiFetchService):
         )
         self._parser = parser
 
+    @timer
     def geographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
     ) -> Any:
@@ -38,22 +40,32 @@ class ApiFetchService(IApiFetchService):
 
         return self.__fetch(route=querystring)
 
+    @timer
     def groupData(self) -> Dict[str, Group]:
         groupsRes: Dict[str, List[Dict[str, str]]] = self.__fetch(route="/groups.json")
 
         return self._parser.parseGroups(groupsRes)
 
+    @timer
     def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
 
         geogRes = self.__fetch(route="/geography.json")
 
         return self._parser.parseSupportedGeographies(geogRes)
 
+    @timer
     def variablesForGroup(self, group: str) -> List[GroupVariable]:
         res = self.__fetch(route=f"/groups/{group}.json")
 
         return self._parser.parseGroupVariables(res)
 
+    @timer
+    def allVariables(self) -> List[GroupVariable]:
+        res = self.__fetch("/variables.json")
+
+        return self._parser.parseGroupVariables(res)
+
+    @timer
     def stats(
         self,
         variablesCodes: List[VariableCode],
@@ -69,7 +81,7 @@ class ApiFetchService(IApiFetchService):
             domainStr = "for=" + str(forDomain)
             inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
 
-            if len(inDomainStr) == 0:
+            if len(inDomainStr) > 0:
                 domainStr += "&"
                 domainStr += inDomainStr
 

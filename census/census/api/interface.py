@@ -25,6 +25,10 @@ class IApiFetchService(ABC):
         pass
 
     @abstractmethod
+    def allVariables(self) -> List[GroupVariable]:
+        pass
+
+    @abstractmethod
     def stats(
         self,
         variablesCodes: List[VariableCode],
