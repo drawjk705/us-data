@@ -65,9 +65,7 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
         columnsList = df.columns.tolist()
         columnsSet = set(columnsList)
         # just as as precaution
-        relevantVariables = list(
-            filter(lambda v: v.code in columnsSet, queriedVariables)
-        )
+        relevantVariables = [qv for qv in queriedVariables if qv.code in columnsSet]
 
         if len(relevantVariables) < len(queriedVariables):
             raise Exception("Could not match all variables")

@@ -33,6 +33,12 @@ class CodeSet(Generic[_TCode]):
     def __repr__(self) -> str:
         return self.__dict__.__repr__()
 
+    def __len__(self) -> int:
+        return len(self.__dict__)
+
+    def __getitem__(self, code: str) -> Code[_TCode]:
+        return self.__dict__[code]
+
     def items(self) -> Generator[Tuple[_TCode, Code[_TCode]], None, None]:
         for codeStr, codeObj in self.__dict__.items():
             yield codeStr, codeObj  # type: ignore

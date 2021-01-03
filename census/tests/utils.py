@@ -34,9 +34,7 @@ def extractService(obj: _RequestCls.Obj) -> Any:
         retrieved with pytest
 
     Raises:
-        TestFixtureException: [description]
-        TestFixtureException: [description]
-        TestFixtureException: [description]
+        ServiceTestFixtureException
 
     Returns:
         Any: [description]

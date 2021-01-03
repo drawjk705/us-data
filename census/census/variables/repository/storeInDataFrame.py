@@ -3,6 +3,7 @@ from census.variables.models import Code, CodeSet, TGroupCode, TVariableCode
 from functools import cache
 from typing import Any, Dict, List, Tuple, Union, cast
 
+
 import pandas as pd
 from census.api.interface import IApiFetchService
 from census.variables.persistence.interface import ICache
