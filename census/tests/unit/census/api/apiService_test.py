@@ -94,6 +94,13 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             ),
         ]
 
+    def test_allVariables(self):
+        self._service.allVariables()
+
+        self.castMock(self.requestsMock.get).assert_called_once_with(  # type: ignore
+            "https://api.census.gov/data/2019/acs/acs1/variables.json"
+        )
+
     def test_stats_returnsOnlyTopRow(self):
         self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
 

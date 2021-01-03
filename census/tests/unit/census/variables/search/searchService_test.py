@@ -1,5 +1,5 @@
 import pandas
-from census.variables.search.searchDataFrame import VariableSearchService
+from census.variables.search.service import VariableSearchService
 from tests.serviceTestFixtures import ServiceTestFixture
 
 # pyright: reportPrivateUsage=false
@@ -7,7 +7,7 @@ from tests.serviceTestFixtures import ServiceTestFixture
 
 class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
     def test_searchGroups(self):
-        variableStorage = self.mockDep(self._service._variableRepository)
+        variableStorage = self.castMock(self._service._variableRepository)
         foundDf = pandas.DataFrame(
             {
                 "description": [

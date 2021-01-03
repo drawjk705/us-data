@@ -29,6 +29,11 @@ def injectMockerToClass(request: FixtureRequest, mocker: MockerFixture):
 
 
 @pytest.fixture(scope="function")
+def injectMonkeyPatchToClass(request: FixtureRequest, monkeypatch: MonkeyPatch):
+    request.cls.monkeypatch = monkeypatch  # type: ignore
+
+
+@pytest.fixture(scope="function")
 def serviceFixture(request: FixtureRequest):
     req = cast(utils._RequestCls, request)
     obj = req.cls

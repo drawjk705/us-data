@@ -3,7 +3,7 @@
 from typing import Any, Dict
 import numpy as np
 from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
-from census.dataTransformation.transformToDataFrame import DataFrameTransformer
+from census.dataTransformation.service import DataFrameTransformer
 from tests.serviceTestFixtures import ServiceTestFixture
 from census.api.models import GeographyClauseSet, GeographyItem
 from collections import OrderedDict
@@ -106,7 +106,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
             {
                 "code": "123",
                 "groupCode": "g123",
-                "concept": "gCon1",
+                "groupConcept": "gCon1",
                 "name": "name1",
                 "limit": 1,
                 "predicateOnly": True,
@@ -115,7 +115,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
             {
                 "code": "456",
                 "groupCode": "g456",
-                "concept": "gCon2",
+                "groupConcept": "gCon2",
                 "name": "name2",
                 "limit": 2,
                 "predicateOnly": False,

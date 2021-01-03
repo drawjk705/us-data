@@ -35,8 +35,8 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         api: IApiFetchService,
     ):
         # these are inherited from the base class
-        self.groups = dict()
-        self.variables = dict()
+        self.groups = {}
+        self.variables = {}
         self._cache = cache
         self._api = api
         self._transformer = transformer
@@ -147,12 +147,12 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         df = self._transformer.variables(allVariables)
 
         for groupCode, variables in df.groupby(["groupCode"]):
-
-            if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", variables):
+            varDf = cast(pd.DataFrame, variables)
+            if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", varDf):
                 # we don't need to update `self.variables` in this case
                 continue
 
-            for variableDict in cast(pd.DataFrame, variables).to_dict("records"):
+            for variableDict in varDf.to_dict("records"):
                 variable = GroupVariable.fromDfRecord(variableDict)
                 self.variables.update({variable.code: variable})
 

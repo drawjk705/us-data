@@ -8,8 +8,8 @@ T = TypeVar("T")
 
 
 class IVariableRepository(ABC, Generic[T]):
-    variables: Dict[VariableCode, GroupVariable]
-    groups: Dict[GroupCode, Group]
+    variables: Dict[VariableCode, GroupVariable] = {}
+    groups: Dict[GroupCode, Group] = {}
 
     @abstractmethod
     def getGroups(self) -> T:

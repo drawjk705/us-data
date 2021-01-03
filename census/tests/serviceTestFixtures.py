@@ -1,5 +1,6 @@
 from typing import Any, Dict, Generic, TypeVar, cast
 from unittest.mock import MagicMock
+from _pytest.monkeypatch import MonkeyPatch
 
 
 from pytest_mock.plugin import MockerFixture
@@ -10,13 +11,16 @@ import pytest
 _T = TypeVar("_T")
 
 
-@pytest.mark.usefixtures("injectMockerToClass", "serviceFixture")
+@pytest.mark.usefixtures(
+    "injectMockerToClass", "serviceFixture", "injectMonkeyPatchToClass"
+)
 class ServiceTestFixture(Generic[_T]):
     _service: _T
     _dependencies: Dict[str, MagicMock]
     mocker: MockerFixture
+    monkeypatch: MonkeyPatch
 
-    def mockDep(self, dependency: Any) -> MagicMock:
+    def castMock(self, dependency: Any) -> MagicMock:
         return cast(MagicMock, dependency)
 
 

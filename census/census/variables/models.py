@@ -62,7 +62,7 @@ class GroupVariable:
         return cls(
             VariableCode(record["code"]),
             GroupCode(record["groupCode"]),
-            record["concept"],
+            record["groupConcept"],
             record["name"],
             record["limit"],
             record["predicateOnly"],

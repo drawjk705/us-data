@@ -1,5 +1,5 @@
 import logging
-from time import perf_counter
+import time
 from typing import Any, Callable, Dict, TypeVar, cast
 
 _Func = TypeVar("_Func", bound=Callable[..., Any])
@@ -7,11 +7,11 @@ _Func = TypeVar("_Func", bound=Callable[..., Any])
 
 def timer(func: _Func) -> _Func:
     def wrapper(*args: Any, **kwargs: Dict[Any, Any]) -> Any:
-        startTime = perf_counter()
+        startTime = time.perf_counter()
 
         retval = func(*args, **kwargs)
 
-        endTime = perf_counter()
+        endTime = time.perf_counter()
 
         elapsedMs = (endTime - startTime) * 1000
 
