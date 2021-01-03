@@ -37,7 +37,7 @@ def extractService(obj: _RequestCls.Obj) -> Any:
         ServiceTestFixtureException
 
     Returns:
-        Any: [description]
+        The class type of the service in question
     """
 
     # this lets us get the class that our test fixture
