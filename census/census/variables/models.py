@@ -34,9 +34,9 @@ class GroupVariable:
     groupCode: GroupCode
     groupConcept: str
     name: str
-    limit: int
-    predicateOnly: bool
-    predicateType: Literal["string", "int", "float"]
+    limit: int = field(default=None)
+    predicateOnly: bool = field(default=None)
+    predicateType: Literal["string", "int", "float"] = field(default=None)
 
     @classmethod
     def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
@@ -64,9 +64,6 @@ class GroupVariable:
             GroupCode(record["groupCode"]),
             record["groupConcept"],
             record["name"],
-            record["limit"],
-            record["predicateOnly"],
-            record["predicateType"],
         )
 
     def __hash__(self) -> int:

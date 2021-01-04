@@ -52,12 +52,12 @@ class OnDiskCache(ICache[pd.DataFrame]):
         path = self.__cachePath.joinpath(pathlib.Path(resource))
 
         if path.exists():
-            self.__log(f"resource {resource} already exists; terminating")
+            self.__log(f'resource "{resource}" already exists; terminating')
             return False
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        self.__log(f"persisting {path} on disk")
+        self.__log(f'persisting "{path}" on disk')
 
         data.to_csv(str(path.absolute()), index=False)
         return True
@@ -73,10 +73,10 @@ class OnDiskCache(ICache[pd.DataFrame]):
         path = self.__cachePath.joinpath(pathlib.Path(resource))
 
         if not path.exists():
-            self.__log(f"cache miss for {path}")
+            self.__log(f'cache miss for "{path}"')
             return pd.DataFrame()
 
-        self.__log(f"cache hit for {path}")
+        self.__log(f'cache hit for "{path}"')
 
         return pd.read_csv(path.absolute())  # type: ignore
 

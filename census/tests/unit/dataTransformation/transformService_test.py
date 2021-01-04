@@ -108,18 +108,12 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 "groupCode": "g123",
                 "groupConcept": "gCon1",
                 "name": "name1",
-                "limit": 1,
-                "predicateOnly": True,
-                "predicateType": "string",
             },
             {
                 "code": "456",
                 "groupCode": "g456",
                 "groupConcept": "gCon2",
                 "name": "name2",
-                "limit": 2,
-                "predicateOnly": False,
-                "predicateType": "int",
             },
         ]
 
