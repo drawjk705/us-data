@@ -154,7 +154,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         ]
 
     def test_healthCheck_pass(self, logMock: MagicMock):
-        self.mocker.patch.object(self.requestsMock, "get", return_value=_Response(200))
+        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(200))
 
         self._service.healthCheck()
 
@@ -163,7 +163,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_healthCheck_fail(self, logMock: MagicMock):
-        self.mocker.patch.object(self.requestsMock, "get", return_value=_Response(404))
+        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(404))
 
         msg = "Data does not exist for dataset=acs; survey=acs1; year=2019"
 
@@ -174,10 +174,3 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             f"[ApiFetchService] - {msg}"
         )
         self.castMock(logMock.debug).assert_not_called()  # type: ignore
-
-
-class _Response:
-    status_code: int
-
-    def __init__(self, status_code: int) -> None:
-        self.status_code = status_code
