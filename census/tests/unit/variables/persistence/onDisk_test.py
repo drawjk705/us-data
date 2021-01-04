@@ -1,5 +1,6 @@
+import itertools
 import pathlib
-from typing import Any
+from typing import Any, List, Tuple
 from callee import String  # type: ignore
 from unittest.mock import MagicMock, Mock
 from _pytest.monkeypatch import MonkeyPatch
@@ -13,6 +14,10 @@ from census.config import Config
 from census.variables.persistence.onDisk import OnDiskCache
 from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
+
+
+def makeBoolPermutations(n: int) -> List[Tuple[bool, ...]]:
+    return list(itertools.product([True, False], repeat=n))
 
 
 @pytest.fixture
@@ -94,23 +99,38 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
 
         assert putRes == (shouldCacheOnDisk and not resourceExists)
 
-    @given(shouldCacheOnDisk=st.booleans(), resourceExists=st.booleans())
+    @pytest.mark.parametrize(
+        ["shouldCacheOnDisk", "resourceExists", "shouldLoadFromExistingCache"],
+        makeBoolPermutations(3),
+    )
     def test_get_givenOptions(
         self,
         shouldCacheOnDisk: bool,
         resourceExists: bool,
+        shouldLoadFromExistingCache: bool,
+        monkeypatch: MonkeyPatch,
     ):
-        config = Config(2019, shouldCacheOnDisk=shouldCacheOnDisk)
+        config = Config(
+            2019,
+            shouldCacheOnDisk=shouldCacheOnDisk,
+            shouldLoadFromExistingCache=shouldLoadFromExistingCache,
+        )
         resource = "resource"
-        givenExistenceOfPath(resourceExists, self.mocker)
         cache = OnDiskCache(config)
         mockFn = MagicMock()
         mockFn.return_value = "banana"
-        self.monkeypatch.setattr(pandas, "read_csv", mockFn)
+        monkeypatch.setattr(
+            pathlib.Path, "exists", lambda *args, **kwargs: resourceExists
+        )
+        monkeypatch.setattr(pandas, "read_csv", mockFn)
 
         res = cache.get(resource)
 
-        if not shouldCacheOnDisk or not resourceExists:
+        if (
+            not shouldCacheOnDisk
+            or not resourceExists
+            or not shouldLoadFromExistingCache
+        ):
             assert res.empty
             mockFn.assert_not_called()
         else:

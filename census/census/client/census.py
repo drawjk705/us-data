@@ -28,6 +28,9 @@ class Census:
         self._variableSearch = variableSearch
         self._stats = stats
 
+        self.variables = {}
+        self.groups = {}
+
         api.healthCheck()
 
     # search

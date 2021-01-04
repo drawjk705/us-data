@@ -1,3 +1,4 @@
+from requests.utils import requote_uri
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
@@ -54,6 +55,8 @@ class ApiFetchService(IApiFetchService):
         if len(inDomains):
             querystring += f"&in={inClauses}"
 
+        querystring: str = requote_uri(querystring)
+
         return self.__fetch(route=querystring)
 
     @timer
@@ -102,6 +105,8 @@ class ApiFetchService(IApiFetchService):
                 domainStr += inDomainStr
 
             route = f"?{varStr}&{domainStr}"
+
+            route = requote_uri(route)
 
             resp = self.__fetch(route)
 

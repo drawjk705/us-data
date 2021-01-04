@@ -113,6 +113,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
 
         class MockRes:
             resCount: int = 0
+            status_code: int = 200
 
             @staticmethod
             def json() -> List[List[str]]:

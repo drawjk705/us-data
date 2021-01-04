@@ -40,7 +40,11 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         logging.info(f"searching variables for pattern `{regex}` by {searchBy}")
 
-        variables = self._variableRepository.getVariablesByGroup(inGroups)
+        variables: pd.DataFrame
+        if not len(inGroups):
+            variables = self._variableRepository.getAllVariables()
+        else:
+            variables = self._variableRepository.getVariablesByGroup(inGroups)
 
         series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
 

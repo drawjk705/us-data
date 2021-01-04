@@ -11,7 +11,6 @@ LOG_PREFIX = "[On-Disk Cache]"
 
 
 class OnDiskCache(ICache[pd.DataFrame]):
-    __shouldLoadFromExistingCache: bool
     __cachePath: pathlib.Path
     _config: Config
 
@@ -31,15 +30,13 @@ class OnDiskCache(ICache[pd.DataFrame]):
 
         self.__log(f"creating cache for {self.__cachePath}")
 
-        self.__shouldLoadFromExistingCache = config.shouldLoadFromExistingCache
-
         self.__setUpOnDiskCache()
 
     @timer
     def __setUpOnDiskCache(self) -> None:
         self.__log("setting up on disk cache")
 
-        if not self.__shouldLoadFromExistingCache:
+        if not self._config.shouldLoadFromExistingCache:
             self.__log("purging on disk cache")
 
             if pathlib.Path(self._config.cacheDir).exists():
@@ -67,7 +64,10 @@ class OnDiskCache(ICache[pd.DataFrame]):
 
     @timer
     def get(self, resource: str) -> pd.DataFrame:
-        if not self._config.shouldCacheOnDisk:
+        if (
+            not self._config.shouldLoadFromExistingCache
+            or not self._config.shouldCacheOnDisk
+        ):
             return pd.DataFrame()
 
         path = self.__cachePath.joinpath(pathlib.Path(resource))

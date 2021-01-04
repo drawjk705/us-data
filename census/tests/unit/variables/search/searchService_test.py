@@ -1,3 +1,4 @@
+from census.variables.models import GroupCode
 import pandas
 import pytest
 from census.variables.search.service import VariableSearchService
@@ -36,7 +37,23 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
 
         assert str(e.value) == 'searchBy parameter must be "name" or "concept"'
 
-    def test_searchVariables(self):
+    def test_searchVariables_inAllGroups(self):
+        repoVariables = pandas.DataFrame(
+            [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
+        )
+        self.mocker.patch.object(
+            self._service._variableRepository,
+            "getAllVariables",
+            return_value=repoVariables,
+        )
+
+        res = self._service.searchVariables("an", "name")
+
+        assert res.to_dict("records") == pandas.DataFrame(
+            [dict(name="banana"), dict(name="elephant")]
+        ).to_dict("records")
+
+    def test_searchVariables_inGroups(self):
         repoVariables = pandas.DataFrame(
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
         )
@@ -46,7 +63,7 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
             return_value=repoVariables,
         )
 
-        res = self._service.searchVariables("an", "name")
+        res = self._service.searchVariables("an", "name", [GroupCode("abc")])
 
         assert res.to_dict("records") == pandas.DataFrame(
             [dict(name="banana"), dict(name="elephant")]
