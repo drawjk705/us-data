@@ -1,4 +1,7 @@
-from typing import Any
+from typing import Any, List
+
+from callee.base import Matcher  # type: ignore
+import pandas
 
 
 class ServiceTestFixtureException(Exception):
@@ -65,3 +68,18 @@ def extractService(obj: _RequestCls.Obj) -> Any:
         raise ServiceTestFixtureException("ServiceTestFixture needs one type argument")
 
     return fixtureClass.__args__[0]
+
+
+class DataFrameColumnMatcher(Matcher):
+    _columnsValues: List[str]
+    _columnToMatch: str
+
+    def __init__(self, columnsValues: List[str], columnToMatch: str) -> None:
+        self._columnsValues = columnsValues
+        self._columnToMatch = columnToMatch
+
+    def match(self, df: Any):
+        if not isinstance(df, pandas.DataFrame):
+            return False
+        values = df[self._columnToMatch].tolist()  # type: ignore
+        return self._columnsValues == values

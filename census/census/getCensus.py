@@ -7,20 +7,20 @@ from typing import cast
 import pandas
 from census.variables.persistence.interface import ICache
 from census.variables.persistence.onDisk import OnDiskCache
-from census.stats.statsAsDataFrame import CensusStatisticsService
+from census.stats.service import CensusStatisticsService
 from census.stats.interface import ICensusStatisticsService
 from census.variables.search.interface import IVariableSearchService
 from census.variables.repository.interface import IVariableRepository
-from census.variables.repository.storeInDataFrame import VariableRepository
+from census.variables.repository.service import VariableRepository
 from census.dataTransformation.interface import IDataTransformer
-from census.variables.search.searchDataFrame import VariableSearchService
+from census.variables.search.service import VariableSearchService
 from census.api.interface import IApiFetchService, IApiSerializationService
 import punq
 
 from census.api.fetch import ApiFetchService
 from census.api.serialization import ApiSerializationService
 from census.config import CACHE_DIR, Config
-from census.dataTransformation.transformToDataFrame import DataFrameTransformer
+from census.dataTransformation.service import DataFrameTransformer
 from census.client.census import Census
 from census.models import DatasetType, SurveyType
 
@@ -65,6 +65,6 @@ def getCensus(
 
     configureLogger(logFile)
 
-    pandas.set_option("display.max_colwidth", -1)
+    pandas.set_option("display.max_colwidth", None)
 
     return cast(Census, container.resolve(Census))

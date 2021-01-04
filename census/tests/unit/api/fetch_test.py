@@ -1,6 +1,8 @@
+from census.exceptions import CensusDoesNotExistException
+from pytest_mock.plugin import MockerFixture
 from census.variables.models import VariableCode
 from typing import List
-from unittest.mock import call
+from unittest.mock import MagicMock, call
 from census.config import Config
 from census.api.interface import IApiSerializationService
 
@@ -10,6 +12,11 @@ from census.models import DatasetType, GeoDomain, SurveyType
 from tests.serviceTestFixtures import ApiServiceTestFixture
 
 mockConfig = Config(year=2019, datasetType=DatasetType.ACS, surveyType=SurveyType.ACS1)
+
+
+@pytest.fixture
+def logMock(mocker: MockerFixture):
+    return mocker.patch("census.api.fetch.logging")
 
 
 class ApiServiceWrapper(ApiFetchService):
@@ -132,3 +139,32 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             ["e", "f"],
             ["g", "h"],
         ]
+
+    def test_healthCheck_pass(self, logMock: MagicMock):
+        self.mocker.patch.object(self.requestsMock, "get", return_value=_Response(200))
+
+        self._service.healthCheck()
+
+        self.castMock(logMock.debug).assert_called_once_with(  # type: ignore
+            "[ApiFetchService] - healthCheck OK"
+        )
+
+    def test_healthCheck_fail(self, logMock: MagicMock):
+        self.mocker.patch.object(self.requestsMock, "get", return_value=_Response(404))
+
+        msg = "Data does not exist for dataset=acs; survey=acs1; year=2019"
+
+        with pytest.raises(CensusDoesNotExistException, match=msg):
+            self._service.healthCheck()
+
+        self.castMock(logMock.error).assert_called_once_with(  # type: ignore
+            f"[ApiFetchService] - {msg}"
+        )
+        self.castMock(logMock.debug).assert_not_called()  # type: ignore
+
+
+class _Response:
+    status_code: int
+
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code

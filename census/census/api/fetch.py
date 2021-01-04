@@ -1,3 +1,4 @@
+from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.utils.chunk import chunk
@@ -5,26 +6,41 @@ from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config
 from collections import OrderedDict
 from typing import Any, Dict, List
+import logging
 
 import requests
 
-from census.api.constants import API_URL_FORMAT
 from census.api.models import GeographyItem
 from census.models import GeoDomain
 
 # we can query only 50 variables at a time, max
 MAX_QUERY_SIZE = 50
+API_URL_FORMAT = "https://api.census.gov/data/{0}/{1}/{2}"
 
 
 class ApiFetchService(IApiFetchService):
     _url: str
     _parser: IApiSerializationService
+    _config: Config
 
     def __init__(self, config: Config, parser: IApiSerializationService) -> None:
-        self.__url = API_URL_FORMAT.format(
+        self._url = API_URL_FORMAT.format(
             config.year, config.datasetType.value, config.surveyType.value
         )
         self._parser = parser
+        self._config = config
+
+    def healthCheck(self) -> None:
+        res = requests.get(self._url + ".json")  # type: ignore
+
+        if res.status_code in [404, 400]:
+            msg = f"Data does not exist for dataset={self._config.datasetType.value}; survey={self._config.surveyType.value}; year={self._config.year}"
+
+            logging.error(f"[ApiFetchService] - {msg}")
+
+            raise CensusDoesNotExistException(msg)
+
+        logging.debug("[ApiFetchService] - healthCheck OK")
 
     @timer
     def geographyCodes(
@@ -101,5 +117,9 @@ class ApiFetchService(IApiFetchService):
         return res
 
     def __fetch(self, route: str = "") -> Any:
-        url = self.__url + route
-        return requests.get(url).json()  # type: ignore
+        url = self._url + route
+        res = requests.get(url)  # type: ignore
+        if res.status_code in [400, 404]:
+            raise InvalidQueryException(f"Could not make query for route `{route}`")
+
+        return res.json()  # type: ignore

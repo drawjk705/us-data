@@ -1,8 +1,7 @@
-from callee.base import Matcher
-from callee.types import InstanceOf, IsA
+from tests.utils import DataFrameColumnMatcher
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 from census.models import GeoDomain
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Union, cast
 
 from census.variables.repository.service import VariableRepository
 
@@ -118,9 +117,10 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
 
         assert res.to_dict() == fullDf.to_dict()
 
-    def test_getVariablesByGroup(self):
-        cacheHitGroup = GroupCode("hit")
-        cacheMissGroup = GroupCode("miss")
+    @pytest.mark.parametrize("cacheMissIndex", [(0), (1), (2)])
+    def test_getVariablesByGroup(self, cacheMissIndex: int):
+        cacheGroups = [GroupCode("g1"), GroupCode("g2"), GroupCode("g3")]
+        cacheMissGroup = cacheGroups[cacheMissIndex]
 
         variables = pandas.DataFrame(
             [
@@ -150,12 +150,12 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
 
         self.mocker.patch.object(transformer, "variables", return_value=variables)
 
-        def cacheGetSideEffect(resource: str) -> pandas.DataFrame:
-            return variables if cacheHitGroup in resource else pandas.DataFrame()
+        def cacheGetSideEffect(resource: str) -> Union[pandas.DataFrame, None]:
+            return None if cacheMissGroup in resource else variables
 
         self.mocker.patch.object(cache, "get", side_effect=cacheGetSideEffect)
 
-        self._service.getVariablesByGroup([cacheHitGroup, cacheMissGroup])
+        self._service.getVariablesByGroup(cacheGroups)
 
     def test_getAllVariables(self):
         group1Vars: List[Dict[str, Any]] = [
@@ -234,22 +234,11 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
         assert self._service.variables == expectedVariables
 
         cachePut.call_args_list == [
-            call("variables/group1.csv", DataFrameMatcher(["var1", "var2"], "code")),
-            call("variables/group2.csv", DataFrameMatcher(["var3", "var4"], "code")),
-            call("variables/group3.csv", DataFrameMatcher(["var5"], "code")),
+            call(
+                "variables/group1.csv", DataFrameColumnMatcher(["var1", "var2"], "code")
+            ),
+            call(
+                "variables/group2.csv", DataFrameColumnMatcher(["var3", "var4"], "code")
+            ),
+            call("variables/group3.csv", DataFrameColumnMatcher(["var5"], "code")),
         ]
-
-
-class DataFrameMatcher(Matcher):
-    _columnsValues: List[str]
-    _columnToMatch: str
-
-    def __init__(self, columnsValues: List[str], columnToMatch: str) -> None:
-        self._columnsValues = columnsValues
-        self._columnToMatch = columnToMatch
-
-    def match(self, df: Any):
-        if not isinstance(df, pandas.DataFrame):
-            return False
-        values = df[self._columnToMatch].tolist()  # type: ignore
-        return self._columnsValues == values

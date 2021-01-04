@@ -7,6 +7,10 @@ from census.api.models import GeographyItem
 
 class IApiFetchService(ABC):
     @abstractmethod
+    def healthCheck(self) -> None:
+        pass
+
+    @abstractmethod
     def geographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
     ) -> Any:

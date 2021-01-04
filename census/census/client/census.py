@@ -1,3 +1,4 @@
+from census.api.fetch import IApiFetchService
 from census.models import GeoDomain
 from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
 from typing import Dict, List, Literal
@@ -21,10 +22,13 @@ class Census:
         variableRepo: IVariableRepository[pd.DataFrame],
         variableSearch: IVariableSearchService[pd.DataFrame],
         stats: ICensusStatisticsService[pd.DataFrame],
+        api: IApiFetchService,
     ) -> None:
         self._variableRepo = variableRepo
         self._variableSearch = variableSearch
         self._stats = stats
+
+        api.healthCheck()
 
     # search
     def searchGroups(self, regex: str) -> pd.DataFrame:
