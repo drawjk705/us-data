@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from census.variables.models import Group, GroupVariable, VariableCode
-from typing import Any, Dict, List, OrderedDict
+from typing import Any, Dict, List
+from collections import OrderedDict
 from census.models import GeoDomain
 from census.api.models import GeographyItem
 

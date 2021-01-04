@@ -64,10 +64,10 @@ def extractService(obj: _RequestCls.Obj) -> Any:
             "ServiceTestFixture does not have any type arguments"
         )
 
-    if len(fixtureClass.__args__) != 1:
+    if len(fixtureClass.__args__) != 1:  # type: ignore
         raise ServiceTestFixtureException("ServiceTestFixture needs one type argument")
 
-    return fixtureClass.__args__[0]
+    return fixtureClass.__args__[0]  # type: ignore
 
 
 class DataFrameColumnMatcher(Matcher):

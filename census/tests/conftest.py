@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 from pytest import MonkeyPatch
 from _pytest.fixtures import FixtureRequest
-from pytest_mock.plugin import MockerFixture
+from pytest_mock.plugin import MockerFixture  # type: ignore
 
 from tests import utils
 

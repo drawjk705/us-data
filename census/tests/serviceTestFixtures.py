@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from _pytest.monkeypatch import MonkeyPatch
 
 
-from pytest_mock.plugin import MockerFixture
+from pytest_mock.plugin import MockerFixture  # type: ignore
 import pytest
 
 # pyright: reportPrivateUsage=false

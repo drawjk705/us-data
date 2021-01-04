@@ -1,7 +1,8 @@
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable
 from census.api.interface import IApiSerializationService
-from typing import Any, Dict, List, OrderedDict
+from typing import Any, Dict, List
+from collections import OrderedDict
 from census.api.models import GeographyClauseSet, GeographyItem, GeographyResponse
 
 

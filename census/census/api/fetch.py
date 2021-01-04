@@ -55,9 +55,9 @@ class ApiFetchService(IApiFetchService):
         if len(inDomains):
             querystring += f"&in={inClauses}"
 
-        querystring: str = requote_uri(querystring)
+        uriQuerystring: str = requote_uri(querystring)
 
-        return self.__fetch(route=querystring)
+        return self.__fetch(route=uriQuerystring)
 
     @timer
     def groupData(self) -> Dict[str, Group]:
@@ -89,7 +89,7 @@ class ApiFetchService(IApiFetchService):
         self,
         variablesCodes: List[VariableCode],
         forDomain: GeoDomain,
-        inDomains: List[GeoDomain],
+        inDomains: List[GeoDomain] = [],
     ):
         res: List[List[str]] = []
 
@@ -106,9 +106,9 @@ class ApiFetchService(IApiFetchService):
 
             route = f"?{varStr}&{domainStr}"
 
-            route = requote_uri(route)
+            uriRoute: str = requote_uri(route)
 
-            resp = self.__fetch(route)
+            resp = self.__fetch(uriRoute)
 
             if i > 0:
                 res += resp[1:]

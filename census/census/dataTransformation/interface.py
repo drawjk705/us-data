@@ -1,7 +1,8 @@
 from abc import abstractmethod
+from collections import OrderedDict
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.api.models import GeographyItem
-from typing import Any, Dict, Generic, List, OrderedDict, TypeVar
+from typing import Any, Dict, Generic, List, TypeVar
 
 T = TypeVar("T")
 

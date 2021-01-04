@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple
 @dataclass(frozen=True)
 class GeographyClauseSet:
     forClause: str
-    inClauses: Tuple[str]
+    inClauses: Tuple[str, ...]
 
     @classmethod
     def makeSet(cls, forClause: str, inClauses: List[str]):
