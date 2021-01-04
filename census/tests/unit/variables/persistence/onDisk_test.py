@@ -4,10 +4,7 @@ from typing import Any, List, Tuple
 from callee import String  # type: ignore
 from unittest.mock import MagicMock, Mock
 from _pytest.monkeypatch import MonkeyPatch
-from hypothesis.core import given
 import pandas
-from hypothesis import given
-import hypothesis.strategies as st
 
 import pytest
 from census.config import Config
@@ -79,13 +76,21 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         pathMock().mkdir.assert_not_called()  # type: ignore
         self.castMock(shutilMock.rmtree).assert_not_called()  # type: ignore
 
-    @given(shouldCacheOnDisk=st.booleans(), resourceExists=st.booleans())
+    @pytest.mark.parametrize(
+        ["shouldCacheOnDisk", "resourceExists", "shouldLoadFromExistingCache"],
+        makeBoolPermutations(3),
+    )
     def test_put_givenShouldCacheOptions(
         self,
         shouldCacheOnDisk: bool,
         resourceExists: bool,
+        shouldLoadFromExistingCache: bool,
     ):
-        config = Config(2019, shouldCacheOnDisk=shouldCacheOnDisk)
+        config = Config(
+            2019,
+            shouldCacheOnDisk=shouldCacheOnDisk,
+            shouldLoadFromExistingCache=shouldLoadFromExistingCache,
+        )
         resource = "resource"
         data = MagicMock(spec=pandas.DataFrame)
         givenExistenceOfPath(resourceExists, self.mocker)
@@ -117,12 +122,13 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         )
         resource = "resource"
         cache = OnDiskCache(config)
-        mockFn = MagicMock()
-        mockFn.return_value = "banana"
-        monkeypatch.setattr(
-            pathlib.Path, "exists", lambda *args, **kwargs: resourceExists
-        )
-        monkeypatch.setattr(pandas, "read_csv", mockFn)
+        mockReadCsv = MagicMock()
+        mockReadCsv.return_value = "banana"
+        mockExists = MagicMock()
+        mockExists.return_value = resourceExists
+
+        monkeypatch.setattr(pathlib.Path, "exists", mockExists)
+        monkeypatch.setattr(pandas, "read_csv", mockReadCsv)
 
         res = cache.get(resource)
 
@@ -132,7 +138,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
             or not shouldLoadFromExistingCache
         ):
             assert res.empty
-            mockFn.assert_not_called()
+            mockReadCsv.assert_not_called()
         else:
-            mockFn.assert_called_once()
+            mockReadCsv.assert_called_once()
             assert res == "banana"

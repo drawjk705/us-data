@@ -1,4 +1,4 @@
-from census.exceptions import CensusDoesNotExistException
+from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from pytest_mock.plugin import MockerFixture
 from census.variables.models import VariableCode
 from typing import List
@@ -19,12 +19,36 @@ def logMock(mocker: MockerFixture):
     return mocker.patch("census.api.fetch.logging")
 
 
+class MockRes:
+    resCount: int = 0
+    status_code: int = 200
+
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code
+
+    @staticmethod
+    def json() -> List[List[str]]:
+        if MockRes.resCount == 0:
+            MockRes.resCount += 1
+            return [["header1", "header2"], ["a", "b"], ["c", "d"]]
+        else:
+            return [["header1", "header2"], ["e", "f"], ["g", "h"]]
+
+
 class ApiServiceWrapper(ApiFetchService):
     def __init__(self, parser: IApiSerializationService) -> None:
         super().__init__(config=mockConfig, parser=parser)
 
 
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
+    def test_fetch_givenStatusCodeNot200(self):
+        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(404))
+
+        with pytest.raises(
+            InvalidQueryException, match="Could not make query for route `/groups.json`"
+        ):
+            self._service.groupData()
+
     @pytest.mark.parametrize(
         ["domain", "parentDomains", "expectedRoute"],
         [
@@ -111,25 +135,13 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     def test_stats_returnsOnlyTopRow(self):
         self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
 
-        class MockRes:
-            resCount: int = 0
-            status_code: int = 200
-
-            @staticmethod
-            def json() -> List[List[str]]:
-                if MockRes.resCount == 0:
-                    MockRes.resCount += 1
-                    return [["header1", "header2"], ["a", "b"], ["c", "d"]]
-                else:
-                    return [["header1", "header2"], ["e", "f"], ["g", "h"]]
-
         varCodes = [
             VariableCode("1"),
             VariableCode("2"),
             VariableCode("3"),
             VariableCode("4"),
         ]
-        self.requestsMock.get.return_value = MockRes()  # type: ignore
+        self.requestsMock.get.return_value = MockRes(200)  # type: ignore
 
         res = self._service.stats(varCodes, GeoDomain(""), [GeoDomain("")])
 
