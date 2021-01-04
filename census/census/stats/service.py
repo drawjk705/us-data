@@ -33,12 +33,14 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
+        replaceColumnHeaders: bool = False,
     ) -> pd.DataFrame:
 
         return self.__getStats(
             variablesToQuery=tuple(getUnique(variablesToQuery)),
             forDomain=forDomain,
             inDomains=tuple(getUnique(inDomains)),
+            replaceColumnHeaders=replaceColumnHeaders,
         )
 
     @cache
@@ -47,11 +49,15 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         variablesToQuery: Tuple[VariableCode],
         forDomain: GeoDomain,
         inDomains: Tuple[GeoDomain],
+        replaceColumnHeaders: bool = False,
     ) -> pd.DataFrame:
 
-        apiRes = self._api.stats(list(variablesToQuery), forDomain, list(inDomains))
+        pullStats = lambda: self._api.stats(
+            list(variablesToQuery), forDomain, list(inDomains)
+        )
 
         typeConversions: Dict[str, Any] = {}
+        columnHeaders: Dict[VariableCode, str] = {}
         for k, v in self._variableRepo.variables.items():
             if k not in variablesToQuery:
                 continue
@@ -59,7 +65,16 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
                 typeConversions.update({k: float})
             elif v.predicateType == "int":
                 typeConversions.update({k: int})
+            columnHeaders.update({k: v.name})
 
-        df = self._transformer.stats(apiRes, list(variablesToQuery), typeConversions)
+        apiResults: List[List[List[str]]] = [res for res in pullStats()]
+
+        df = self._transformer.stats(
+            apiResults,
+            list(variablesToQuery),
+            typeConversions,
+            [forDomain] + list(inDomains),
+            columnHeaders=columnHeaders if replaceColumnHeaders else None,
+        )
 
         return df

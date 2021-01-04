@@ -1,8 +1,9 @@
+from census.models import GeoDomain
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.dataTransformation.interface import IDataTransformer
 from collections import OrderedDict
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from census.api.models import GeographyItem
@@ -62,19 +63,36 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     @timer
     def stats(
         self,
-        results: List[List[Any]],
+        results: List[List[List[str]]],
         queriedVariables: List[VariableCode],
         typeConversions: Dict[str, Any],
+        geoDomains: List[GeoDomain],
+        columnHeaders: Optional[Dict[VariableCode, str]],
     ) -> pd.DataFrame:
-        df = pd.DataFrame(results[1:], columns=results[0])
+        mainDf = pd.DataFrame()
+        geoCols = [geoDomain.name for geoDomain in geoDomains]
 
-        columnsList = df.columns.tolist()
+        for result in results:
+            df = pd.DataFrame(result[1:], columns=result[0])
+
+            if mainDf.empty:
+                mainDf = df
+            else:
+                mainDf = pd.merge(mainDf, df, on=geoCols, how="inner")
+                mainDf = mainDf.drop(columns=["NAME_x"]).rename(
+                    columns=dict(NAME_y="NAME")
+                )
+
+        allCols = mainDf.columns.tolist()
 
         # reshuffle the columns
-        nameCol = columnsList[0]
-        variableCols = columnsList[1 : len(queriedVariables) + 1]
-        geoCols = columnsList[1 + len(queriedVariables) :]
+        nameCol = ["NAME"]
+        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]
 
-        reorderedColumns = [nameCol] + geoCols + variableCols
+        reorderedColumns = nameCol + geoCols + variableCols
 
-        return df[reorderedColumns].astype(typeConversions)
+        return (
+            mainDf[reorderedColumns]
+            .astype(typeConversions)
+            .rename(columns=columnHeaders or {})
+        )

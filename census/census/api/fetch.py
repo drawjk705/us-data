@@ -6,7 +6,7 @@ from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config
 from collections import OrderedDict
-from typing import Any, Dict, List
+from typing import Any, Dict, Generator, List
 import logging
 
 import requests
@@ -90,10 +90,10 @@ class ApiFetchService(IApiFetchService):
         variablesCodes: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
-    ):
-        res: List[List[str]] = []
+    ) -> Generator[List[List[str]], None, None]:
 
-        for i, codes in enumerate(chunk(variablesCodes, MAX_QUERY_SIZE)):
+        # we need the minus 1 since we're also querying name
+        for i, codes in enumerate(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):
             codeStr = ",".join(codes)
             varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
 
@@ -108,18 +108,12 @@ class ApiFetchService(IApiFetchService):
 
             uriRoute: str = requote_uri(route)
 
-            resp = self.__fetch(uriRoute)
+            # not doing any serializing here, because this is a bit more
+            # complicated (we need to convert the variables to the appropriate
+            # data types further up when we're working with dataFrames; there's
+            # no real good way to do it down here)
 
-            if i > 0:
-                res += resp[1:]
-            else:
-                res += resp
-
-        # not doing any serializing here, because this is a bit more
-        # complicated (we need to convert the variables to the appropriate
-        # data types further up when we're working with dataFrames; there's
-        # no real good way to do it down here)
-        return res
+            yield self.__fetch(uriRoute)
 
     def __fetch(self, route: str = "") -> Any:
         url = self._url + route

@@ -1,8 +1,9 @@
 from abc import abstractmethod
+from census.models import GeoDomain
 from collections import OrderedDict
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.api.models import GeographyItem
-from typing import Any, Dict, Generic, List, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -32,8 +33,10 @@ class IDataTransformer(Generic[T]):
     @abstractmethod
     def stats(
         self,
-        results: List[List[Any]],
+        results: List[List[List[str]]],
         queriedVariables: List[VariableCode],
         typeConversions: Dict[str, Any],
+        geoDomains: List[GeoDomain],
+        columnHeaders: Optional[Dict[VariableCode, str]],
     ) -> T:
         pass

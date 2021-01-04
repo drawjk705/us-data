@@ -103,7 +103,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_stats_callsFetchInBatches(self):
-        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
+        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [
             VariableCode("1"),
@@ -133,7 +133,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_stats_returnsOnlyTopRow(self):
-        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
+        self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [
             VariableCode("1"),

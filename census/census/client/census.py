@@ -75,5 +75,8 @@ class Census:
         variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
+        replaceColumnHeaders: bool = False,
     ) -> pd.DataFrame:
-        return self._stats.getStats(variablesToQuery, forDomain, inDomains)
+        return self._stats.getStats(
+            variablesToQuery, forDomain, inDomains, replaceColumnHeaders
+        )

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from census.variables.models import Group, GroupVariable, VariableCode
-from typing import Any, Dict, List
+from typing import Any, Dict, Generator, List
 from collections import OrderedDict
 from census.models import GeoDomain
 from census.api.models import GeographyItem
@@ -39,7 +39,7 @@ class IApiFetchService(ABC):
         variablesCodes: List[VariableCode],
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
-    ) -> Any:
+    ) -> Generator[List[List[str]], None, None]:
         pass
 
 

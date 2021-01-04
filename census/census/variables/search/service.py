@@ -16,7 +16,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
     @timer
     def searchGroups(self, regex: str) -> pd.DataFrame:
-        logging.info(f"searching groups for regex: `{regex}`")
+        self.__log(f"searching groups for regex: `{regex}`")
 
         groups = self._variableRepository.getGroups()
 
@@ -38,7 +38,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         if searchBy not in ["name", "concept"]:
             raise Exception('searchBy parameter must be "name" or "concept"')
 
-        logging.info(f"searching variables for pattern `{regex}` by {searchBy}")
+        self.__log(f"searching variables for pattern `{regex}` by {searchBy}")
 
         variables: pd.DataFrame
         if not len(inGroups):
@@ -49,3 +49,6 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
 
         return variables[series]  # type: ignore
+
+    def __log(self, msg: str) -> None:
+        logging.debug(f"[VariableSearchService] - {msg}")
