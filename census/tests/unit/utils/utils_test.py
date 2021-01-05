@@ -63,6 +63,10 @@ def test_timer_logsAndReturnsValues(mocker: MockerFixture):
             "Estimate!!Total:!!No schooling completed",
             "Estimate_Total_NoSchoolingCompleted",
         ),
+        (
+            "Estimate!!Total:!!No schooling completed, nothing at all",
+            "Estimate_Total_NoSchoolingCompletedNothingAtAll",
+        ),
     ],
 )
 def test_cleanVariableName(variableName: str, cleanedName: str):

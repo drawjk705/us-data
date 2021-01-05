@@ -13,7 +13,7 @@ def cleanVariableName(variableName: str) -> str:
 
     for i, chunk in enumerate(variableName.split("!!")):
         newName = ""
-        for subChunk in chunk.split(" "):
+        for subChunk in chunk.replace(",", " ").replace(".", " ").split(" "):
             newName += subChunk.capitalize().strip(r"(\s|:)")
 
         if i == 0:
