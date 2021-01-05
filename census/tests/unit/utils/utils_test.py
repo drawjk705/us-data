@@ -1,3 +1,5 @@
+from census.utils.cleanVariableName import cleanVariableName
+import pytest
 from typing import cast
 from unittest.mock import MagicMock
 from census.utils.chunk import chunk
@@ -50,3 +52,20 @@ def test_timer_logsAndReturnsValues(mocker: MockerFixture):
         "[test_timer_logsAndReturnsValues.<locals>.fn] - duration: 1000.00ms"
     )
     assert retval == 1
+
+
+@pytest.mark.parametrize(
+    ["variableName", "cleanedName"],
+    [
+        ("Estimate!!Total:", "Estimate_Total"),
+        ("banana", "Banana"),
+        (
+            "Estimate!!Total:!!No schooling completed",
+            "Estimate_Total_NoSchoolingCompleted",
+        ),
+    ],
+)
+def test_cleanVariableName(variableName: str, cleanedName: str):
+    res = cleanVariableName(variableName)
+
+    assert res == cleanedName

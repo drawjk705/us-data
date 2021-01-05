@@ -4,47 +4,55 @@
 from census.getCensus import getCensus
 
 
+# %%
 c = getCensus(2019, shouldCacheOnDisk=True, shouldLoadFromExistingCache=True)
 
 
-c.getGroups()
-
-
+# %%
 groups = c.getGroups()
 
 
-internetSlashEducSearch = c.searchGroups(regex="(internet|education)")
-
-
-c.searchGroups("^employment")
-
-educAttainment = c.getVariablesByGroup(["C15003"])
-compAccessByEduc = c.getVariablesByGroup(["B28006"])
-educAndEmployment = c.getVariablesByGroup(["B16010"])
-employment = c.getVariablesByGroup(["B23025"])
-
-grouped = c.getVariablesByGroup(["C15003", "B28006", "B16010", "B23025"])
-
-grouped = grouped[grouped["name"].str.contains("^Estimate!!")]
-
-
-grouped.head()
-
-from census.models import GeoDomain
-
-variables = grouped["code"].tolist()
 # %%
+educGroups = c.searchGroups("education")
 
-c.getStats(
-    variables,
-    GeoDomain("congressional district"),
-    [GeoDomain("state")],
-    replaceColumnHeaders=True,
+
+# %%
+c.searchGroups("computer").head()
+
+
+# %%
+# B16010    EDUCATIONAL ATTAINMENT AND EMPLOYMENT STATUS BY LANGUAGE SPOKEN AT HOME FOR THE POPULATION 25 YEARS AND OVER
+# C15003	EDUCATIONAL ATTAINMENT FOR THE POPULATION 25 YEARS AND OVER
+# B28010	COMPUTERS IN HOUSEHOLD
+# B28003	PRESENCE OF A COMPUTER AND TYPE OF INTERNET SUBSCRIPTION IN
+# B28006	EDUCATIONAL ATTAINMENT BY PRESENCE OF A COMPUTER AND TYPES OF INTERNET SUBSCRIPTION IN HOUSEHOLD
+# B23025	EMPLOYMENT STATUS FOR THE POPULATION 16 YEARS AND OVER
+# B27011	HEALTH INSURANCE COVERAGE STATUS AND TYPE BY EMPLOYMENT STATUS
+# C16010	EDUCATIONAL ATTAINMENT AND EMPLOYMENT STATUS BY LANGUAGE SPOKEN AT HOME FOR THE POPULATION 25 YEARS AND OVER
+
+
+# %%
+from census.variables.models import GroupCode
+
+
+# %%
+variables = c.getVariablesByGroup(
+    [
+        "B16010",
+        "C15003",
+        "B28010",
+        "B28003",
+        "B28006",
+        "B23025",
+        "B27011",
+        "C16010",
+    ]
 )
 
 
 # %%
-
+filteredVars = variables[variables["name"].str.contains("^estimate!!", case=False)]
 # %%
 
+filteredVars[["name", "code"]]
 # %%

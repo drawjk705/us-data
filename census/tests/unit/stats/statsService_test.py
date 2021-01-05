@@ -54,12 +54,8 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
     def test_getStats_passesCorrectValuesToTransformer(
         self, shouldReplaceColumnHeaders: bool
     ):
-        apiRes = iter([[1, 2], [3]])
         apiGet = self.mocker.patch.object(
-            self._service._api, "stats", return_value=apiRes
-        )
-        self.mocker.patch.object(
-            self._service._variableRepo, "variables", variablesInRepo
+            self._service._api, "stats", return_value=iter([[1, 2], [3]])
         )
         variablesToQuery = [
             var1.code,
@@ -68,9 +64,13 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         ]
         forDomain = GeoDomain("state")
         inDomains = [GeoDomain("us")]
-        expectedTypeConversions: Dict[str, Any] = dict(var1=int, var2=float)
-        expectedColumnMapping: Dict[str, str] = dict(
-            var1="name 1", var2="name 2", var3="name 3"
+        expectedColumnMapping: Dict[str, int] = dict(map=1)
+        expectedTypeMapping: Dict[str, Any] = dict(map=int)
+
+        self.mocker.patch.object(
+            self._service,
+            "_getVariableNamesAndTypeConversions",
+            return_value=(expectedColumnMapping, expectedTypeMapping),
         )
 
         self._service.getStats(
@@ -80,8 +80,60 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         apiGet.assert_called_once_with(variablesToQuery, forDomain, inDomains)
         self.castMock(self._service._transformer.stats).assert_called_once_with(
             [[1, 2], [3]],
-            variablesToQuery,
-            expectedTypeConversions,
+            expectedTypeMapping,
             [forDomain] + inDomains,
             columnHeaders=expectedColumnMapping if shouldReplaceColumnHeaders else None,
         )
+
+    def test_getVariableNamesAndTypeConversions_givenUniqueNames(self):
+        variablesToQuery = {
+            var1.code,
+            var2.code,
+            var3.code,
+        }
+        self.mocker.patch("census.stats.service.cleanVariableName", lambda x: x)  # type: ignore
+        self.mocker.patch.object(
+            self._service._variableRepo, "variables", variablesInRepo
+        )
+
+        columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
+            variablesToQuery
+        )
+
+        assert columnMapping == {"var1": "name 1", "var2": "name 2", "var3": "name 3"}
+        assert typeMapping == {"var1": int, "var2": float}
+
+    def test_getVariableNamesAndTypeConversions_givenDuplicateNamesBetweenGroups(self):
+        variableWithDuplicateName = GroupVariable(
+            code=VariableCode("var5"),
+            groupCode=GroupCode("g2"),
+            groupConcept="concept 3",
+            limit=0,
+            predicateType="string",
+            predicateOnly=False,
+            name=var1.name,
+        )
+        variablesToQuery = {
+            var1.code,
+            var2.code,
+            var3.code,
+            variableWithDuplicateName.code,
+        }
+        self.mocker.patch("census.stats.service.cleanVariableName", lambda x: x)  # type: ignore
+        self.mocker.patch.object(
+            self._service._variableRepo,
+            "variables",
+            dict(variablesInRepo, var5=variableWithDuplicateName),
+        )
+
+        columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
+            variablesToQuery
+        )
+
+        assert columnMapping == {
+            "var1": "name 1_g1",
+            "var2": "name 2_g1",
+            "var3": "name 3_g1",
+            "var5": "name 1_g2",
+        }
+        assert typeMapping == {"var1": int, "var2": float}

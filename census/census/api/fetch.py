@@ -6,8 +6,9 @@ from census.utils.chunk import chunk
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.config import Config
 from collections import OrderedDict
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, Generator, List, cast
 import logging
+from tqdm.notebook import tqdm  # type: ignore
 
 import requests
 
@@ -93,8 +94,8 @@ class ApiFetchService(IApiFetchService):
     ) -> Generator[List[List[str]], None, None]:
 
         # we need the minus 1 since we're also querying name
-        for i, codes in enumerate(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):
-            codeStr = ",".join(codes)
+        for codes in tqdm(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):
+            codeStr = ",".join(cast(List[VariableCode], codes))
             varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
 
             domainStr = "for=" + str(forDomain)

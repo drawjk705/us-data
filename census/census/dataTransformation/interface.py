@@ -34,7 +34,6 @@ class IDataTransformer(Generic[T]):
     def stats(
         self,
         results: List[List[List[str]]],
-        queriedVariables: List[VariableCode],
         typeConversions: Dict[str, Any],
         geoDomains: List[GeoDomain],
         columnHeaders: Optional[Dict[VariableCode, str]],

@@ -300,6 +300,157 @@ MOCK_API = {
             "06",
         ],
     ],
+    # stats -- batched
+    "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E&for=congressional%20district:*&in=state:01": [
+        [
+            "NAME",
+            "B17015_001E",
+            "state",
+            "congressional district",
+        ],
+        [
+            "Congressional District 1 (116th Congress), Alabama",
+            "172441",
+            "01",
+            "01",
+        ],
+        [
+            "Congressional District 3 (116th Congress), Alabama",
+            "184320",
+            "01",
+            "03",
+        ],
+        [
+            "Congressional District 5 (116th Congress), Alabama",
+            "195668",
+            "01",
+            "05",
+        ],
+        [
+            "Congressional District 4 (116th Congress), Alabama",
+            "179508",
+            "01",
+            "04",
+        ],
+        [
+            "Congressional District 7 (116th Congress), Alabama",
+            "151225",
+            "01",
+            "07",
+        ],
+        [
+            "Congressional District 2 (116th Congress), Alabama",
+            "168129",
+            "01",
+            "02",
+        ],
+        [
+            "Congressional District 6 (116th Congress), Alabama",
+            "186592",
+            "01",
+            "06",
+        ],
+    ],
+    "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18104_001E&for=congressional%20district:*&in=state:01": [
+        [
+            "NAME",
+            "B18104_001E",
+            "state",
+            "congressional district",
+        ],
+        [
+            "Congressional District 1 (116th Congress), Alabama",
+            "664816",
+            "01",
+            "01",
+        ],
+        [
+            "Congressional District 3 (116th Congress), Alabama",
+            "664930",
+            "01",
+            "03",
+        ],
+        [
+            "Congressional District 5 (116th Congress), Alabama",
+            "681411",
+            "01",
+            "05",
+        ],
+        [
+            "Congressional District 4 (116th Congress), Alabama",
+            "640347",
+            "01",
+            "04",
+        ],
+        [
+            "Congressional District 7 (116th Congress), Alabama",
+            "620542",
+            "01",
+            "07",
+        ],
+        [
+            "Congressional District 2 (116th Congress), Alabama",
+            "610312",
+            "01",
+            "02",
+        ],
+        [
+            "Congressional District 6 (116th Congress), Alabama",
+            "653559",
+            "01",
+            "06",
+        ],
+    ],
+    "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18105_001E&for=congressional%20district:*&in=state:01": [
+        [
+            "NAME",
+            "B18105_001E",
+            "state",
+            "congressional district",
+        ],
+        [
+            "Congressional District 1 (116th Congress), Alabama",
+            "664816",
+            "01",
+            "01",
+        ],
+        [
+            "Congressional District 3 (116th Congress), Alabama",
+            "664930",
+            "01",
+            "03",
+        ],
+        [
+            "Congressional District 5 (116th Congress), Alabama",
+            "681411",
+            "01",
+            "05",
+        ],
+        [
+            "Congressional District 4 (116th Congress), Alabama",
+            "640347",
+            "01",
+            "04",
+        ],
+        [
+            "Congressional District 7 (116th Congress), Alabama",
+            "620542",
+            "01",
+            "07",
+        ],
+        [
+            "Congressional District 2 (116th Congress), Alabama",
+            "610312",
+            "01",
+            "02",
+        ],
+        [
+            "Congressional District 6 (116th Congress), Alabama",
+            "653559",
+            "01",
+            "06",
+        ],
+    ],
     # supported geographies
     "https://api.census.gov/data/2019/acs/acs1/geography.json": {
         "default": [{"isDefault": "True"}],

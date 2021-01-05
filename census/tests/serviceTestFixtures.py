@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 from unittest.mock import MagicMock
 from _pytest.monkeypatch import MonkeyPatch
 
@@ -16,7 +16,6 @@ _T = TypeVar("_T")
 )
 class ServiceTestFixture(Generic[_T]):
     _service: _T
-    _dependencies: Dict[str, MagicMock]
     mocker: MockerFixture
     monkeypatch: MonkeyPatch
 

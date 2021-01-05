@@ -136,12 +136,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 ["6", "yarn", "ropy", "9", "10"],
             ],
         ]
-        queriedVariables = [
-            VariableCode("var1"),
-            VariableCode("var2"),
-            VariableCode("var2"),
-            VariableCode("var3"),
-        ]
+
         typeConversions: Dict[str, Any] = dict(var1=int, var2=float)
         columnHeaders: Optional[Dict[VariableCode, str]] = (
             dict(var1="banana", var2="apple", var3="pear", var4="peach")
@@ -150,9 +145,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
         )
         geoDomains = [GeoDomain("geoCol1"), GeoDomain("geoCol2")]
 
-        res = self._service.stats(
-            results, queriedVariables, typeConversions, geoDomains, columnHeaders
-        )
+        res = self._service.stats(results, typeConversions, geoDomains, columnHeaders)
 
         if shouldUseColumnHeaders:
             assert res.dtypes.to_dict() == {

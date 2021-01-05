@@ -48,7 +48,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
 
-        return variables[series]  # type: ignore
+        return variables[series].reset_index(drop=True)  # type: ignore
 
     def __log(self, msg: str) -> None:
         logging.debug(f"[VariableSearchService] - {msg}")

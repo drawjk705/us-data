@@ -9,6 +9,10 @@ import pandas as pd
 from census.api.models import GeographyItem
 
 
+# pyright: reportUnknownMemberType=false
+# pyright: reportGeneralTypeIssues=false
+
+
 class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def __init__(self) -> None:
         super().__init__()
@@ -64,7 +68,6 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def stats(
         self,
         results: List[List[List[str]]],
-        queriedVariables: List[VariableCode],
         typeConversions: Dict[str, Any],
         geoDomains: List[GeoDomain],
         columnHeaders: Optional[Dict[VariableCode, str]],
@@ -78,8 +81,8 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
             if mainDf.empty:
                 mainDf = df
             else:
-                mainDf = pd.merge(mainDf, df, on=geoCols, how="inner")
-                mainDf = mainDf.drop(columns=["NAME_x"]).rename(
+                mainDf = pd.merge(mainDf, df, on=geoCols, how="inner")  # type: ignore
+                mainDf = mainDf.drop(columns=["NAME_x"]).rename(  # type: ignore
                     columns=dict(NAME_y="NAME")
                 )
 

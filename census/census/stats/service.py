@@ -1,9 +1,10 @@
+from census.utils.cleanVariableName import cleanVariableName
 from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
 from census.variables.models import VariableCode
 from census.utils.unique import getUnique
 from functools import cache
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import pandas as pd
 from census.api.interface import IApiFetchService
@@ -56,25 +57,45 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             list(variablesToQuery), forDomain, list(inDomains)
         )
 
-        typeConversions: Dict[str, Any] = {}
-        columnHeaders: Dict[VariableCode, str] = {}
-        for k, v in self._variableRepo.variables.items():
-            if k not in variablesToQuery:
-                continue
-            if v.predicateType == "float":
-                typeConversions.update({k: float})
-            elif v.predicateType == "int":
-                typeConversions.update({k: int})
-            columnHeaders.update({k: v.name})
-
         apiResults: List[List[List[str]]] = [res for res in pullStats()]
+
+        columnHeaders, typeConversions = self._getVariableNamesAndTypeConversions(
+            set(variablesToQuery)
+        )
 
         df = self._transformer.stats(
             apiResults,
-            list(variablesToQuery),
             typeConversions,
             [forDomain] + list(inDomains),
             columnHeaders=columnHeaders if replaceColumnHeaders else None,
         )
 
         return df
+
+    def _getVariableNamesAndTypeConversions(
+        self, variablesToQuery: Set[VariableCode]
+    ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
+        relevantVariables = {
+            k: v
+            for k, v in self._variableRepo.variables.items()
+            if k in variablesToQuery
+        }
+        hasDuplicateNames = len({v.name for v in relevantVariables.values()}) < len(
+            variablesToQuery
+        )
+
+        typeConversions: Dict[str, Any] = {}
+        columnHeaders: Dict[VariableCode, str] = {}
+        for k, v in relevantVariables.items():
+            if v.predicateType == "float":
+                typeConversions.update({k: float})
+            elif v.predicateType == "int":
+                typeConversions.update({k: int})
+
+            cleanedVarName = cleanVariableName(v.name)
+            if hasDuplicateNames:
+                cleanedVarName += f"_{v.groupCode}"
+
+            columnHeaders.update({k: cleanedVarName})
+
+        return columnHeaders, typeConversions

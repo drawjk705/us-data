@@ -1,3 +1,4 @@
+from pytest_mock.plugin import MockerFixture
 from census.variables.models import GroupCode, VariableCode
 import pandas
 from census.models import GeoDomain
@@ -27,6 +28,66 @@ class _Response:
             raise Exception("Uh oh")
 
         return self.content
+
+
+expectedStatsRes = [
+    {
+        "NAME": "Congressional District 1 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "01",
+        "B17015_001E": "172441",
+        "B18104_001E": "664816",
+        "B18105_001E": "664816",
+    },
+    {
+        "NAME": "Congressional District 3 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "03",
+        "B17015_001E": "184320",
+        "B18104_001E": "664930",
+        "B18105_001E": "664930",
+    },
+    {
+        "NAME": "Congressional District 5 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "05",
+        "B17015_001E": "195668",
+        "B18104_001E": "681411",
+        "B18105_001E": "681411",
+    },
+    {
+        "NAME": "Congressional District 4 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "04",
+        "B17015_001E": "179508",
+        "B18104_001E": "640347",
+        "B18105_001E": "640347",
+    },
+    {
+        "NAME": "Congressional District 7 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "07",
+        "B17015_001E": "151225",
+        "B18104_001E": "620542",
+        "B18105_001E": "620542",
+    },
+    {
+        "NAME": "Congressional District 2 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "02",
+        "B17015_001E": "168129",
+        "B18104_001E": "610312",
+        "B18105_001E": "610312",
+    },
+    {
+        "NAME": "Congressional District 6 (116th Congress), Alabama",
+        "state": "01",
+        "congressional district": "06",
+        "B17015_001E": "186592",
+        "B18104_001E": "653559",
+        "B18105_001E": "653559",
+    },
+]
 
 
 def verifyResource(resource: str, exists: bool = True):
@@ -119,7 +180,9 @@ class TestCensus:
 
         _ = censusCacheNoLoad.getGroups()
 
-        assert "https://api.census.gov/data/2019/acs/acs1/groups.json" in apiCalls
+        assert {"https://api.census.gov/data/2019/acs/acs1/groups.json"}.issubset(
+            apiCalls
+        )
 
         assert tempDir.joinpath("cache").exists()
 
@@ -273,11 +336,10 @@ class TestCensus:
             },
         ]
 
-        assert (
-            "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json" in apiCalls
-            and "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json"
-            in apiCalls
-        )
+        assert {
+            "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json",
+            "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
+        }.issubset(apiCalls)
         assert res.to_dict("records") == expectedRes
 
     def test_cachedCensus_searchAllVariables(
@@ -316,16 +378,19 @@ class TestCensus:
             },
         ]
 
-        assert (
-            "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json" in apiCalls
-            and "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json"
-            in apiCalls
-            and "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json"
-            in apiCalls
-        )
+        assert {
+            "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json",
+            "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
+            "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json",
+        }.issubset(apiCalls)
+
         assert res.to_dict("records") == expectedRes
 
-    def test_cachedCensus_stats(self, cachedCensus: Census, apiCalls: Set[str]):
+    def test_cachedCensus_stats_batchedApiCalls(
+        self, cachedCensus: Census, apiCalls: Set[str], mocker: MockerFixture
+    ):
+        mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
+
         variables = [
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
@@ -335,69 +400,163 @@ class TestCensus:
 
         res = cachedCensus.getStats(variables, forDomain, inDomains)
 
-        expectedRes = [
-            {
-                "NAME": "Congressional District 1 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "01",
-                "B17015_001E": "172441",
-                "B18104_001E": "664816",
-                "B18105_001E": "664816",
-            },
-            {
-                "NAME": "Congressional District 3 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "03",
-                "B17015_001E": "184320",
-                "B18104_001E": "664930",
-                "B18105_001E": "664930",
-            },
-            {
-                "NAME": "Congressional District 5 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "05",
-                "B17015_001E": "195668",
-                "B18104_001E": "681411",
-                "B18105_001E": "681411",
-            },
-            {
-                "NAME": "Congressional District 4 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "04",
-                "B17015_001E": "179508",
-                "B18104_001E": "640347",
-                "B18105_001E": "640347",
-            },
-            {
-                "NAME": "Congressional District 7 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "07",
-                "B17015_001E": "151225",
-                "B18104_001E": "620542",
-                "B18105_001E": "620542",
-            },
-            {
-                "NAME": "Congressional District 2 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "02",
-                "B17015_001E": "168129",
-                "B18104_001E": "610312",
-                "B18105_001E": "610312",
-            },
-            {
-                "NAME": "Congressional District 6 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "06",
-                "B17015_001E": "186592",
-                "B18104_001E": "653559",
-                "B18105_001E": "653559",
-            },
+        assert res.to_dict("records") == expectedStatsRes
+
+        assert {
+            "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E&for=congressional%20district:*&in=state:01",
+            "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18104_001E&for=congressional%20district:*&in=state:01",
+            "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18105_001E&for=congressional%20district:*&in=state:01",
+        }.issubset(apiCalls)
+
+    def test_cachedCensus_stats_noColumnNameChange(
+        self, cachedCensus: Census, apiCalls: Set[str]
+    ):
+        variables = [
+            VariableCode(code)
+            for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
         ]
+        forDomain = GeoDomain("congressional district")
+        inDomains = [GeoDomain("state", "01")]
 
-        print(res.to_dict("records"))
+        res = cachedCensus.getStats(variables, forDomain, inDomains)
 
-        assert res.to_dict("records") == expectedRes
+        assert res.to_dict("records") == expectedStatsRes
         assert (
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E,B18104_001E,B18105_001E&for=congressional%20district:*&in=state:01"
             in apiCalls
         )
+
+    def test_cachedCensus_stats_columnNameChangeWithDuplicate(
+        self, cachedCensus: Census
+    ):
+        variables = [
+            VariableCode(code)
+            for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
+        ]
+        forDomain = GeoDomain("congressional district")
+        inDomains = [GeoDomain("state", "01")]
+
+        # to populate "variables"
+        _ = cachedCensus.getAllVariables()
+
+        res = cachedCensus.getStats(
+            variables, forDomain, inDomains, replaceColumnHeaders=True
+        )
+
+        assert res.to_dict("records") == [
+            {
+                "NAME": "Congressional District 1 (116th Congress), Alabama",
+                "congressional district": "01",
+                "state": "01",
+                "Estimate_Total_B17015": "172441",
+                "Estimate_Total_B18104": "664816",
+                "Estimate_Total_B18105": "664816",
+            },
+            {
+                "NAME": "Congressional District 3 (116th Congress), Alabama",
+                "congressional district": "03",
+                "state": "01",
+                "Estimate_Total_B17015": "184320",
+                "Estimate_Total_B18104": "664930",
+                "Estimate_Total_B18105": "664930",
+            },
+            {
+                "NAME": "Congressional District 5 (116th Congress), Alabama",
+                "congressional district": "05",
+                "state": "01",
+                "Estimate_Total_B17015": "195668",
+                "Estimate_Total_B18104": "681411",
+                "Estimate_Total_B18105": "681411",
+            },
+            {
+                "NAME": "Congressional District 4 (116th Congress), Alabama",
+                "congressional district": "04",
+                "state": "01",
+                "Estimate_Total_B17015": "179508",
+                "Estimate_Total_B18104": "640347",
+                "Estimate_Total_B18105": "640347",
+            },
+            {
+                "NAME": "Congressional District 7 (116th Congress), Alabama",
+                "congressional district": "07",
+                "state": "01",
+                "Estimate_Total_B17015": "151225",
+                "Estimate_Total_B18104": "620542",
+                "Estimate_Total_B18105": "620542",
+            },
+            {
+                "NAME": "Congressional District 2 (116th Congress), Alabama",
+                "congressional district": "02",
+                "state": "01",
+                "Estimate_Total_B17015": "168129",
+                "Estimate_Total_B18104": "610312",
+                "Estimate_Total_B18105": "610312",
+            },
+            {
+                "NAME": "Congressional District 6 (116th Congress), Alabama",
+                "congressional district": "06",
+                "state": "01",
+                "Estimate_Total_B17015": "186592",
+                "Estimate_Total_B18104": "653559",
+                "Estimate_Total_B18105": "653559",
+            },
+        ]
+
+    def test_cachedCensus_stats_columnNameChangeWithoutDuplicate(
+        self, cachedCensus: Census
+    ):
+        variables = [VariableCode("B17015_001E")]
+        forDomain = GeoDomain("congressional district")
+        inDomains = [GeoDomain("state", "01")]
+
+        # to populate "variables"
+        _ = cachedCensus.getAllVariables()
+
+        res = cachedCensus.getStats(
+            variables, forDomain, inDomains, replaceColumnHeaders=True
+        )
+
+        assert res.to_dict("records") == [
+            {
+                "NAME": "Congressional District 1 (116th Congress), Alabama",
+                "congressional district": "01",
+                "state": "01",
+                "Estimate_Total": "172441",
+            },
+            {
+                "NAME": "Congressional District 3 (116th Congress), Alabama",
+                "congressional district": "03",
+                "state": "01",
+                "Estimate_Total": "184320",
+            },
+            {
+                "NAME": "Congressional District 5 (116th Congress), Alabama",
+                "congressional district": "05",
+                "state": "01",
+                "Estimate_Total": "195668",
+            },
+            {
+                "NAME": "Congressional District 4 (116th Congress), Alabama",
+                "congressional district": "04",
+                "state": "01",
+                "Estimate_Total": "179508",
+            },
+            {
+                "NAME": "Congressional District 7 (116th Congress), Alabama",
+                "congressional district": "07",
+                "state": "01",
+                "Estimate_Total": "151225",
+            },
+            {
+                "NAME": "Congressional District 2 (116th Congress), Alabama",
+                "congressional district": "02",
+                "state": "01",
+                "Estimate_Total": "168129",
+            },
+            {
+                "NAME": "Congressional District 6 (116th Congress), Alabama",
+                "congressional district": "06",
+                "state": "01",
+                "Estimate_Total": "186592",
+            },
+        ]
