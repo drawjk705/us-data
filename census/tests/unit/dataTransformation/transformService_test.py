@@ -1,5 +1,7 @@
 # pyright: reportMissingTypeStubs=false
 
+from tests.utils import DictMatcher
+import callee
 from census.models import GeoDomain
 from typing import Any, Dict, Optional
 import numpy as np
@@ -8,7 +10,7 @@ from census.dataTransformation.service import DataFrameTransformer
 from tests.serviceTestFixtures import ServiceTestFixture
 from census.api.models import GeographyClauseSet, GeographyItem
 from collections import OrderedDict
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 from pytest_mock import MockFixture
@@ -109,18 +111,26 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 "groupCode": "g123",
                 "groupConcept": "gCon1",
                 "name": "name1",
+                "limit": 1,
+                "predicateOnly": True,
+                "predicateType": "string",
             },
             {
                 "code": "456",
                 "groupCode": "g456",
                 "groupConcept": "gCon2",
                 "name": "name2",
+                "limit": 2,
+                "predicateOnly": False,
+                "predicateType": "int",
             },
         ]
 
         self._service.variables(variables)
 
-        pandasMock.assert_called_once_with(expectedCall)
+        pandasMock.assert_called_once_with(
+            [DictMatcher(expectedCall[0]), DictMatcher(expectedCall[1])]
+        )
 
     @pytest.mark.parametrize("shouldUseColumnHeaders", [(True), (False)])
     def test_stats(self, shouldUseColumnHeaders: bool):

@@ -164,12 +164,18 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 groupCode="group1",
                 groupConcept="concept1",
                 name="name1",
+                limit=0,
+                predicateType="int",
+                predicateOnly=False,
             ),
             dict(
                 code="var2",
                 groupCode="group1",
                 groupConcept="concept1",
                 name="name2",
+                limit=0,
+                predicateType="int",
+                predicateOnly=False,
             ),
         ]
         group2Vars: List[Dict[str, Any]] = [
@@ -178,12 +184,18 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 groupCode="group2",
                 groupConcept="concept2",
                 name="name3",
+                limit=0,
+                predicateType="int",
+                predicateOnly=False,
             ),
             dict(
                 code="var4",
                 groupCode="group2",
                 groupConcept="concept2",
                 name="name4",
+                limit=0,
+                predicateType="int",
+                predicateOnly=False,
             ),
         ]
         group3Vars: List[Dict[str, Any]] = [
@@ -192,6 +204,9 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 groupCode="group3",
                 groupConcept="concept3",
                 name="name5",
+                limit=0,
+                predicateType="int",
+                predicateOnly=False,
             ),
         ]
 

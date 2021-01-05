@@ -72,6 +72,9 @@ class GroupVariable:
             GroupCode(record["groupCode"]),
             record["groupConcept"],
             record["name"],
+            record["limit"],
+            record["predicateOnly"],
+            record["predicateType"],
         )
 
     def __hash__(self) -> int:

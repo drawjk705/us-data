@@ -61,11 +61,11 @@ class Census:
         inGroups: List[GroupCode] = [],
     ) -> pd.DataFrame:
         """
-        - Searches all variables in memory (i.e., not all variables for the dataset/survey;
-        to do that, you first must pull all variables) based on `regex`.
+        - Searches variables based on `regex`.
         - It can search variables based on their name or group concept.
         - Specify `inGroups` with a list of group codes to restrict the search to
-        variables within a particular group.
+        variables within a particular group, or leave it empty to search all variables.
+        - This will pull from the API whatever variables aren't in memory.
 
         Args:
             regex (str)

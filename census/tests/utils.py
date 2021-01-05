@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
 from callee.base import Matcher  # type: ignore
 import pandas
@@ -83,3 +83,22 @@ class DataFrameColumnMatcher(Matcher):
             return False
         values = df[self._columnToMatch].tolist()  # type: ignore
         return self._columnsValues == values
+
+
+class DictMatcher(Matcher):
+    _dict: Dict[Any, Any]
+
+    def __init__(self, items: Dict[Any, Any]) -> None:
+        self._dict = items
+
+    def match(self, other: Any):
+        if not isinstance(other, dict):
+            return False
+        if len(self._dict) != len(other):  # type: ignore
+            return False
+
+        for k, v in self._dict.items():
+            if v != other[k]:
+                return False
+
+        return True

@@ -59,6 +59,9 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
                     "groupCode": variable.groupCode,
                     "groupConcept": variable.groupConcept,
                     "name": variable.name,
+                    "predicateType": variable.predicateType,
+                    "predicateOnly": variable.predicateOnly,
+                    "limit": variable.limit,
                 }
             )
 
