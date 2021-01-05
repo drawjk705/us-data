@@ -7,30 +7,83 @@ from census.api.models import GeographyItem
 
 
 class IApiFetchService(ABC):
+    """
+    Interface for our API client, which will
+    perform all fetches for the Census API
+    """
+
     @abstractmethod
     def healthCheck(self) -> None:
+        """
+        makes sure that the API client is
+        configured properly
+        """
         pass
 
     @abstractmethod
     def geographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
-    ) -> Any:
+    ) -> List[List[str]]:
+        """
+        Gets all geography codes for a given location domain:
+
+        Args:
+            forDomain (GeoDomain): the domain you want to search. This must
+            be a child of any provided `inDomains`, as specified in the API's
+            geography hierarchy.
+
+            inDomains (List[GeoDomain], optional): geography domains
+            that may help specify the query (e.g., if you want to
+            search all congressional districts in a particular state).
+            Defaults to [].
+
+        Returns:
+            List[List[str]]: API response
+        """
         pass
 
     @abstractmethod
     def groupData(self) -> Dict[str, Group]:
+        """
+        Retrieves data on available concept groups for a given dataset/survey
+
+        Returns:
+            Dict[str, Group]: Mapping of group ID to concept
+        """
         pass
 
     @abstractmethod
     def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
+        """
+        Retrieves all queryable geographies for a given dataset/survey
+
+        Returns:
+            OrderedDict[str, GeographyItem]: mapping between a geography
+            and possible queries that can be made on it
+        """
         pass
 
     @abstractmethod
     def variablesForGroup(self, group: str) -> List[GroupVariable]:
+        """
+        Gets all queryable variables for a survey group concept.
+
+        Args:
+            group (str): The group's code
+
+        Returns:
+            List[GroupVariable]
+        """
         pass
 
     @abstractmethod
     def allVariables(self) -> List[GroupVariable]:
+        """
+        Gets all variables. This may be costly
+
+        Returns:
+            List[GroupVariable]: all of the variables.
+        """
         pass
 
     @abstractmethod
@@ -40,6 +93,20 @@ class IApiFetchService(ABC):
         forDomain: GeoDomain,
         inDomains: List[GeoDomain] = [],
     ) -> Generator[List[List[str]], None, None]:
+        """
+        Gets stats based on `variableCodes` for the geographies in question.
+        Returns a generator, since we may need to make repeat API
+        calls due to limits on the number of variables (50) that the API
+        will accept to query at a time.
+
+        Args:
+            variablesCodes (List[VariableCode])
+            forDomain (GeoDomain)
+            inDomains (List[GeoDomain], optional). Defaults to [].
+
+        Yields:
+            Generator[List[List[str]], None, None]
+        """
         pass
 
 
@@ -51,7 +118,6 @@ class IApiSerializationService(ABC):
     @abstractmethod
     def parseGroupVariables(self, groupVariables: Any) -> List[GroupVariable]:
         """
-
         Parses an API response for variable retrieval, e.g.:
 
         ```

@@ -8,6 +8,13 @@ T = TypeVar("T")
 
 
 class IVariableRepository(ABC, Generic[T]):
+    """
+    Gets and stores all variable metadata (i.e., codes,
+    meanings of variables, etc.)
+    """
+
+    # these are collections of all variables/groups
+    # that have been pulled from the API so far
     variables: Dict[VariableCode, GroupVariable] = {}
     groups: Dict[GroupCode, Group] = {}
 

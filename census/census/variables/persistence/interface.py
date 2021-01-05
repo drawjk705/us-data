@@ -6,6 +6,11 @@ T = TypeVar("T")
 
 
 class ICache(ABC, Generic[T]):
+    """
+    Cache for persisting query data,
+    so we don't need to make repeat API calls.
+    """
+
     @abstractmethod
     def put(self, resource: str, data: T) -> bool:
         """
@@ -23,4 +28,13 @@ class ICache(ABC, Generic[T]):
 
     @abstractmethod
     def get(self, resource: str) -> Optional[T]:
+        """
+        Gets `resource` from the cache, if it exists, else `None`.
+
+        Args:
+            resource (str)
+
+        Returns:
+            Optional[T]
+        """
         pass

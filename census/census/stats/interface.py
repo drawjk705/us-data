@@ -9,6 +9,11 @@ _T = TypeVar("_T")
 
 
 class ICensusStatisticsService(ABC, Generic[_T]):
+    """
+    Pulls and massages statistical data from the
+    Census API
+    """
+
     @abstractmethod
     def getStats(
         self,

@@ -1,19 +1,18 @@
-from requests.utils import requote_uri
-from census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from census.utils.timer import timer
-from census.variables.models import Group, GroupVariable, VariableCode
-from census.utils.chunk import chunk
-from census.api.interface import IApiFetchService, IApiSerializationService
-from census.config import Config
+import logging
 from collections import OrderedDict
 from typing import Any, Dict, Generator, List, cast
-import logging
-from tqdm.notebook import tqdm  # type: ignore
 
 import requests
-
+from census.api.interface import IApiFetchService, IApiSerializationService
 from census.api.models import GeographyItem
+from census.config import Config
+from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.models import GeoDomain
+from census.utils.chunk import chunk
+from census.utils.timer import timer
+from census.variables.models import Group, GroupVariable, VariableCode
+from requests.utils import requote_uri
+from tqdm.notebook import tqdm  # type: ignore
 
 # we can query only 50 variables at a time, max
 MAX_QUERY_SIZE = 50

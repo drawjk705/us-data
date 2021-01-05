@@ -7,6 +7,10 @@ _T = TypeVar("_T")
 
 
 class IVariableSearchService(ABC, Generic[_T]):
+    """
+    Handles searching through stored variables
+    """
+
     @abstractmethod
     def searchGroups(self, regex: str) -> _T:
         pass

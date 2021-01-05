@@ -11,6 +11,10 @@ GroupCode = NewType("GroupCode", str)
 
 @dataclass(frozen=True)
 class Group:
+    """
+    DTO for the group retrieved from the API
+    """
+
     code: GroupCode
     description: str
     variables: str = field(default="")
@@ -30,6 +34,10 @@ class Group:
 
 @dataclass
 class GroupVariable:
+    """
+    DTO for a variable retrieved from the API
+    """
+
     code: VariableCode
     groupCode: GroupCode
     groupConcept: str
