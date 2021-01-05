@@ -1,3 +1,4 @@
+import pytest
 from census.models import GeoDomain
 from typing import Any, Dict
 from census.variables.models import GroupCode, GroupVariable, VariableCode
@@ -49,8 +50,11 @@ variablesInRepo: Dict[str, GroupVariable] = dict(
 
 
 class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
-    def test_getStats_passesCorrectValuesToTransformer(self):
-        apiRes = [1, 2, 3]
+    @pytest.mark.parametrize("shouldReplaceColumnHeaders", [(True), (False)])
+    def test_getStats_passesCorrectValuesToTransformer(
+        self, shouldReplaceColumnHeaders: bool
+    ):
+        apiRes = iter([[1, 2], [3]])
         apiGet = self.mocker.patch.object(
             self._service._api, "stats", return_value=apiRes
         )
@@ -65,10 +69,19 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         forDomain = GeoDomain("state")
         inDomains = [GeoDomain("us")]
         expectedTypeConversions: Dict[str, Any] = dict(var1=int, var2=float)
+        expectedColumnMapping: Dict[str, str] = dict(
+            var1="name 1", var2="name 2", var3="name 3"
+        )
 
-        self._service.getStats(variablesToQuery, forDomain, inDomains)
+        self._service.getStats(
+            variablesToQuery, forDomain, inDomains, shouldReplaceColumnHeaders
+        )
 
         apiGet.assert_called_once_with(variablesToQuery, forDomain, inDomains)
         self.castMock(self._service._transformer.stats).assert_called_once_with(
-            apiRes, variablesToQuery, expectedTypeConversions
+            [[1, 2], [3]],
+            variablesToQuery,
+            expectedTypeConversions,
+            [forDomain] + inDomains,
+            columnHeaders=expectedColumnMapping if shouldReplaceColumnHeaders else None,
         )

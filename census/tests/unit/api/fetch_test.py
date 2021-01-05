@@ -1,7 +1,7 @@
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from pytest_mock.plugin import MockerFixture
 from census.variables.models import VariableCode
-from typing import List
+from typing import Any, Collection, List
 from unittest.mock import MagicMock, call
 from census.config import Config
 from census.api.interface import IApiSerializationService
@@ -20,19 +20,15 @@ def logMock(mocker: MockerFixture):
 
 
 class MockRes:
-    resCount: int = 0
-    status_code: int = 200
+    status_code: int
+    content: Collection[Any]
 
-    def __init__(self, status_code: int) -> None:
+    def __init__(self, status_code: int, content: Collection[Any] = {}) -> None:
         self.status_code = status_code
+        self.content = content
 
-    @staticmethod
-    def json() -> List[List[str]]:
-        if MockRes.resCount == 0:
-            MockRes.resCount += 1
-            return [["header1", "header2"], ["a", "b"], ["c", "d"]]
-        else:
-            return [["header1", "header2"], ["e", "f"], ["g", "h"]]
+    def json(self) -> Collection[Any]:
+        return self.content
 
 
 class ApiServiceWrapper(ApiFetchService):
@@ -114,7 +110,8 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         forDomain = GeoDomain("banana")
         inDomains = [GeoDomain("phone", "92")]
 
-        self._service.stats(varCodes, forDomain, inDomains)
+        for _ in self._service.stats(varCodes, forDomain, inDomains):
+            pass
 
         assert self.requestsMock.get.call_args_list == [  # type: ignore
             call(
@@ -132,7 +129,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             "https://api.census.gov/data/2019/acs/acs1/variables.json"
         )
 
-    def test_stats_returnsOnlyTopRow(self):
+    def test_stats_yieldsBatches(self):
         self.mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [
@@ -141,17 +138,18 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             VariableCode("3"),
             VariableCode("4"),
         ]
-        self.requestsMock.get.return_value = MockRes(200)  # type: ignore
+        self.requestsMock.get.side_effect = [  # type: ignore
+            MockRes(200, [["header1", "header2"], ["a", "b"], ["c", "d"]]),
+            MockRes(200, [["header1", "header2"], ["e", "f"], ["g", "h"]]),
+        ]
 
         res = self._service.stats(varCodes, GeoDomain(""), [GeoDomain("")])
 
-        assert res == [
-            ["header1", "header2"],
-            ["a", "b"],
-            ["c", "d"],
-            ["e", "f"],
-            ["g", "h"],
-        ]
+        assert next(res) == [["header1", "header2"], ["a", "b"], ["c", "d"]]
+        assert next(res) == [["header1", "header2"], ["e", "f"], ["g", "h"]]
+
+        with pytest.raises(StopIteration):
+            next(res)
 
     def test_healthCheck_pass(self, logMock: MagicMock):
         self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(200))

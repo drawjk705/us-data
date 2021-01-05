@@ -1,6 +1,7 @@
 # pyright: reportMissingTypeStubs=false
 
-from typing import Any, Dict
+from census.models import GeoDomain
+from typing import Any, Dict, Optional
 import numpy as np
 from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
 from census.dataTransformation.service import DataFrameTransformer
@@ -121,28 +122,73 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
 
         pandasMock.assert_called_once_with(expectedCall)
 
-    def test_stats(self):
+    @pytest.mark.parametrize("shouldUseColumnHeaders", [(True), (False)])
+    def test_stats(self, shouldUseColumnHeaders: bool):
         results = [
-            ["header 1", "var1", "var2", "header 2", "header 3"],
-            ["1", "4", "0.2", "4", "5"],
-            ["6", "4", "0.2", "9", "10"],
+            [
+                ["NAME", "var1", "var2", "geoCol1", "geoCol2"],
+                ["1", "5", "1.2", "4", "5"],
+                ["6", "6", "4.2", "9", "10"],
+            ],
+            [
+                ["NAME", "var3", "var4", "geoCol1", "geoCol2"],
+                ["1", "stringy", "tassel", "4", "5"],
+                ["6", "yarn", "ropy", "9", "10"],
+            ],
         ]
-        queriedVariables = [VariableCode("var1"), VariableCode("var2")]
+        queriedVariables = [
+            VariableCode("var1"),
+            VariableCode("var2"),
+            VariableCode("var2"),
+            VariableCode("var3"),
+        ]
         typeConversions: Dict[str, Any] = dict(var1=int, var2=float)
+        columnHeaders: Optional[Dict[VariableCode, str]] = (
+            dict(var1="banana", var2="apple", var3="pear", var4="peach")
+            if shouldUseColumnHeaders
+            else None
+        )
+        geoDomains = [GeoDomain("geoCol1"), GeoDomain("geoCol2")]
 
-        res = self._service.stats(results, queriedVariables, typeConversions)
+        res = self._service.stats(
+            results, queriedVariables, typeConversions, geoDomains, columnHeaders
+        )
 
-        assert res.dtypes.to_dict() == {
-            "header 1": np.dtype("O"),
-            "header 2": np.dtype("O"),
-            "header 3": np.dtype("O"),
-            "var1": np.dtype("int64"),
-            "var2": np.dtype("float64"),
-        }
-        assert res.columns.tolist() == [
-            "header 1",
-            "header 2",
-            "header 3",
-            "var1",
-            "var2",
-        ]
+        if shouldUseColumnHeaders:
+            assert res.dtypes.to_dict() == {
+                "NAME": np.dtype("O"),
+                "apple": np.dtype("float64"),
+                "banana": np.dtype("int64"),
+                "geoCol1": np.dtype("O"),
+                "geoCol2": np.dtype("O"),
+                "peach": np.dtype("O"),
+                "pear": np.dtype("O"),
+            }
+            assert res.columns.tolist() == [
+                "NAME",
+                "geoCol1",
+                "geoCol2",
+                "banana",
+                "apple",
+                "pear",
+                "peach",
+            ]
+        else:
+            assert res.dtypes.to_dict() == {
+                "NAME": np.dtype("O"),
+                "var2": np.dtype("float64"),
+                "var1": np.dtype("int64"),
+                "geoCol1": np.dtype("O"),
+                "geoCol2": np.dtype("O"),
+                "var4": np.dtype("O"),
+                "var3": np.dtype("O"),
+            }
+            assert res.columns.tolist() == [
+                "NAME",
+                "geoCol1",
+                "geoCol2",
+                "var1",
+                "var2",
+                "var3",
+                "var4",
+            ]
