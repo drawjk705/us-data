@@ -111,7 +111,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
     def __getVariablesByGroup(self, groups: Tuple[GroupCode, ...]) -> pd.DataFrame:
         allVars = pd.DataFrame()
 
-        for group in tqdm(groups):
+        for group in tqdm(groups):  # type: ignore
             resource = f"{VARIABLES_DIR}/{group}.csv"
 
             df = self._cache.get(resource)
@@ -151,7 +151,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         allVariables = self._api.allVariables()
         df = self._transformer.variables(allVariables)
 
-        for groupCode, variables in df.groupby(["groupCode"]):
+        for groupCode, variables in df.groupby(["groupCode"]):  # type: ignore
             varDf = cast(pd.DataFrame, variables)
             if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", varDf):
                 # we don't need to update `self._variables` in this case

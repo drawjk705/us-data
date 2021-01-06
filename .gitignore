@@ -155,3 +155,4 @@ dmypy.json
 *.log
 db-scripts/setup/*.sql
 cache/
+typings/

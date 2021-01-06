@@ -101,6 +101,6 @@ def getCensus(
     configureLogger(logFile)
 
     # for Jupyter
-    pandas.set_option("display.max_colwidth", None)
+    pandas.set_option("display.max_colwidth", None)  # type: ignore
 
     return cast(Census, container.resolve(Census))

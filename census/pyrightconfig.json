@@ -1,0 +1,14 @@
+{
+    "include": ["census"],
+    "ignore": ["typings"],
+
+    "venvPath": "./.venv/bin/python3.9",
+
+    "verboseOutput": true,
+
+    "typeCheckingMode": "strict",
+
+    "reportFunctionMemberAccess": false,
+    "reportPrivateUsage": false,
+    "reportUnknownArgumentType": false
+}

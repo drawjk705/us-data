@@ -89,15 +89,15 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
                     columns=dict(NAME_y="NAME")
                 )
 
-        allCols = mainDf.columns.tolist()
+        allCols = mainDf.columns.tolist()  # type: ignore
 
         # reshuffle the columns
         nameCol = ["NAME"]
-        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]
+        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]  # type: ignore
 
         reorderedColumns = nameCol + geoCols + variableCols
 
-        return (
+        return (  # type: ignore
             mainDf[reorderedColumns]
             .astype(typeConversions)
             .rename(columns=columnHeaders or {})

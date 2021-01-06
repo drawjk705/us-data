@@ -53,7 +53,7 @@ class ApiFetchService(IApiFetchService):
 
         querystring = f"?get=NAME&{forClause}"
         if len(inDomains):
-            querystring += f"&in={inClauses}"
+            querystring += f"&in={inClauses}"  # type: ignore
 
         uriQuerystring: str = requote_uri(querystring)
 
@@ -93,7 +93,7 @@ class ApiFetchService(IApiFetchService):
     ) -> Generator[List[List[str]], None, None]:
 
         # we need the minus 1 since we're also querying name
-        for codes in tqdm(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):
+        for codes in tqdm(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):  # type: ignore
             codeStr = ",".join(cast(List[VariableCode], codes))
             varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
 
