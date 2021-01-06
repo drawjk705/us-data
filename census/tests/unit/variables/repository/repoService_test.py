@@ -221,7 +221,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
         self.mocker.patch.object(
             self._service._transformer, "variables", return_value=transformerRes
         )
-        expectedVariables = dict(
+        expectedVariables: Dict[str, GroupVariable] = dict(
             Name1_group1=GroupVariable(**group1Vars[0]),
             Name2_group1=GroupVariable(**group1Vars[1]),
             Name3_group2=GroupVariable(**group2Vars[0]),

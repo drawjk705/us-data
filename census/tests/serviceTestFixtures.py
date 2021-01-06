@@ -6,7 +6,6 @@ from _pytest.monkeypatch import MonkeyPatch
 from pytest_mock.plugin import MockerFixture  # type: ignore
 import pytest
 
-# pyright: reportPrivateUsage=false
 
 _T = TypeVar("_T")
 
