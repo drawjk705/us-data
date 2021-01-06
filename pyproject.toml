@@ -22,11 +22,11 @@ hypothesis = "^5.47.0"
 pytest-sugar = "^0.9.4"
 pytest-clarity = "^0.3.0-alpha.0"
 pytest-cov = "^2.10.1"
-pytest-tldr = "^0.2.2"
 flake8 = "^3.8.4"
 data-science-types = "^0.2.22"
 pytest-randomly = "^3.5.0"
 poethepoet = "^0.9.0"
+pytest-tldr = "^0.2.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

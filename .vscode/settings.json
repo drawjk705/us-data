@@ -1,25 +1,3 @@
 {
-    "python.pythonPath": ".venv/bin/python",
-    "sqltools.connections": [
-        {
-            "mssqlOptions": {
-                "appName": "SQLTools",
-                "useUTC": true,
-                "encrypt": true,
-                "abortTransactionOnError": true
-            },
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 1433,
-            "askForPassword": true,
-            "driver": "MSSQL",
-            "name": "states",
-            "database": "states",
-            "username": "SA"
-        }
-    ],
-    "cSpell.words": [
-        "FIELDTERMINATOR",
-        "FIRSTROW"
-    ]
+    "python.pythonPath": ".venv/bin/python"
 }

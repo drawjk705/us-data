@@ -1,7 +1,7 @@
 from census.utils.timer import timer
 import logging
 import shutil
-import pathlib
+from pathlib import Path
 
 import pandas as pd
 from census.config import Config
@@ -11,7 +11,7 @@ LOG_PREFIX = "[On-Disk Cache]"
 
 
 class OnDiskCache(ICache[pd.DataFrame]):
-    __cachePath: pathlib.Path
+    __cachePath: Path
     _config: Config
 
     def __init__(
@@ -24,7 +24,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
             self.__log("Not creating an on-disk cache")
             return
 
-        self.__cachePath = pathlib.Path(
+        self.__cachePath = Path(
             f"{config.cacheDir}/{config.year}/{config.datasetType.value}/{config.surveyType.value}"
         )
 
@@ -39,7 +39,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         if not self._config.shouldLoadFromExistingCache:
             self.__log("purging on disk cache")
 
-            if pathlib.Path(self._config.cacheDir).exists():
+            if Path(self._config.cacheDir).exists():
                 shutil.rmtree(self._config.cacheDir)
 
         self.__cachePath.mkdir(parents=True, exist_ok=True)
@@ -49,7 +49,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         if not self._config.shouldCacheOnDisk:
             return False
 
-        path = self.__cachePath.joinpath(pathlib.Path(resource))
+        path = self.__cachePath.joinpath(Path(resource))
 
         if path.exists():
             self.__log(f'resource "{resource}" already exists; terminating')
@@ -70,7 +70,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         ):
             return pd.DataFrame()
 
-        path = self.__cachePath.joinpath(pathlib.Path(resource))
+        path = self.__cachePath.joinpath(Path(resource))
 
         if not path.exists():
             self.__log(f'cache miss for "{path}"')
