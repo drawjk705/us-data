@@ -1,8 +1,6 @@
 # from dataclasses import dataclass
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, Literal, NewType
-
-from attr import field
 
 
 VariableCode = NewType("VariableCode", str)
@@ -42,9 +40,9 @@ class GroupVariable:
     groupCode: GroupCode
     groupConcept: str
     name: str
-    limit: int = field(default=None)
-    predicateOnly: bool = field(default=None)
-    predicateType: Literal["string", "int", "float"] = field(default=None)
+    limit: int = field(default=0)
+    predicateOnly: bool = field(default=False)
+    predicateType: Literal["string", "int", "float"] = field(default="string")
 
     @classmethod
     def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
