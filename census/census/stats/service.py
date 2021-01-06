@@ -76,9 +76,9 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         self, variablesToQuery: Set[VariableCode]
     ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
         relevantVariables = {
-            k: v
-            for k, v in self._variableRepo.variables.items()
-            if k in variablesToQuery
+            variable.code: variable
+            for variable in self._variableRepo.variables.values()
+            if variable.code in variablesToQuery
         }
         hasDuplicateNames = len({v.name for v in relevantVariables.values()}) < len(
             variablesToQuery

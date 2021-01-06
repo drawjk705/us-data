@@ -1,11 +1,12 @@
-from typing import Dict, List, Literal
+from census.variables.repository.models import GroupSet, VariableSet
+from typing import List, Literal
 
 import pandas as pd
 
 from census.api.fetch import IApiFetchService
 from census.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
-from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
+from census.variables.models import GroupCode, VariableCode
 from census.variables.repository.interface import IVariableRepository
 from census.variables.search.interface import IVariableSearchService
 
@@ -19,9 +20,6 @@ class Census:
     _variableSearch: IVariableSearchService[pd.DataFrame]
     _stats: ICensusStatisticsService[pd.DataFrame]
 
-    variables: Dict[VariableCode, GroupVariable]
-    groups: Dict[GroupCode, Group]
-
     def __init__(
         self,
         variableRepo: IVariableRepository[pd.DataFrame],
@@ -32,9 +30,6 @@ class Census:
         self._variableRepo = variableRepo
         self._variableSearch = variableSearch
         self._stats = stats
-
-        self.variables = {}
-        self.groups = {}
 
         # if this healthcheck fails, it will throw, and we
         # won't instantiate the client
@@ -110,9 +105,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the groups
         """
-        groups = self._variableRepo.getGroups()
-        self.groups = self._variableRepo.groups
-        return groups
+        return self._variableRepo.getGroups()
 
     def getVariablesByGroup(self, groups: List[GroupCode]) -> pd.DataFrame:
         """
@@ -124,9 +117,7 @@ class Census:
         Returns:
             pd.DataFrame: with the queried variables.
         """
-        variables = self._variableRepo.getVariablesByGroup(groups)
-        self.variables = self._variableRepo.variables
-        return variables
+        return self._variableRepo.getVariablesByGroup(groups)
 
     def getAllVariables(self) -> pd.DataFrame:
         """
@@ -136,9 +127,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the variables.
         """
-        variables = self._variableRepo.getAllVariables()
-        self.variables = self._variableRepo.variables
-        return variables
+        return self._variableRepo.getAllVariables()
 
     def getSupportedGeographies(self) -> pd.DataFrame:
         """
@@ -176,3 +165,11 @@ class Census:
         return self._stats.getStats(
             variablesToQuery, forDomain, inDomains, replaceColumnHeaders
         )
+
+    @property
+    def variables(self) -> VariableSet:
+        return self._variableRepo.variables
+
+    @property
+    def groups(self) -> GroupSet:
+        return self._variableRepo.groups

@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+from itertools import product
+from typing import Any, List, Tuple
 
 from callee.base import Matcher  # type: ignore
 import pandas
@@ -70,6 +71,14 @@ def extractService(obj: _RequestCls.Obj) -> Any:
     return fixtureClass.__args__[0]  # type: ignore
 
 
+def shuffledCases(**kwargs: List[Any]) -> Tuple[List[str], List[Any]]:
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+    combos = list(product(*values))
+
+    return keys, combos
+
+
 class DataFrameColumnMatcher(Matcher):
     _columnsValues: List[str]
     _columnToMatch: str
@@ -83,22 +92,3 @@ class DataFrameColumnMatcher(Matcher):
             return False
         values = df[self._columnToMatch].tolist()  # type: ignore
         return self._columnsValues == values
-
-
-class DictMatcher(Matcher):
-    _dict: Dict[Any, Any]
-
-    def __init__(self, items: Dict[Any, Any]) -> None:
-        self._dict = items
-
-    def match(self, other: Any):
-        if not isinstance(other, dict):
-            return False
-        if len(self._dict) != len(other):  # type: ignore
-            return False
-
-        for k, v in self._dict.items():
-            if v != other[k]:
-                return False
-
-        return True

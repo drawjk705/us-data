@@ -26,4 +26,4 @@ test-coverage:
 clean_pycache:
 	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf
 
-.PHONY: init test clean_pycache
+.PHONY: init test test-integration test-coverage clean_pycache

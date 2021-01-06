@@ -1,4 +1,4 @@
-from tests.utils import DataFrameColumnMatcher
+from tests.utils import DataFrameColumnMatcher, shuffledCases
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 from census.models import GeoDomain
 from typing import Any, Dict, List, Union, cast
@@ -17,7 +17,7 @@ apiRetval = "banana"
 
 
 class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
-    @pytest.mark.parametrize("isCacheHit", (True, False))
+    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
     def test_getGroups_givenCacheRetval(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [
@@ -51,7 +51,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 "groups.csv", fullDf
             )
 
-    @pytest.mark.parametrize("isCacheHit", (True, False))
+    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
     def test_getSupportedGeographies(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [
@@ -117,7 +117,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
 
         assert res.to_dict() == fullDf.to_dict()
 
-    @pytest.mark.parametrize("cacheMissIndex", [(0), (1), (2)])
+    @pytest.mark.parametrize(*shuffledCases(cacheMissIndex=[0, 1, 2]))
     def test_getVariablesByGroup(self, cacheMissIndex: int):
         cacheGroups = [GroupCode("g1"), GroupCode("g2"), GroupCode("g3")]
         cacheMissGroup = cacheGroups[cacheMissIndex]
@@ -222,16 +222,16 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
             self._service._transformer, "variables", return_value=transformerRes
         )
         expectedVariables = dict(
-            var1=GroupVariable(**group1Vars[0]),
-            var2=GroupVariable(**group1Vars[1]),
-            var3=GroupVariable(**group2Vars[0]),
-            var4=GroupVariable(**group2Vars[1]),
+            Name1_group1=GroupVariable(**group1Vars[0]),
+            Name2_group1=GroupVariable(**group1Vars[1]),
+            Name3_group2=GroupVariable(**group2Vars[0]),
+            Name4_group2=GroupVariable(**group2Vars[1]),
         )
 
         res = self._service.getAllVariables()
 
         assert res.to_dict() == transformerRes.to_dict()
-        assert self._service.variables == expectedVariables
+        assert dict(self._service.variables.items()) == expectedVariables
 
         cachePut.call_args_list == [
             call(

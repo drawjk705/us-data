@@ -1,3 +1,4 @@
+from tests.utils import shuffledCases
 import pytest
 from census.models import GeoDomain
 from typing import Any, Dict
@@ -50,7 +51,7 @@ variablesInRepo: Dict[str, GroupVariable] = dict(
 
 
 class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
-    @pytest.mark.parametrize("shouldReplaceColumnHeaders", [(True), (False)])
+    @pytest.mark.parametrize(*shuffledCases(shouldReplaceColumnHeaders=[True, False]))
     def test_getStats_passesCorrectValuesToTransformer(
         self, shouldReplaceColumnHeaders: bool
     ):

@@ -1,5 +1,5 @@
-from pytest_mock.plugin import MockerFixture
-from census.variables.models import GroupCode, VariableCode
+from pytest_mock.plugin import MockerFixture  # type: ignore
+from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 import pandas
 from census.models import GeoDomain
 from pathlib import Path
@@ -263,7 +263,7 @@ class TestCensus:
     def test_cachedCensus_groupsAndVariables(self, cachedCensus: Census):
         verifyResource("groups.csv", exists=False)
         _ = cachedCensus.getGroups()
-        groupCodes = [groupCode for groupCode in cachedCensus.groups.keys()]
+        groupCodes = [groupCode.code for groupCode in cachedCensus.groups.values()]
         verifyResource("groups.csv")
         assert len(groupCodes) == 3
 
@@ -295,6 +295,138 @@ class TestCensus:
                 exists=True,
                 expectedData=variables.to_dict("records"),
             )
+
+    def test_cachedCensus_groups_populatesGroupNames(self, cachedCensus: Census):
+        cachedCensus.getGroups()
+
+        assert dict(cachedCensus.groups.items()) == {
+            "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": Group(
+                code=GroupCode("B17015"),
+                description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+            ),
+            "SexByAgeByAmbulatoryDifficulty": Group(
+                code=GroupCode("B18105"),
+                description="SEX BY AGE BY AMBULATORY DIFFICULTY",
+            ),
+            "SexByAgeByCognitiveDifficulty": Group(
+                code=GroupCode("B18104"),
+                description="SEX BY AGE BY COGNITIVE DIFFICULTY",
+            ),
+        }
+
+    def test_cachedCensus_variables_populatesVariableNames(self, cachedCensus: Census):
+        cachedCensus.getAllVariables()
+
+        assert dict(cachedCensus.variables.items()) == {
+            "AnnotationOfEstimate_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001EA"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "AnnotationOfEstimate_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001EA"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "AnnotationOfEstimate_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001EA"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "AnnotationOfMarginOfError_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001MA"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "AnnotationOfMarginOfError_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001MA"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "AnnotationOfMarginOfError_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001MA"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+            ),
+            "Estimate_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001E"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+            "Estimate_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001E"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+            "Estimate_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001E"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+            "MarginOfError_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001M"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+            "MarginOfError_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001M"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+            "MarginOfError_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001M"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+            ),
+        }
 
     def test_cachedCensus_supportedGeographies(self, cachedCensus: Census):
         verifyResource("supportedGeographies.csv", exists=False)

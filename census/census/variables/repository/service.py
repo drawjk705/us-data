@@ -1,3 +1,7 @@
+from census.variables.repository.models import (
+    GroupSet,
+    VariableSet,
+)
 from census.utils.timer import timer
 import logging
 from functools import cache
@@ -34,12 +38,13 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         transformer: IDataTransformer[pd.DataFrame],
         api: IApiFetchService,
     ):
-        # these are inherited from the base class
-        self.groups = {}
-        self.variables = {}
         self._cache = cache
         self._api = api
         self._transformer = transformer
+
+        # these are inherited from the base class
+        self._variables = VariableSet()
+        self._groups = GroupSet()
 
     @timer
     def getGroups(self) -> pd.DataFrame:
@@ -59,7 +64,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         for record in df.to_dict("records"):
             group = Group.fromDfRecord(record)
-            self.groups.update({group.code: group})
+            self._groups.add(group)
 
         return df
 
@@ -131,7 +136,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         for record in allVars.to_dict("records"):
             var = GroupVariable.fromDfRecord(record)
-            self.variables.update({var.code: var})
+            self._variables.add(var)
 
         return allVars
 
@@ -149,12 +154,12 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         for groupCode, variables in df.groupby(["groupCode"]):
             varDf = cast(pd.DataFrame, variables)
             if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", varDf):
-                # we don't need to update `self.variables` in this case
+                # we don't need to update `self._variables` in this case
                 continue
 
             for variableDict in varDf.to_dict("records"):
                 variable = GroupVariable.fromDfRecord(variableDict)
-                self.variables.update({variable.code: variable})
+                self._variables.add(variable)
 
         return df
 

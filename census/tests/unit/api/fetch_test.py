@@ -56,12 +56,12 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             (
                 GeoDomain("county", "01"),
                 [GeoDomain("state", "01")],
-                f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01",
+                "https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01",
             ),
             (
                 GeoDomain("county", "01"),
                 [GeoDomain("state", "01"), GeoDomain("us")],
-                f"https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01&in=us:*",
+                "https://api.census.gov/data/2019/acs/acs1?get=NAME&for=county:01&in=state:01&in=us:*",
             ),
         ],
     )

@@ -1,6 +1,6 @@
-import itertools
 import pathlib
-from typing import Any, List, Tuple
+from tests.utils import shuffledCases
+from typing import Any
 from callee import String  # type: ignore
 from unittest.mock import MagicMock, Mock
 from _pytest.monkeypatch import MonkeyPatch
@@ -11,10 +11,6 @@ from census.config import Config
 from census.variables.persistence.onDisk import OnDiskCache
 from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
-
-
-def makeBoolPermutations(n: int) -> List[Tuple[bool, ...]]:
-    return list(itertools.product([True, False], repeat=n))
 
 
 @pytest.fixture
@@ -46,7 +42,7 @@ class DummyClass:
 # we're using a dummy class here, since we're specifically
 # testing the cache's constructor
 class TestOnDiskCache(ServiceTestFixture[DummyClass]):
-    @pytest.mark.parametrize("pathExists", [(True), (False)])
+    @pytest.mark.parametrize(*shuffledCases(pathExists=[True, False]))
     def test_cacheInit(
         self,
         pathMock: Mock,
@@ -77,8 +73,11 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         self.castMock(shutilMock.rmtree).assert_not_called()  # type: ignore
 
     @pytest.mark.parametrize(
-        ["shouldCacheOnDisk", "resourceExists", "shouldLoadFromExistingCache"],
-        makeBoolPermutations(3),
+        *shuffledCases(
+            shouldCacheOnDisk=[True, False],
+            resourceExists=[True, False],
+            shouldLoadFromExistingCache=[True, False],
+        )
     )
     def test_put_givenShouldCacheOptions(
         self,
@@ -105,8 +104,11 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         assert putRes == (shouldCacheOnDisk and not resourceExists)
 
     @pytest.mark.parametrize(
-        ["shouldCacheOnDisk", "resourceExists", "shouldLoadFromExistingCache"],
-        makeBoolPermutations(3),
+        *shuffledCases(
+            shouldCacheOnDisk=[True, False],
+            resourceExists=[True, False],
+            shouldLoadFromExistingCache=[True, False],
+        )
     )
     def test_get_givenOptions(
         self,

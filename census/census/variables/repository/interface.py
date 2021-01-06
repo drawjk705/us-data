@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Generic, List, TypeVar
+from census.variables.repository.models import (
+    GroupSet,
+    VariableSet,
+)
+from typing import Generic, List, TypeVar
 
 from census.models import GeoDomain
-from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
+from census.variables.models import GroupCode
 
 T = TypeVar("T")
 
@@ -15,8 +19,8 @@ class IVariableRepository(ABC, Generic[T]):
 
     # these are collections of all variables/groups
     # that have been pulled from the API so far
-    variables: Dict[VariableCode, GroupVariable] = {}
-    groups: Dict[GroupCode, Group] = {}
+    _variables: VariableSet
+    _groups: GroupSet
 
     @abstractmethod
     def getGroups(self) -> T:
@@ -37,3 +41,11 @@ class IVariableRepository(ABC, Generic[T]):
     @abstractmethod
     def getAllVariables(self) -> T:
         pass
+
+    @property
+    def variables(self) -> VariableSet:
+        return self._variables
+
+    @property
+    def groups(self) -> GroupSet:
+        return self._groups
