@@ -1,6 +1,6 @@
 from typing import Any, Generic, TypeVar, cast
 from unittest.mock import MagicMock
-from _pytest.monkeypatch import MonkeyPatch
+from pytest import MonkeyPatch
 
 
 from pytest_mock.plugin import MockerFixture  # type: ignore

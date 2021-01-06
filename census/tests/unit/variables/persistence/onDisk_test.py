@@ -1,9 +1,9 @@
 import pathlib
 from tests.utils import shuffledCases
 from typing import Any
-from callee import String  # type: ignore
+from callee import String
 from unittest.mock import MagicMock, Mock
-from _pytest.monkeypatch import MonkeyPatch
+from pytest import MonkeyPatch
 import pandas
 
 import pytest

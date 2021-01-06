@@ -3,8 +3,8 @@ from typing import Dict, cast
 from unittest.mock import MagicMock
 
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
-from _pytest.fixtures import FixtureRequest
+from pytest import MonkeyPatch
+from pytest import FixtureRequest
 from pytest_mock.plugin import MockerFixture  # type: ignore
 
 from tests import utils

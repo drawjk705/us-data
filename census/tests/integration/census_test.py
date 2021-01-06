@@ -9,7 +9,7 @@ from census.exceptions import CensusDoesNotExistException
 from typing import Any, Dict, List, Optional, Set
 from tests.integration.mockApiResponses import MOCK_API
 import requests
-from _pytest.monkeypatch import MonkeyPatch
+from pytest import MonkeyPatch
 import pytest
 import os
 import shutil
@@ -293,7 +293,7 @@ class TestCensus:
             verifyResource(
                 f"variables/{group}.csv",
                 exists=True,
-                expectedData=variables.to_dict("records"),
+                expectedData=variables.to_dict("records"),  # type : ignore
             )
 
     def test_cachedCensus_groups_populatesGroupNames(self, cachedCensus: Census):
