@@ -1,3 +1,4 @@
+from census.geographies.interface import IGeographyRepository
 from census.config import Config
 from census.utils.cleanVariableName import cleanVariableName
 from census.utils.timer import timer
@@ -19,6 +20,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _api: IApiFetchService
     _transformer: IDataTransformer[pd.DataFrame]
     _variableRepo: IVariableRepository[pd.DataFrame]
+    _geoRepo: IGeographyRepository[pd.DataFrame]
     _config: Config
 
     def __init__(
@@ -26,12 +28,14 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         api: IApiFetchService,
         transformer: IDataTransformer[pd.DataFrame],
         variableRepo: IVariableRepository[pd.DataFrame],
+        geoRepo: IGeographyRepository[pd.DataFrame],
         config: Config,
     ) -> None:
         self._api = api
         self._transformer = transformer
         self._variableRepo = variableRepo
         self._config = config
+        self._geoRepo = geoRepo
 
     @timer
     def getStats(
@@ -65,10 +69,12 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             set(variablesToQuery)
         )
 
+        sortedGeoDomains = self._sortGeoDomains([forDomain] + list(inDomains))
+
         df = self._transformer.stats(
             apiResults,
             typeConversions,
-            [forDomain] + list(inDomains),
+            sortedGeoDomains,
             columnHeaders=columnHeaders if self._config.replaceColumnHeaders else None,
         )
 
@@ -103,3 +109,16 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             columnHeaders.update({k: cleanedVarName})
 
         return columnHeaders, typeConversions
+
+    def _sortGeoDomains(self, geoDomains: List[GeoDomain]) -> List[GeoDomain]:
+        supportedGeos = self._geoRepo.getSupportedGeographies()
+        geoHierarchyMapping: List[Dict[str, str]] = (
+            supportedGeos[["name", "hierarchy"]].drop_duplicates().to_dict("records")
+        )
+        geoNameToHierarchy = {
+            mapping["name"]: mapping["hierarchy"] for mapping in geoHierarchyMapping
+        }
+
+        return sorted(
+            geoDomains, key=lambda geoDomain: geoNameToHierarchy[geoDomain.name]
+        )

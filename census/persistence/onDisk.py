@@ -1,3 +1,4 @@
+from census.models import DatasetType, SurveyType
 from census.utils.timer import timer
 import logging
 import shutil
@@ -24,8 +25,20 @@ class OnDiskCache(ICache[pd.DataFrame]):
             self.__log("Not creating an on-disk cache")
             return
 
+        datasetTypeValue = (
+            config.datasetType
+            if not isinstance(config.datasetType, DatasetType)
+            else config.datasetType.value
+        )
+
+        surveyTypeValue = (
+            config.surveyType
+            if not isinstance(config.surveyType, SurveyType)
+            else config.surveyType.value
+        )
+
         self.__cachePath = Path(
-            f"{config.cacheDir}/{config.year}/{config.datasetType.value}/{config.surveyType.value}"
+            f"{config.cacheDir}/{config.year}/{datasetTypeValue}/{surveyTypeValue}"
         )
 
         self.__log(f"creating cache for {self.__cachePath}")

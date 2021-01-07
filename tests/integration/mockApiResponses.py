@@ -471,6 +471,14 @@ MOCK_API = {
                 "wildcard": ["state"],
                 "optionalWithWCFor": "state",
             },
+            {
+                "name": "congressional district",
+                "geoLevelDisplay": "500",
+                "referenceDate": "2019-01-01",
+                "requires": ["state"],
+                "wildcard": ["state"],
+                "optionalWithWCFor": "state",
+            },
         ],
     },
     # geography codes

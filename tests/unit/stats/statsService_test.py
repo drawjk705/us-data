@@ -1,3 +1,4 @@
+import pandas as pd
 from tests.utils import shuffledCases
 import pytest
 from census.models import GeoDomain
@@ -76,6 +77,11 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             "_getVariableNamesAndTypeConversions",
             return_value=(expectedColumnMapping, expectedTypeMapping),
         )
+        self.mocker.patch.object(
+            self._service,
+            "_sortGeoDomains",
+            return_value=[forDomain] + inDomains,
+        )
 
         self._service.getStats(variablesToQuery, forDomain, *inDomains)
 
@@ -139,3 +145,36 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             "var5": "name 1_g2",
         }
         assert typeMapping == {"var1": float, "var2": float}
+
+    def test_sortGeoDomains(self):
+        geoDomains = [GeoDomain("apple"), GeoDomain("banana"), GeoDomain("cantelope")]
+        supportedGeoRetval = pd.DataFrame(
+            [
+                {
+                    "name": "banana",
+                    "hierarchy": "001",
+                },
+                {
+                    "name": "apple",
+                    "hierarchy": "010",
+                },
+                {
+                    "name": "cantelope",
+                    "hierarchy": "020",
+                },
+                {
+                    "name": "dingo",
+                    "hierarchy": "110",
+                },
+            ]
+        )
+
+        self.mocker.patch.object(
+            self._service._geoRepo,
+            "getSupportedGeographies",
+            return_value=supportedGeoRetval,
+        )
+
+        res = self._service._sortGeoDomains(geoDomains)
+
+        assert res == [GeoDomain("banana"), GeoDomain("apple"), GeoDomain("cantelope")]

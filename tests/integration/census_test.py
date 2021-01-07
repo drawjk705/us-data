@@ -452,6 +452,7 @@ class TestCensus:
         inMemSupportedGeos = cachedCensus.supportedGeographies
 
         assert inMemSupportedGeos.__dict__ == {
+            "CongressionalDistrict": "congressional district",
             "County": "county",
             "Division": "division",
             "Region": "region",
