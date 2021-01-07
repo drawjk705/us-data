@@ -38,6 +38,7 @@ def getCensus(
     cacheDir: str = CACHE_DIR,
     shouldLoadFromExistingCache: bool = False,
     shouldCacheOnDisk: bool = False,
+    shouldReplaceColumnHeaders: bool = False,
     logFile: str = DEFAULT_LOGFILE,
 ) -> Census:
     """
@@ -79,6 +80,7 @@ def getCensus(
         cacheDir,
         shouldLoadFromExistingCache,
         shouldCacheOnDisk,
+        replaceColumnHeaders=shouldReplaceColumnHeaders,
     )
 
     container = punq.Container()

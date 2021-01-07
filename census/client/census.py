@@ -149,8 +149,7 @@ class Census:
         self,
         variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
-        inDomains: List[GeoDomain] = [],
-        replaceColumnHeaders: bool = False,
+        *inDomains: GeoDomain,
     ) -> pd.DataFrame:
         """
         Gets statistical data based on `variablesToQuery`
@@ -160,16 +159,11 @@ class Census:
             variablesToQuery (List[VariableCode]): the variables to query
             forDomain (GeoDomain)
             inDomains (List[GeoDomain], optional): Defaults to [].
-            replaceColumnHeaders (bool, optional): if `True`, this will
-            replace all column headers in the resulting DataFrame with the variables'
-            names, as opposed to their codes. Defaults to False.
 
         Returns:
             pd.DataFrame: with the data
         """
-        return self._stats.getStats(
-            variablesToQuery, forDomain, inDomains, replaceColumnHeaders
-        )
+        return self._stats.getStats(variablesToQuery, forDomain, *inDomains)
 
     @property
     def variables(self) -> VariableSet:

@@ -1,4 +1,3 @@
-import logging
 from census.variables.repository.models import _CodeOrCleanedName
 from pytest_mock.plugin import MockerFixture
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
@@ -619,7 +618,7 @@ class TestCensus:
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        res = cachedCensus.getStats(variables, forDomain, inDomains)
+        res = cachedCensus.getStats(variables, forDomain, *inDomains)
 
         assert res.to_dict("records") == expectedStatsRes
 
@@ -629,9 +628,14 @@ class TestCensus:
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18105_001E&for=congressional%20district:*&in=state:01",
         }.issubset(apiCalls)
 
-    def test_cachedCensus_stats_noColumnNameChange(
-        self, cachedCensus: Census, apiCalls: Set[str]
-    ):
+    def test_census_stats_noColumnNameChange(self, apiCalls: Set[str]):
+        census = getCensus(
+            2019,
+            shouldLoadFromExistingCache=True,
+            shouldCacheOnDisk=True,
+            shouldReplaceColumnHeaders=True,
+        )
+
         variables = [
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
@@ -639,7 +643,7 @@ class TestCensus:
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        res = cachedCensus.getStats(variables, forDomain, inDomains)
+        res = census.getStats(variables, forDomain, *inDomains)
 
         assert res.to_dict("records") == expectedStatsRes
         assert (
@@ -647,9 +651,7 @@ class TestCensus:
             in apiCalls
         )
 
-    def test_cachedCensus_stats_columnNameChangeWithDuplicate(
-        self, cachedCensus: Census
-    ):
+    def test_cachedCensus_stats_columnNameChangeWithDuplicate(self):
         variables = [
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
@@ -657,12 +659,17 @@ class TestCensus:
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        # to populate "variables"
-        _ = cachedCensus.getAllVariables()
-
-        res = cachedCensus.getStats(
-            variables, forDomain, inDomains, replaceColumnHeaders=True
+        census = getCensus(
+            2019,
+            shouldLoadFromExistingCache=True,
+            shouldCacheOnDisk=True,
+            shouldReplaceColumnHeaders=True,
         )
+
+        # to populate "variables"
+        _ = census.getAllVariables()
+
+        res = census.getStats(variables, forDomain, *inDomains)
 
         assert res.to_dict("records") == [
             {
@@ -723,19 +730,22 @@ class TestCensus:
             },
         ]
 
-    def test_cachedCensus_stats_columnNameChangeWithoutDuplicate(
-        self, cachedCensus: Census
-    ):
+    def test_cachedCensus_stats_columnNameChangeWithoutDuplicate(self):
         variables = [VariableCode("B17015_001E")]
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        # to populate "variables"
-        _ = cachedCensus.getAllVariables()
-
-        res = cachedCensus.getStats(
-            variables, forDomain, inDomains, replaceColumnHeaders=True
+        census = getCensus(
+            2019,
+            shouldLoadFromExistingCache=True,
+            shouldCacheOnDisk=True,
+            shouldReplaceColumnHeaders=True,
         )
+
+        # to populate "variables"
+        _ = census.getAllVariables()
+
+        res = census.getStats(variables, forDomain, *inDomains)
 
         assert res.to_dict("records") == [
             {

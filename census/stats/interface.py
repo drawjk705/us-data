@@ -19,7 +19,6 @@ class ICensusStatisticsService(ABC, Generic[_T]):
         self,
         variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
-        inDomains: List[GeoDomain] = [],
-        replaceColumnHeaders: bool = False,
+        *inDomains: GeoDomain,
     ) -> _T:
         pass

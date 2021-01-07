@@ -58,6 +58,9 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         apiGet = self.mocker.patch.object(
             self._service._api, "stats", return_value=iter([[1, 2], [3]])
         )
+        self.mocker.patch.object(
+            self._service._config, "replaceColumnHeaders", shouldReplaceColumnHeaders
+        )
         variablesToQuery = [
             var1.code,
             var2.code,
@@ -74,9 +77,7 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             return_value=(expectedColumnMapping, expectedTypeMapping),
         )
 
-        self._service.getStats(
-            variablesToQuery, forDomain, inDomains, shouldReplaceColumnHeaders
-        )
+        self._service.getStats(variablesToQuery, forDomain, *inDomains)
 
         apiGet.assert_called_once_with(variablesToQuery, forDomain, inDomains)
         self.castMock(self._service._transformer.stats).assert_called_once_with(

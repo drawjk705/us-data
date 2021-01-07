@@ -25,3 +25,4 @@ class Config:
     cacheDir: str = CACHE_DIR
     shouldLoadFromExistingCache: bool = False
     shouldCacheOnDisk: bool = False
+    replaceColumnHeaders: bool = False

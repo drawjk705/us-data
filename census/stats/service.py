@@ -1,3 +1,4 @@
+from census.config import Config
 from census.utils.cleanVariableName import cleanVariableName
 from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
@@ -17,31 +18,32 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _api: IApiFetchService
     _transformer: IDataTransformer[pd.DataFrame]
     _variableRepo: IVariableRepository[pd.DataFrame]
+    _config: Config
 
     def __init__(
         self,
         api: IApiFetchService,
         transformer: IDataTransformer[pd.DataFrame],
         variableRepo: IVariableRepository[pd.DataFrame],
+        config: Config,
     ) -> None:
         self._api = api
         self._transformer = transformer
         self._variableRepo = variableRepo
+        self._config = config
 
     @timer
     def getStats(
         self,
         variablesToQuery: List[VariableCode],
         forDomain: GeoDomain,
-        inDomains: List[GeoDomain] = [],
-        replaceColumnHeaders: bool = False,
+        *inDomains: GeoDomain,
     ) -> pd.DataFrame:
 
         return self.__getStats(
             variablesToQuery=tuple(getUnique(variablesToQuery)),
             forDomain=forDomain,
             inDomains=tuple(getUnique(inDomains)),
-            replaceColumnHeaders=replaceColumnHeaders,
         )
 
     @cache
@@ -50,7 +52,6 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         variablesToQuery: Tuple[VariableCode],
         forDomain: GeoDomain,
         inDomains: Tuple[GeoDomain],
-        replaceColumnHeaders: bool = False,
     ) -> pd.DataFrame:
 
         pullStats = lambda: self._api.stats(
@@ -67,7 +68,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             apiResults,
             typeConversions,
             [forDomain] + list(inDomains),
-            columnHeaders=columnHeaders if replaceColumnHeaders else None,
+            columnHeaders=columnHeaders if self._config.replaceColumnHeaders else None,
         )
 
         return df
