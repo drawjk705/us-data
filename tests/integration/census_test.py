@@ -5,7 +5,7 @@ import pandas
 from census.models import GeoDomain
 from pathlib import Path
 from census.client.census import Census
-from census.getCensus import getCensus
+from census.factory import getCensus
 from census.exceptions import CensusDoesNotExistException
 from typing import Any, Dict, List, Optional, Set
 from tests.integration.mockApiResponses import MOCK_API
