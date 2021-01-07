@@ -105,4 +105,6 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
             mainDf[reorderedColumns]
             .astype(typeConversions)
             .rename(columns=columnHeaders or {})
+            .sort_values(by=geoCols)
+            .reset_index(drop=True)
         )

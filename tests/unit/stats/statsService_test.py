@@ -103,7 +103,7 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         )
 
         assert columnMapping == {"var1": "name 1", "var2": "name 2", "var3": "name 3"}
-        assert typeMapping == {"var1": int, "var2": float}
+        assert typeMapping == {"var1": float, "var2": float}
 
     def test_getVariableNamesAndTypeConversions_givenDuplicateNamesBetweenGroups(self):
         variableWithDuplicateName = GroupVariable(
@@ -138,4 +138,4 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             "var3": "name 3_g1",
             "var5": "name 1_g2",
         }
-        assert typeMapping == {"var1": int, "var2": float}
+        assert typeMapping == {"var1": float, "var2": float}

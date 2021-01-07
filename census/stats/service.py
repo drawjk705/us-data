@@ -92,7 +92,9 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             if v.predicateType == "float":
                 typeConversions.update({k: float})
             elif v.predicateType == "int":
-                typeConversions.update({k: int})
+                typeConversions.update(  # this is so we don't get errors when int-type fields are null
+                    {k: float}
+                )
 
             cleanedVarName = cleanVariableName(v.name)
             if hasDuplicateNames:
