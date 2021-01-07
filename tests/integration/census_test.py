@@ -1,4 +1,6 @@
-from pytest_mock.plugin import MockerFixture  # type: ignore
+import logging
+from census.variables.repository.models import _CodeOrCleanedName
+from pytest_mock.plugin import MockerFixture
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 import pandas
 from census.models import GeoDomain
@@ -13,6 +15,9 @@ from pytest import MonkeyPatch
 import pytest
 import os
 import shutil
+
+
+# pyright: reportUnknownMemberType=false
 
 
 class _Response:
@@ -131,7 +136,7 @@ def setPathToTest():
     if tempDir.exists():
         shutil.rmtree(tempDir)
 
-    tempDir.mkdir(parents=True, exist_ok=False)
+    tempDir.mkdir(parents=True, exist_ok=True)
 
     os.chdir(tempDir.absolute())
 
@@ -139,7 +144,7 @@ def setPathToTest():
         yield
     finally:
         os.chdir(parentPath)
-        shutil.rmtree(tempDir.absolute())
+        # shutil.rmtree(tempDir.absolute())
 
 
 @pytest.fixture
@@ -216,8 +221,8 @@ class TestCensus:
 
     def test_cachedCensus_getGeographyCodes(self, cachedCensus: Census, tempDir: Path):
         codes = cachedCensus.getGeographyCodes(
-            forDomain=GeoDomain("congressional district"),
-            inDomains=[GeoDomain("state", "01")],
+            GeoDomain("congressional district"),
+            GeoDomain("state", "01"),
         )
 
         expected = [
@@ -269,7 +274,7 @@ class TestCensus:
 
         for code in groupCodes:
             verifyResource(f"variables/{code}.csv", exists=False)
-        variables = cachedCensus.getVariablesByGroup(groupCodes)
+        variables = cachedCensus.getVariablesByGroup(*groupCodes)
         for code in groupCodes:
             verifyResource(
                 f"variables/{code}.csv",
@@ -293,7 +298,7 @@ class TestCensus:
             verifyResource(
                 f"variables/{group}.csv",
                 exists=True,
-                expectedData=variables.to_dict("records"),  # type : ignore
+                expectedData=variables.to_dict("records"),
             )
 
     def test_cachedCensus_groups_populatesGroupNames(self, cachedCensus: Census):
@@ -325,6 +330,7 @@ class TestCensus:
                 name="Annotation of Estimate!!Total:",
                 limit=0,
                 predicateOnly=True,
+                cleanedName="AnnotationOfEstimate_Total",
                 predicateType="string",
             ),
             "AnnotationOfEstimate_Total_B18104": GroupVariable(
@@ -335,6 +341,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="string",
+                cleanedName="AnnotationOfEstimate_Total",
             ),
             "AnnotationOfEstimate_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001EA"),
@@ -344,6 +351,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="string",
+                cleanedName="AnnotationOfEstimate_Total",
             ),
             "AnnotationOfMarginOfError_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001MA"),
@@ -352,6 +360,7 @@ class TestCensus:
                 name="Annotation of Margin of Error!!Total:",
                 limit=0,
                 predicateOnly=True,
+                cleanedName="AnnotationOfMarginOfError_Total",
                 predicateType="string",
             ),
             "AnnotationOfMarginOfError_Total_B18104": GroupVariable(
@@ -362,6 +371,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="string",
+                cleanedName="AnnotationOfMarginOfError_Total",
             ),
             "AnnotationOfMarginOfError_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001MA"),
@@ -371,6 +381,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="string",
+                cleanedName="AnnotationOfMarginOfError_Total",
             ),
             "Estimate_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001E"),
@@ -379,6 +390,7 @@ class TestCensus:
                 name="Estimate!!Total:",
                 limit=0,
                 predicateOnly=True,
+                cleanedName="Estimate_Total",
                 predicateType="int",
             ),
             "Estimate_Total_B18104": GroupVariable(
@@ -389,6 +401,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="int",
+                cleanedName="Estimate_Total",
             ),
             "Estimate_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001E"),
@@ -398,6 +411,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="int",
+                cleanedName="Estimate_Total",
             ),
             "MarginOfError_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001M"),
@@ -407,6 +421,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="int",
+                cleanedName="MarginOfError_Total",
             ),
             "MarginOfError_Total_B18104": GroupVariable(
                 code=VariableCode("B18104_001M"),
@@ -416,6 +431,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="int",
+                cleanedName="MarginOfError_Total",
             ),
             "MarginOfError_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001M"),
@@ -425,6 +441,7 @@ class TestCensus:
                 limit=0,
                 predicateOnly=True,
                 predicateType="int",
+                cleanedName="MarginOfError_Total",
             ),
         }
 
@@ -433,6 +450,15 @@ class TestCensus:
 
         _ = cachedCensus.getSupportedGeographies()
 
+        inMemSupportedGeos = cachedCensus.supportedGeographies
+
+        assert inMemSupportedGeos.__dict__ == {
+            "County": "county",
+            "Division": "division",
+            "Region": "region",
+            "State": "state",
+            "Us": "us",
+        }
         verifyResource("supportedGeographies.csv")
 
     def test_cachedCensus_searchGroups(self, cachedCensus: Census):
@@ -459,7 +485,7 @@ class TestCensus:
         regex = r"estimate"
 
         res = cachedCensus.searchVariables(
-            regex, "name", inGroups=[GroupCode("B18104"), GroupCode("B18105")]
+            regex, "name", GroupCode("B18104"), GroupCode("B18105")
         )
 
         expectedRes = [
@@ -512,7 +538,7 @@ class TestCensus:
     ):
         regex = r"estimate"
 
-        res = cachedCensus.searchVariables(regex, "name", inGroups=[])
+        res = cachedCensus.searchVariables(regex, "name")
 
         expectedRes = [
             {
@@ -755,3 +781,61 @@ class TestCensus:
                 "Estimate_Total": 186592,
             },
         ]
+
+    def test_cachedCensus_hasInMemGroupToVarMapping(self, cachedCensus: Census):
+        _ = cachedCensus.getAllVariables()
+
+        expectedValue = {
+            "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": {
+                "Estimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B17015_001E"), name="Estimate_Total"
+                ),
+                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B17015_001EA"), name="AnnotationOfEstimate_Total"
+                ),
+                "MarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B17015_001M"), name="MarginOfError_Total"
+                ),
+                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B17015_001MA"),
+                    name="AnnotationOfMarginOfError_Total",
+                ),
+            },
+            "SexByAgeByCognitiveDifficulty": {
+                "Estimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18104_001E"), name="Estimate_Total"
+                ),
+                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18104_001EA"), name="AnnotationOfEstimate_Total"
+                ),
+                "MarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18104_001M"), name="MarginOfError_Total"
+                ),
+                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18104_001MA"),
+                    name="AnnotationOfMarginOfError_Total",
+                ),
+            },
+            "SexByAgeByAmbulatoryDifficulty": {
+                "Estimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18105_001E"), name="Estimate_Total"
+                ),
+                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18105_001EA"), name="AnnotationOfEstimate_Total"
+                ),
+                "MarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18105_001M"), name="MarginOfError_Total"
+                ),
+                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
+                    code=VariableCode("B18105_001MA"),
+                    name="AnnotationOfMarginOfError_Total",
+                ),
+            },
+        }
+
+        mapping = cachedCensus.groupToVarsMapping
+
+        for k, v in mapping.items():
+            match = expectedValue[k]
+
+            assert match == v.__dict__

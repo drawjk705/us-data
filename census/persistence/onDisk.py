@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 from census.config import Config
-from census.variables.persistence.interface import ICache
+from census.persistence.interface import ICache
 
 LOG_PREFIX = "[On-Disk Cache]"
 

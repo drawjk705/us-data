@@ -1,14 +1,13 @@
 from tests.utils import DataFrameColumnMatcher, shuffledCases
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
-from census.models import GeoDomain
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Union
 
 from census.variables.repository.service import VariableRepository
 
 from tests.serviceTestFixtures import ServiceTestFixture
 import pandas
 import pytest
-from unittest.mock import MagicMock, call
+from unittest.mock import call
 
 # pyright: reportPrivateUsage = false
 
@@ -51,72 +50,6 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 "groups.csv", fullDf
             )
 
-    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
-    def test_getSupportedGeographies(self, isCacheHit: bool):
-        fullDf = pandas.DataFrame(
-            [
-                {"name": "us", "hierarchy": 1, "for": "this", "in": "that"},
-                {"name": "them", "hierarchy": 2, "for": "that", "in": "this"},
-            ]
-        )
-
-        self.mocker.patch.object(
-            self._service._cache, "get", return_value=fullDf if isCacheHit else None
-        )
-        apiFetch = self.mocker.patch.object(
-            self._service._api, "supportedGeographies", return_value=apiRetval
-        )
-
-        transform = self.mocker.patch.object(
-            self._service._transformer, "supportedGeographies", return_value=fullDf
-        )
-
-        self._service.getSupportedGeographies()
-
-        if isCacheHit:
-            apiFetch.assert_not_called()
-            transform.assert_not_called()
-            self.castMock(self._service._cache.put).assert_not_called()
-        else:
-            apiFetch.assert_called_once()
-            transform.assert_called_once_with(apiRetval)
-            self.castMock(self._service._cache.put).assert_called_once_with(
-                "supportedGeographies.csv", fullDf
-            )
-
-    def test_getGeographyCodes(self):
-        forDomain = MagicMock()
-        inDomains = [MagicMock()]
-
-        fullDf = pandas.DataFrame(
-            [
-                {
-                    "name": "banana",
-                    "state": "01",
-                },
-                {
-                    "name": "apple",
-                    "state": "01",
-                },
-            ]
-        )
-
-        apiFetch = self.mocker.patch.object(
-            self._service._api, "geographyCodes", return_value=apiRetval
-        )
-        transform = self.mocker.patch.object(
-            self._service._transformer, "geographyCodes", return_value=fullDf
-        )
-
-        res = self._service.getGeographyCodes(
-            forDomain, cast(List[GeoDomain], inDomains)
-        )
-
-        apiFetch.assert_called_once_with(forDomain, inDomains)
-        transform.assert_called_once_with(apiRetval)
-
-        assert res.to_dict() == fullDf.to_dict()
-
     @pytest.mark.parametrize(*shuffledCases(cacheMissIndex=[0, 1, 2]))
     def test_getVariablesByGroup(self, cacheMissIndex: int):
         cacheGroups = [GroupCode("g1"), GroupCode("g2"), GroupCode("g3")]
@@ -155,7 +88,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
 
         self.mocker.patch.object(cache, "get", side_effect=cacheGetSideEffect)
 
-        self._service.getVariablesByGroup(cacheGroups)
+        self._service.getVariablesByGroup(*cacheGroups)
 
     def test_getAllVariables(self):
         group1Vars: List[Dict[str, Any]] = [
@@ -222,10 +155,10 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
             self._service._transformer, "variables", return_value=transformerRes
         )
         expectedVariables: Dict[str, GroupVariable] = dict(
-            Name1_group1=GroupVariable(**group1Vars[0]),
-            Name2_group1=GroupVariable(**group1Vars[1]),
-            Name3_group2=GroupVariable(**group2Vars[0]),
-            Name4_group2=GroupVariable(**group2Vars[1]),
+            Name1_group1=GroupVariable(**group1Vars[0], cleanedName="Name1"),
+            Name2_group1=GroupVariable(**group1Vars[1], cleanedName="Name2"),
+            Name3_group2=GroupVariable(**group2Vars[0], cleanedName="Name3"),
+            Name4_group2=GroupVariable(**group2Vars[1], cleanedName="Name4"),
         )
 
         res = self._service.getAllVariables()

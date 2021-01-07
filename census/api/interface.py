@@ -184,15 +184,6 @@ class IApiSerializationService(ABC):
                         ],
                         "optionalWithWCFor": "state"
                     },
-                    {
-                        "name": "principal city (or part)",
-                        "geoLevelDisplay": "312",
-                        "referenceDate": "2019-01-01",
-                        "requires": [
-                            "metropolitan statistical area/micropolitan statistical area",
-                            "state (or part)"
-                        ]
-                    },
                 ]
             }
         ```

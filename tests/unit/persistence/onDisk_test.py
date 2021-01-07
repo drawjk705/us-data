@@ -6,14 +6,14 @@ import pandas
 import pytest
 from pytest import MonkeyPatch
 from census.config import Config
-from census.variables.persistence.onDisk import OnDiskCache
+from census.persistence.onDisk import OnDiskCache
 from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
 
 
 @pytest.fixture
 def pathMock(mocker: MockerFixture) -> MagicMock:
-    mock = mocker.patch("census.variables.persistence.onDisk.Path")
+    mock = mocker.patch("census.persistence.onDisk.Path")
     mocker.patch.object(mock(), "joinpath", return_value=mock())
 
     return mock
@@ -21,7 +21,7 @@ def pathMock(mocker: MockerFixture) -> MagicMock:
 
 @pytest.fixture
 def shutilMock(mocker: MockerFixture) -> Mock:
-    return mocker.patch("census.variables.persistence.onDisk.shutil")
+    return mocker.patch("census.persistence.onDisk.shutil")
 
 
 class DummyClass:

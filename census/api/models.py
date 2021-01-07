@@ -1,6 +1,6 @@
 from census.utils.unique import getUnique
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, List, Tuple
 
 
 @dataclass(frozen=True)
@@ -29,16 +29,6 @@ class GeographyItem:
     def makeItem(cls, name: str, hierarchy: str, clauses: List[GeographyClauseSet]):
         return cls(name, hierarchy, tuple(getUnique(clauses)))
 
-    def __repr__(self) -> str:
-        rep = self.name + " - " + self.hierarchy + "\n------\n"
-
-        rep += "\n--\n".join([str(clause) for clause in self.clauses])
-
-        return rep
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
 
 class GeographyResponseItem:
     name: str
@@ -51,10 +41,8 @@ class GeographyResponseItem:
     def __init__(self, jsonRes: Any) -> None:
         self.__dict__ = jsonRes
 
+    def __repr__(self) -> str:
+        return self.__dict__.__repr__()
 
-class GeographyResponse:
-    fips: List[GeographyResponseItem] = []
-
-    def __init__(self, fips: List[Dict[Any, Any]], **_) -> None:
-        for fip in fips:
-            self.fips.append(GeographyResponseItem(fip))
+    def __str__(self) -> str:
+        return self.__repr__()

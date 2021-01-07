@@ -8,14 +8,12 @@ authors = ["Joel Krim <drawjk705@gmail.com>"]
 python = "^3.9"
 pandas = "^1.2.0"
 requests = "^2.25.1"
-jupyter = "^1.0.0"
 punq = "^0.4.1"
 tqdm = "^4.55.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
 black = { version = "^20.8b1", allow-prereleases = true }
-mypy = "^0.790"
 pytest-mock = "^3.5.0"
 callee = "^0.3.1"
 hypothesis = "^5.47.0"
@@ -27,6 +25,11 @@ data-science-types = "^0.2.22"
 pytest-randomly = "^3.5.0"
 poethepoet = "^0.9.0"
 pytest-tldr = "^0.2.2"
+jupyter_nbextensions_configurator = "^0.4.1"
+ipython = "^7.19.0"
+jupyterlab = "^3.0.1"
+ipywidgets = "^7.6.2"
+matplotlib = "^3.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

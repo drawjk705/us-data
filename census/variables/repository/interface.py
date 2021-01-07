@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from census.variables.repository.models import (
     GroupSet,
+    GroupToVarsMapping,
     VariableSet,
 )
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
-from census.models import GeoDomain
 from census.variables.models import GroupCode
 
 T = TypeVar("T")
@@ -21,21 +21,14 @@ class IVariableRepository(ABC, Generic[T]):
     # that have been pulled from the API so far
     _variables: VariableSet
     _groups: GroupSet
+    _groupToVarsMapping: GroupToVarsMapping
 
     @abstractmethod
     def getGroups(self) -> T:
         pass
 
     @abstractmethod
-    def getSupportedGeographies(self) -> T:
-        pass
-
-    @abstractmethod
-    def getGeographyCodes(self, forDomain: GeoDomain, inDomains: List[GeoDomain]) -> T:
-        pass
-
-    @abstractmethod
-    def getVariablesByGroup(self, groups: List[GroupCode]) -> T:
+    def getVariablesByGroup(self, *groups: GroupCode) -> T:
         pass
 
     @abstractmethod
@@ -49,3 +42,7 @@ class IVariableRepository(ABC, Generic[T]):
     @property
     def groups(self) -> GroupSet:
         return self._groups
+
+    @property
+    def groupToVarsMapping(self) -> GroupToVarsMapping:
+        return self._groupToVarsMapping

@@ -3,7 +3,11 @@ from census.variables.models import Group, GroupVariable
 from census.api.interface import IApiSerializationService
 from typing import Any, Dict, List
 from collections import OrderedDict
-from census.api.models import GeographyClauseSet, GeographyItem, GeographyResponse
+from census.api.models import (
+    GeographyClauseSet,
+    GeographyItem,
+    GeographyResponseItem,
+)
 
 
 class ApiSerializationService(IApiSerializationService):
@@ -22,10 +26,11 @@ class ApiSerializationService(IApiSerializationService):
         supportedGeosResponse: Any,
     ) -> OrderedDict[str, GeographyItem]:
 
-        geogRes = GeographyResponse(fips=supportedGeosResponse["fips"])
+        fips = [GeographyResponseItem(fip) for fip in supportedGeosResponse["fips"]]
+
         supportedGeographies: Dict[str, GeographyItem] = {}
 
-        for fip in geogRes.fips:
+        for fip in fips:
             varName = fip.name
             requirements = fip.requires or []
             wildcards = fip.wildcard or []

@@ -1,4 +1,5 @@
 # from dataclasses import dataclass
+from census.utils.cleanVariableName import cleanVariableName
 from dataclasses import dataclass, field
 from typing import Any, Dict, Literal, NewType
 
@@ -16,6 +17,7 @@ class Group:
     code: GroupCode
     description: str
     variables: str = field(default="")
+    cleanedName: str = field(default="")
 
     @classmethod
     def fromJson(cls, jsonDict: Dict[str, str]):
@@ -43,6 +45,7 @@ class GroupVariable:
     limit: int = field(default=0)
     predicateOnly: bool = field(default=False)
     predicateType: Literal["string", "int", "float"] = field(default="string")
+    cleanedName: str = field(default="")
 
     @classmethod
     def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
@@ -61,6 +64,7 @@ class GroupVariable:
             limit,
             predicateOnly,
             predicateType,
+            cleanVariableName(label),
         )
 
     @classmethod
@@ -73,7 +77,14 @@ class GroupVariable:
             record["limit"],
             record["predicateOnly"],
             record["predicateType"],
+            cleanVariableName(record["name"]),
         )
 
     def __hash__(self) -> int:
         return hash(self.code)
+
+    def __repr__(self) -> str:
+        return self.__dict__.__repr__()
+
+    def __str__(self) -> str:
+        return self.__repr__()

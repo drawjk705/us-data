@@ -1,4 +1,6 @@
-from census.variables.repository.models import GroupSet, VariableSet
+from census.geographies.models import SupportedGeoSet
+from census.geographies.interface import IGeographyRepository
+from census.variables.repository.models import GroupSet, GroupToVarsMapping, VariableSet
 from typing import List, Literal
 
 import pandas as pd
@@ -19,6 +21,7 @@ class Census:
     _variableRepo: IVariableRepository[pd.DataFrame]
     _variableSearch: IVariableSearchService[pd.DataFrame]
     _stats: ICensusStatisticsService[pd.DataFrame]
+    _geoRepo: IGeographyRepository[pd.DataFrame]
 
     def __init__(
         self,
@@ -26,10 +29,12 @@ class Census:
         variableSearch: IVariableSearchService[pd.DataFrame],
         stats: ICensusStatisticsService[pd.DataFrame],
         api: IApiFetchService,
+        geoRepo: IGeographyRepository[pd.DataFrame],
     ) -> None:
         self._variableRepo = variableRepo
         self._variableSearch = variableSearch
         self._stats = stats
+        self._geoRepo = geoRepo
 
         # if this healthcheck fails, it will throw, and we
         # won't instantiate the client
@@ -53,7 +58,7 @@ class Census:
         self,
         regex: str,
         searchBy: Literal["name", "concept"] = "name",
-        inGroups: List[GroupCode] = [],
+        *inGroups: GroupCode,
     ) -> pd.DataFrame:
         """
         - Searches variables based on `regex`.
@@ -72,11 +77,11 @@ class Census:
         Returns:
             pd.DataFrame: with all of the matched variables
         """
-        return self._variableSearch.searchVariables(regex, searchBy, inGroups)
+        return self._variableSearch.searchVariables(regex, searchBy, *inGroups)
 
     # repo
     def getGeographyCodes(
-        self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
+        self, forDomain: GeoDomain, *inDomains: GeoDomain
     ) -> pd.DataFrame:
         """
         Gets geography codes for the specified geography query.
@@ -96,7 +101,7 @@ class Census:
         Returns:
             pd.DataFrame: [description]
         """
-        return self._variableRepo.getGeographyCodes(forDomain, inDomains)
+        return self._geoRepo.getGeographyCodes(forDomain, *inDomains)
 
     def getGroups(self) -> pd.DataFrame:
         """
@@ -107,7 +112,7 @@ class Census:
         """
         return self._variableRepo.getGroups()
 
-    def getVariablesByGroup(self, groups: List[GroupCode]) -> pd.DataFrame:
+    def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
         """
         Gets all variables whose group is in `groups`.
 
@@ -117,7 +122,7 @@ class Census:
         Returns:
             pd.DataFrame: with the queried variables.
         """
-        return self._variableRepo.getVariablesByGroup(groups)
+        return self._variableRepo.getVariablesByGroup(*groups)
 
     def getAllVariables(self) -> pd.DataFrame:
         """
@@ -137,7 +142,7 @@ class Census:
         Returns:
             pd.DataFrame
         """
-        return self._variableRepo.getSupportedGeographies()
+        return self._geoRepo.getSupportedGeographies()
 
     # stats
     def getStats(
@@ -173,3 +178,11 @@ class Census:
     @property
     def groups(self) -> GroupSet:
         return self._variableRepo.groups
+
+    @property
+    def groupToVarsMapping(self) -> GroupToVarsMapping:
+        return self._variableRepo.groupToVarsMapping
+
+    @property
+    def supportedGeographies(self) -> SupportedGeoSet:
+        return self._geoRepo.supportedGeographies

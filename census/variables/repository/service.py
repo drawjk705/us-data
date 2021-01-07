@@ -1,20 +1,20 @@
 from census.variables.repository.models import (
     GroupSet,
+    GroupToVarsMapping,
     VariableSet,
 )
 from census.utils.timer import timer
 import logging
 from functools import cache
-from typing import List, Tuple, cast
+from typing import Tuple, cast
 from tqdm.notebook import tqdm  # type: ignore
 
 import pandas as pd
 from census.api.interface import IApiFetchService
 from census.dataTransformation.interface import IDataTransformer
-from census.models import GeoDomain
 from census.utils.unique import getUnique
 from census.variables.models import Group, GroupVariable, GroupCode
-from census.variables.persistence.interface import ICache
+from census.persistence.interface import ICache
 from census.variables.repository.interface import IVariableRepository
 
 GROUPS_FILE = "groups.csv"
@@ -45,6 +45,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         # these are inherited from the base class
         self._variables = VariableSet()
         self._groups = GroupSet()
+        self._groupToVarsMapping = GroupToVarsMapping()
 
     @timer
     def getGroups(self) -> pd.DataFrame:
@@ -69,42 +70,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         return df
 
     @timer
-    def getSupportedGeographies(self) -> pd.DataFrame:
-        return self.__getSupportedGeographies()
-
-    @cache
-    def __getSupportedGeographies(self) -> pd.DataFrame:
-        df = self._cache.get(SUPPORTED_GEOS_FILE)
-
-        if df is None:
-            df = pd.DataFrame()
-
-        if df.empty:
-            res = self._api.supportedGeographies()
-            df = self._transformer.supportedGeographies(res)
-
-            self._cache.put(SUPPORTED_GEOS_FILE, df)
-
-        return df
-
-    @timer
-    def getGeographyCodes(
-        self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
-    ) -> pd.DataFrame:
-        return self.__getGeographyCodes(
-            forDomain, inDomains=tuple(getUnique(inDomains))
-        )
-
-    @cache
-    def __getGeographyCodes(
-        self, forDomain: GeoDomain, inDomains: Tuple[GeoDomain, ...] = ()
-    ) -> pd.DataFrame:
-        res = self._api.geographyCodes(forDomain, list(inDomains))
-        df = self._transformer.geographyCodes(res)
-        return df
-
-    @timer
-    def getVariablesByGroup(self, groups: List[GroupCode]) -> pd.DataFrame:
+    def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
         return self.__getVariablesByGroup(tuple(getUnique(groups)))
 
     @cache
@@ -137,6 +103,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         for record in allVars.to_dict("records"):
             var = GroupVariable.fromDfRecord(record)
             self._variables.add(var)
+            self._groupToVarsMapping.add(var)
 
         return allVars
 
@@ -160,6 +127,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
             for variableDict in varDf.to_dict("records"):
                 variable = GroupVariable.fromDfRecord(variableDict)
                 self._variables.add(variable)
+                self._groupToVarsMapping.add(variable)
 
         return df
 

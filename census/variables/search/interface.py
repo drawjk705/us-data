@@ -1,5 +1,5 @@
 from census.variables.models import GroupCode
-from typing import Generic, List, Literal, TypeVar
+from typing import Generic, Literal, TypeVar
 from abc import ABC, abstractmethod
 
 
@@ -20,6 +20,6 @@ class IVariableSearchService(ABC, Generic[_T]):
         self,
         regex: str,
         searchBy: Literal["name", "concept"] = "name",
-        inGroups: List[GroupCode] = [],
+        *inGroups: GroupCode,
     ) -> _T:
         pass

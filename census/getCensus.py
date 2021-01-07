@@ -1,12 +1,14 @@
 # pyright: reportMissingTypeStubs=false
 # pyright: reportUnknownMemberType=false
 
+from census.geographies.service import GeographyRepository
+from census.geographies.interface import IGeographyRepository
 from census.utils.configureLogger import DEFAULT_LOGFILE, configureLogger
 from typing import cast
 
 import pandas
-from census.variables.persistence.interface import ICache
-from census.variables.persistence.onDisk import OnDiskCache
+from census.persistence.interface import ICache
+from census.persistence.onDisk import OnDiskCache
 from census.stats.service import CensusStatisticsService
 from census.stats.interface import ICensusStatisticsService
 from census.variables.search.interface import IVariableSearchService
@@ -91,6 +93,7 @@ def getCensus(
     container.register(IApiFetchService, ApiFetchService)
     container.register(IVariableRepository[pandas.DataFrame], VariableRepository)
     container.register(IVariableSearchService[pandas.DataFrame], VariableSearchService)
+    container.register(IGeographyRepository[pandas.DataFrame], GeographyRepository)
     container.register(
         ICensusStatisticsService[pandas.DataFrame], CensusStatisticsService
     )
