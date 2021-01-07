@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 from census.models import SurveyType, DatasetType
 
 
@@ -20,8 +21,8 @@ class Config:
     """
 
     year: int = 2020
-    datasetType: DatasetType = DatasetType.ACS
-    surveyType: SurveyType = SurveyType.ACS1
+    datasetType: Union[DatasetType, str] = DatasetType.ACS
+    surveyType: Union[SurveyType, str] = SurveyType.ACS1
     cacheDir: str = CACHE_DIR
     shouldLoadFromExistingCache: bool = False
     shouldCacheOnDisk: bool = False

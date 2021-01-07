@@ -19,6 +19,8 @@ def cleanVariableName(variableName: str) -> str:
             .replace(".", " ")
             .replace("(", " ")
             .replace(")", " ")
+            .replace("[", " ")
+            .replace("]", " ")
             .split(" ")
         ):
             newName += (

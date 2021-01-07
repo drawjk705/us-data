@@ -231,14 +231,14 @@ class TestCensus:
                 "congressional district": "01",
             },
             {
+                "NAME": "Congressional District 2 (116th Congress), Alabama",
+                "state": "01",
+                "congressional district": "02",
+            },
+            {
                 "NAME": "Congressional District 3 (116th Congress), Alabama",
                 "state": "01",
                 "congressional district": "03",
-            },
-            {
-                "NAME": "Congressional District 5 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "05",
             },
             {
                 "NAME": "Congressional District 4 (116th Congress), Alabama",
@@ -246,19 +246,19 @@ class TestCensus:
                 "congressional district": "04",
             },
             {
-                "NAME": "Congressional District 7 (116th Congress), Alabama",
+                "NAME": "Congressional District 5 (116th Congress), Alabama",
                 "state": "01",
-                "congressional district": "07",
-            },
-            {
-                "NAME": "Congressional District 2 (116th Congress), Alabama",
-                "state": "01",
-                "congressional district": "02",
+                "congressional district": "05",
             },
             {
                 "NAME": "Congressional District 6 (116th Congress), Alabama",
                 "state": "01",
                 "congressional district": "06",
+            },
+            {
+                "NAME": "Congressional District 7 (116th Congress), Alabama",
+                "state": "01",
+                "congressional district": "07",
             },
         ]
 

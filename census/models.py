@@ -4,11 +4,13 @@ from enum import Enum
 
 class DatasetType(str, Enum):
     ACS = "acs"
+    DECENNIAL_CENSUS = "dec"
 
 
 class SurveyType(str, Enum):
     ACS1 = "acs1"
     ACS5 = "acs5"
+    SUMMARY_FILE_1 = "sf1"
 
 
 @dataclass(frozen=True)

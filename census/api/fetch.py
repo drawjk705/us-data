@@ -1,18 +1,17 @@
 import logging
 from collections import OrderedDict
-from typing import Any, Dict, Generator, List, cast
+from typing import Any, Dict, Generator, List
 
 import requests
 from census.api.interface import IApiFetchService, IApiSerializationService
 from census.api.models import GeographyItem
 from census.config import Config
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from census.models import GeoDomain
+from census.models import DatasetType, GeoDomain, SurveyType
 from census.utils.chunk import chunk
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from requests.utils import requote_uri
-from tqdm.notebook import tqdm  # type: ignore
 
 # we can query only 50 variables at a time, max
 MAX_QUERY_SIZE = 50
@@ -25,8 +24,19 @@ class ApiFetchService(IApiFetchService):
     _config: Config
 
     def __init__(self, config: Config, parser: IApiSerializationService) -> None:
+        datasetTypeValue = (
+            config.datasetType
+            if not isinstance(config.datasetType, DatasetType)
+            else config.datasetType.value
+        )
+        surveyTypeValue = (
+            config.surveyType
+            if not isinstance(config.surveyType, SurveyType)
+            else config.surveyType.value
+        )
+
         self._url = API_URL_FORMAT.format(
-            config.year, config.datasetType.value, config.surveyType.value
+            config.year, datasetTypeValue, surveyTypeValue
         )
         self._parser = parser
         self._config = config
@@ -35,7 +45,7 @@ class ApiFetchService(IApiFetchService):
         res = requests.get(self._url + ".json")  # type: ignore
 
         if res.status_code in [404, 400]:
-            msg = f"Data does not exist for dataset={self._config.datasetType.value}; survey={self._config.surveyType.value}; year={self._config.year}"
+            msg = f"Data does not exist for dataset={self._config.datasetType}; survey={self._config.surveyType}; year={self._config.year}"
 
             logging.error(f"[ApiFetchService] - {msg}")
 
@@ -93,8 +103,8 @@ class ApiFetchService(IApiFetchService):
     ) -> Generator[List[List[str]], None, None]:
 
         # we need the minus 1 since we're also querying name
-        for codes in tqdm(chunk(variablesCodes, MAX_QUERY_SIZE - 1)):  # type: ignore
-            codeStr = ",".join(cast(List[VariableCode], codes))
+        for codes in chunk(variablesCodes, MAX_QUERY_SIZE - 1):
+            codeStr = ",".join(codes)
             varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
 
             domainStr = "for=" + str(forDomain)

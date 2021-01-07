@@ -6,6 +6,7 @@ from census.variables.models import VariableCode
 from census.utils.unique import getUnique
 from functools import cache
 from typing import Any, Dict, List, Set, Tuple
+from tqdm.notebook import tqdm
 
 import pandas as pd
 from census.api.interface import IApiFetchService
@@ -58,7 +59,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             list(variablesToQuery), forDomain, list(inDomains)
         )
 
-        apiResults: List[List[List[str]]] = [res for res in pullStats()]
+        apiResults: List[List[List[str]]] = [res for res in tqdm(pullStats())]  # type: ignore
 
         columnHeaders, typeConversions = self._getVariableNamesAndTypeConversions(
             set(variablesToQuery)

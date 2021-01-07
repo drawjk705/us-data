@@ -7,7 +7,7 @@ from census.utils.timer import timer
 import logging
 from functools import cache
 from typing import Tuple, cast
-from tqdm.notebook import tqdm  # type: ignore
+from tqdm.notebook import tqdm
 
 import pandas as pd
 from census.api.interface import IApiFetchService

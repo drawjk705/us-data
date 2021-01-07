@@ -37,7 +37,11 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
 
     @timer
     def geographyCodes(self, geoCodes: List[List[str]]) -> pd.DataFrame:
-        return pd.DataFrame(geoCodes[1:], columns=geoCodes[0]).sort_values(by=["state"])
+        return (
+            pd.DataFrame(geoCodes[1:], columns=geoCodes[0])
+            .sort_values(by=geoCodes[0][1:])
+            .reset_index(drop=True)
+        )
 
     @timer
     def groups(self, groups: Dict[str, Group]) -> pd.DataFrame:
