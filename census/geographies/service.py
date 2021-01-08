@@ -3,7 +3,7 @@ from census.utils.unique import getUnique
 from functools import cache
 from typing import Tuple
 from census.utils.timer import timer
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from census.geographies.interface import IGeographyRepository
 
 import pandas as pd

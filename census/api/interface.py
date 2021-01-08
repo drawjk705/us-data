@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from census.variables.models import Group, GroupVariable, VariableCode
 from typing import Any, Dict, Generator, List
 from collections import OrderedDict
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from census.api.models import GeographyItem
 
 

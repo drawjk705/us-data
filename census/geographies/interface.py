@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from census.geographies.models import SupportedGeoSet
 from typing import Generic, TypeVar
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 
 T = TypeVar("T")
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from census.variables.models import VariableCode
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 
 from typing import Generic, List, TypeVar
 

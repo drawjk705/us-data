@@ -6,7 +6,7 @@ from typing import List, Literal
 import pandas as pd
 
 from census.api.fetch import IApiFetchService
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
 from census.variables.models import GroupCode, VariableCode
 from census.variables.repository.interface import IVariableRepository

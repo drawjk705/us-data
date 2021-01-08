@@ -5,13 +5,13 @@ from typing import Any, Collection, List
 from unittest.mock import MagicMock, call
 from census.config import Config
 from census.api.interface import IApiSerializationService
+from census.geographies.models import GeoDomain
 
 import pytest
 from census.api.fetch import ApiFetchService
-from census.models import DatasetType, GeoDomain, SurveyType
 from tests.serviceTestFixtures import ApiServiceTestFixture
 
-mockConfig = Config(year=2019, datasetType=DatasetType.ACS, surveyType=SurveyType.ACS1)
+mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 # pyright: reportMissingTypeStubs=false
 
 from tests.utils import shuffledCases
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from typing import Any, Dict, Optional
 import numpy as np
 from census.variables.models import Group, GroupVariable, GroupCode, VariableCode

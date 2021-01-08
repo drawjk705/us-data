@@ -1,6 +1,6 @@
 from census.utils.unique import getUnique
-from dataclasses import dataclass
-from typing import Any, List, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple, cast
 
 
 @dataclass(frozen=True)
@@ -30,19 +30,22 @@ class GeographyItem:
         return cls(name, hierarchy, tuple(getUnique(clauses)))
 
 
+@dataclass(frozen=True)
 class GeographyResponseItem:
     name: str
     geoLevelDisplay: str
     referenceData: str
-    requires: List[str] = []
-    wildcard: List[str] = []
-    optionalWithWCFor: str
+    requires: List[str]
+    wildcard: List[str]
+    optionalWithWCFor: str = field(default="")
 
-    def __init__(self, jsonRes: Any) -> None:
-        self.__dict__ = jsonRes
-
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
-
-    def __str__(self) -> str:
-        return self.__repr__()
+    @classmethod
+    def fromJson(cls, jsonRes: Dict[str, str]):
+        return cls(
+            jsonRes.get("name") or "",
+            jsonRes.get("geoLevelDisplay") or "",
+            jsonRes.get("referenceDate") or "",
+            cast(List[str], jsonRes.get("requires")) or [],
+            cast(List[str], jsonRes.get("wildcard")) or [],
+            jsonRes.get("optionalWithWCFor") or "",
+        )

@@ -12,7 +12,7 @@ from tqdm.notebook import tqdm
 import pandas as pd
 from census.api.interface import IApiFetchService
 from census.dataTransformation.interface import IDataTransformer
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
 
 

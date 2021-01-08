@@ -2,7 +2,7 @@ from census.variables.repository.models import _CodeOrCleanedName
 from pytest_mock.plugin import MockerFixture
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 import pandas
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from pathlib import Path
 from census.client.census import Census
 from census.factory import getCensus

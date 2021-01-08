@@ -26,7 +26,9 @@ class ApiSerializationService(IApiSerializationService):
         supportedGeosResponse: Any,
     ) -> OrderedDict[str, GeographyItem]:
 
-        fips = [GeographyResponseItem(fip) for fip in supportedGeosResponse["fips"]]
+        fips = [
+            GeographyResponseItem.fromJson(fip) for fip in supportedGeosResponse["fips"]
+        ]
 
         supportedGeographies: Dict[str, GeographyItem] = {}
 

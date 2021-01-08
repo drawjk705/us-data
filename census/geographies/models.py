@@ -1,4 +1,17 @@
+from dataclasses import dataclass, field
 from census.utils.cleanVariableName import cleanVariableName
+
+
+@dataclass(frozen=True)
+class GeoDomain:
+    name: str
+    codeOrWildcard: str = field(default="*")
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return f"{self.name}:{self.codeOrWildcard}"
 
 
 class SupportedGeoSet:

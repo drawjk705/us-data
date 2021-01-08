@@ -24,7 +24,6 @@ from census.api.serialization import ApiSerializationService
 from census.config import CACHE_DIR, Config
 from census.dataTransformation.service import DataFrameTransformer
 from census.client.census import Census
-from census.models import DatasetType, SurveyType
 
 # these are singletons
 serializer = ApiSerializationService()
@@ -33,12 +32,12 @@ transformer = DataFrameTransformer()
 
 def getCensus(
     year: int,
-    datasetType: DatasetType = DatasetType.ACS,
-    surveyType: SurveyType = SurveyType.ACS1,
+    datasetType: str = "acs",
+    surveyType: str = "acs1",
     cacheDir: str = CACHE_DIR,
     shouldLoadFromExistingCache: bool = False,
     shouldCacheOnDisk: bool = False,
-    shouldReplaceColumnHeaders: bool = False,
+    shouldReplaceColumnHeaders: bool = True,
     logFile: str = DEFAULT_LOGFILE,
 ) -> Census:
     """

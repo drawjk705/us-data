@@ -7,7 +7,7 @@ from census.api.interface import IApiFetchService, IApiSerializationService
 from census.api.models import GeographyItem
 from census.config import Config
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from census.models import DatasetType, GeoDomain, SurveyType
+from census.geographies.models import GeoDomain
 from census.utils.chunk import chunk
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
@@ -24,16 +24,8 @@ class ApiFetchService(IApiFetchService):
     _config: Config
 
     def __init__(self, config: Config, parser: IApiSerializationService) -> None:
-        datasetTypeValue = (
-            config.datasetType
-            if not isinstance(config.datasetType, DatasetType)
-            else config.datasetType.value
-        )
-        surveyTypeValue = (
-            config.surveyType
-            if not isinstance(config.surveyType, SurveyType)
-            else config.surveyType.value
-        )
+        datasetTypeValue = config.datasetType
+        surveyTypeValue = config.surveyType
 
         self._url = API_URL_FORMAT.format(
             config.year, datasetTypeValue, surveyTypeValue
@@ -119,9 +111,9 @@ class ApiFetchService(IApiFetchService):
             uriRoute: str = requote_uri(route)
 
             # not doing any serializing here, because this is a bit more
-            # complicated (we need to convert the variables to the appropriate
-            # data types further up when we're working with dataFrames; there's
-            # no real good way to do it down here)
+            # complicated (we need to convert the stats to the appropriate
+            # data types, [e.g., int, float] further up when we're working
+            # with dataFrames; there's no real good way to do it down here)
 
             yield self.__fetch(uriRoute)
 

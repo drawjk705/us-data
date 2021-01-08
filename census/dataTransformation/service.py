@@ -1,4 +1,4 @@
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.dataTransformation.interface import IDataTransformer

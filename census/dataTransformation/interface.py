@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from census.models import GeoDomain
+from census.geographies.models import GeoDomain
 from collections import OrderedDict
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.api.models import GeographyItem
