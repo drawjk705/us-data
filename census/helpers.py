@@ -63,6 +63,3 @@ def listAvailableDataSets():
         .sort_values(by=["year", "name"], ascending=[False, True])
         .reset_index(drop=True)
     )
-
-
-print(listAvailableDataSets())
