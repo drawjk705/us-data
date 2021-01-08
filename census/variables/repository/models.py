@@ -54,6 +54,8 @@ class GroupSet(ICodeSet[Group]):
 
     def add(self, item: Group):
         cleanedGroupName = cleanVariableName(item.description)
+        if cleanedGroupName in self.__dict__:
+            cleanedGroupName += f"_{item.code}"
         self.__dict__.update({cleanedGroupName: item})
 
 

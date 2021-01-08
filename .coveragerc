@@ -6,4 +6,5 @@ omit =
     *constants.py
     *configureLogger.py
     *models.py
+    census/helpers.py
 
