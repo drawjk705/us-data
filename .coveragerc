@@ -4,7 +4,7 @@ omit =
     *interface.py
     *__init__.py
     *constants.py
-    *configureLogger.py
     *models.py
     census/helpers.py
+    logging/*
 

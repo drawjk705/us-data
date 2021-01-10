@@ -1,3 +1,4 @@
+from functools import cache
 from typing import Any, Dict, List, cast
 import requests
 import pandas as pd
@@ -25,6 +26,7 @@ class _DatasetsRes:
         )
 
 
+@cache
 def listAvailableDataSets():
     res: Dict[str, Any] = requests.get(URL).json()  # type: ignore
     datasetDicts: List[Dict[str, str]] = []

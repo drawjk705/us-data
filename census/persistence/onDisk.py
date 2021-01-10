@@ -21,7 +21,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         self._config = config
 
         if not self._config.shouldCacheOnDisk:
-            self.__log("Not creating an on-disk cache")
+            logging.debug("Not creating an on-disk cache")
             return
 
         datasetTypeValue = config.datasetType
@@ -32,16 +32,16 @@ class OnDiskCache(ICache[pd.DataFrame]):
             f"{config.cacheDir}/{config.year}/{datasetTypeValue}/{surveyTypeValue}"
         )
 
-        self.__log(f"creating cache for {self.__cachePath}")
+        logging.debug(f"creating cache for {self.__cachePath}")
 
         self.__setUpOnDiskCache()
 
     @timer
     def __setUpOnDiskCache(self) -> None:
-        self.__log("setting up on disk cache")
+        logging.debug("setting up on disk cache")
 
         if not self._config.shouldLoadFromExistingCache:
-            self.__log("purging on disk cache")
+            logging.debug("purging on disk cache")
 
             if Path(self._config.cacheDir).exists():
                 shutil.rmtree(self._config.cacheDir)
@@ -56,12 +56,12 @@ class OnDiskCache(ICache[pd.DataFrame]):
         path = self.__cachePath.joinpath(Path(resource))
 
         if path.exists():
-            self.__log(f'resource "{resource}" already exists; terminating')
+            logging.debug(f'resource "{resource}" already exists; terminating')
             return False
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        self.__log(f'persisting "{path}" on disk')
+        logging.debug(f'persisting "{path}" on disk')
 
         data.to_csv(str(path.absolute()), index=False)
         return True
@@ -77,12 +77,9 @@ class OnDiskCache(ICache[pd.DataFrame]):
         path = self.__cachePath.joinpath(Path(resource))
 
         if not path.exists():
-            self.__log(f'cache miss for "{path}"')
+            logging.debug(f'cache miss for "{path}"')
             return pd.DataFrame()
 
-        self.__log(f'cache hit for "{path}"')
+        logging.debug(f'cache hit for "{path}"')
 
         return pd.read_csv(path.absolute())  # type: ignore
-
-    def __log(self, msg: str) -> None:
-        logging.debug(f"{LOG_PREFIX} {msg}")

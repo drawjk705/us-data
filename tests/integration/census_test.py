@@ -135,7 +135,7 @@ def setPathToTest():
     if tempDir.exists():
         shutil.rmtree(tempDir)
 
-    tempDir.mkdir(parents=True, exist_ok=True)
+    tempDir.mkdir(parents=True, exist_ok=False)
 
     os.chdir(tempDir.absolute())
 
@@ -143,7 +143,7 @@ def setPathToTest():
         yield
     finally:
         os.chdir(parentPath)
-        # shutil.rmtree(tempDir.absolute())
+        shutil.rmtree(tempDir.absolute())
 
 
 @pytest.fixture

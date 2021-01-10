@@ -3,7 +3,7 @@
 
 from census.geographies.service import GeographyRepository
 from census.geographies.interface import IGeographyRepository
-from census.utils.configureLogger import DEFAULT_LOGFILE, configureLogger
+from census.logging.configureLogger import DEFAULT_LOGFILE, configureLogger
 from typing import cast
 
 import pandas
