@@ -26,7 +26,7 @@ from census import getCensus
 dataset = getCensus(year=2019, datasetType="acs", surveyType="acs1")
 ```
 
-The `acsData` object will now let you query any census data for the the ACS 1-year estimates of 2019. We'll now dive into how to query this dataset with the tool. However, if you aren't familiar with dataset "architecture", check out [this](#dataset-architecture) section.
+The `dataset` object will now let you query any census data for the the ACS 1-year estimates of 2019. We'll now dive into how to query this dataset with the tool. However, if you aren't familiar with dataset "architecture", check out [this](#dataset-architecture) section.
 
 #### Supported geographies
 
