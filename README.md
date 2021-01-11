@@ -10,7 +10,7 @@ Want to work with US Census data? Look no further.
 
 If you you're not sure what Census dataset you're interested in, the following code will take care of you:
 
-```python3
+```python
 from census import listAvailableDataSets()
 
 listAvailableDataSets()
@@ -22,7 +22,7 @@ This will present you with a pandas DataFrame listing all available datasets fro
 
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
-```python3
+```python
 from census import getCensus
 
 dataset = getCensus(year=2019, datasetType="acs", surveyType="acs1")
@@ -34,7 +34,7 @@ The `acsData` object will now let you query any census data for the the ACS 1-ye
 
 Getting the [supported geographies](#supported-geographies) for a dataset as as simple as this:
 
-```python3
+```python
 dataset.getSupportedGeographies()
 ```
 
@@ -48,7 +48,7 @@ So, if you're interested in all school districts in Colorado, here's what you'd 
 
 1. Get FIPS codes for all states:
 
-```python3
+```python
 from census import GeoDomain
 
 dataset.getGeographyCodes(GeoDomain("state", "*"))
@@ -56,7 +56,7 @@ dataset.getGeographyCodes(GeoDomain("state", "*"))
 
 2. Get FIPS codes for all school districts within Colorado (FIPS code `08`):
 
-```python3
+```python
 dataset.getGeographyCodes(GeoDomain("school district", "*"),
                           GeoDomain("state", "08"))
 ```
@@ -67,7 +67,7 @@ Note that geography code queries must follow supported geography guidelines
 
 Want to figure out what groups are available for your dataset? No problem. This will do the trick for ya:
 
-```python3
+```python
 dataset.getGroups()
 ```
 
@@ -77,19 +77,98 @@ dataset.getGroups()
 
 `dataset.getGroups()` will return a lot of data that might be difficult to slog through. In that case, run this:
 
-```python3
-c.searchGroups(regex=r"my regex")
+```python
+dataset.searchGroups(regex=r"my regex")
 ```
 
 and you'll get a filtered DataFrame with matches to your regex.
 
 ##### Groups autocomplete
 
-If you're working in a Jupyter notebook and have autocomplete enabled, you can
+If you're working in a Jupyter notebook and have autocomplete enabled, running `dataset.groups.`, followed by a tab, will trigger an autocomplete menu for possible groups by their name (as opposed to their code, which doesn't have any inherent meaning in and of itself).
+
+```python
+dataset.groups.SexByAge   # code for this group
+```
 
 #### Variables
 
+You can either get a DataFrame of variables based on a set of groups:
+
+```python
+dataset.getVariablesByGroup(dataset.groups.SexByAge,
+                            dataset.groups.MedianAgeBySex)
+```
+
+Or, you can get a DataFrame with all variables for a given dataset:
+
+```python
+dataset.getAllVariables()
+```
+
+This second operation, can, however, take a lot of time.
+
 ##### Searching variables
+
+Similar to groups, you can search variables by regex:
+
+```python
+dataset.searchVariables(r"my regex")
+```
+
+And, you can limit that search to variables of a particular group or groups:
+
+```python
+dataset.searchVariables(r"my regex",
+                        dataset.groups.SexByAge)
+```
+
+##### Variables autocomplete
+
+Variables also support autocomplete for their codes, as with groups.
+
+```python
+dataset.variables.EstimateTotal_B01001  # code for this variable
+```
+
+(These names must be suffixed with the group code, since, while variable codes are unique across groups, their names are not unique across groups.)
+
+#### Statistics
+
+Once you have the variables you want to query, along with the geography you're interested in, you can now make statistics queries from your dataset:
+
+```python
+from census import GeoDomain
+
+variables = dataset.getVariablesForGroup(dataset.groups.SexByAge)
+
+dataset.getStats(variables["code"].tolist(),
+                 GeoDomain("school district", "*"),
+                 GeoDomain("state", "08"))
+```
+
+#### Experimental: Political Party
+
+(Right now, this will work only with state & congressional district political parties.)
+
+If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
+
+```python
+from congress import getCongress
+
+cong = getCongress(116)
+```
+
+This will return a client for querying data on a particular congress (in the above example, the 116th Congress).
+
+Right now, this enables only getting lists of Representatives and Senators:
+
+```python
+cong.getRepresentatives() # DataFrame with all representatives
+cong.getSenators()        # DataFrame with all senators
+```
+
+You can use [`pandas.merge`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html) to perform an inner join on the congressional district or state data to find that region's political leaning.
 
 ## Dataset "architecture"
 

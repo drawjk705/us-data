@@ -61,6 +61,7 @@ class GroupVariable:
         limit = jsonData["limit"]
         predicateOnly = jsonData["predicateOnly"]
         predicateType = jsonData["predicateType"]
+        cleanedName = cleanVariableName(label)
 
         return cls(
             VariableCode(code),
@@ -70,7 +71,7 @@ class GroupVariable:
             limit,
             predicateOnly,
             predicateType,
-            cleanVariableName(label),
+            cleanedName,
         )
 
     @classmethod

@@ -36,8 +36,7 @@ class VariableSet(ICodeSet[VariableCode, GroupVariable]):
         super().__init__()
 
     def add(self, item: GroupVariable):
-        cleanedVarName = cleanVariableName(item.name)
-        cleanedVarName += f"_{item.groupCode}"
+        cleanedVarName = f"{item.cleanedName}_{item.groupCode}"
 
         self.__dict__.update({cleanedVarName: item.code})
 
