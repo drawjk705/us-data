@@ -2,8 +2,6 @@
 
 Want to work with US Census data? Look no further.
 
-[TOC]
-
 ## Getting started
 
 ### Which dataset?
