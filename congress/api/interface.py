@@ -4,6 +4,11 @@ from typing import List
 
 
 class ICongressApiFetchService(ABC):
+    """
+    Calls ProPublica API to get basic
+    info on congressional leaders
+    """
+
     @abstractmethod
     def getRepresentatives(self) -> List[Representative]:
         pass

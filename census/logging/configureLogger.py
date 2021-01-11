@@ -13,7 +13,7 @@ def configureLogger(logFile: str):
         logFile (str): the name of the file that log output will be sent to
     """
     logFormat = "[%(levelname)s] %(asctime)s [%(funcName)s:%(lineno)d] %(message)s"
-    dateFormat = "%Y-%m-%d %H:%M:%S %z"
+    dateFormat = "%Y-%m-%d %H:%M:%S%z"
 
     logger = logging.getLogger()
     logger.setLevel(logging.NOTSET)

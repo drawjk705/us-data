@@ -9,10 +9,6 @@ import pandas as pd
 from census.api.models import GeographyItem
 
 
-# pyright: reportUnknownMemberType=false
-# pyright: reportGeneralTypeIssues=false
-
-
 class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def __init__(self) -> None:
         super().__init__()
@@ -47,7 +43,11 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
     def groups(self, groups: Dict[str, Group]) -> pd.DataFrame:
         groupsList = []
         for code, groupObj in groups.items():
-            groupDict = {"code": code, "description": groupObj.description}
+            groupDict = {
+                "code": code,
+                "description": groupObj.description,
+                "cleanedName": groupObj.cleanedName,
+            }
             groupsList.append(groupDict)
 
         return pd.DataFrame(groupsList).sort_values(by="code")
@@ -66,6 +66,7 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
                     "predicateType": variable.predicateType,
                     "predicateOnly": variable.predicateOnly,
                     "limit": variable.limit,
+                    "cleanedName": variable.cleanedName,
                 }
             )
 

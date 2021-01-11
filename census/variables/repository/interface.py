@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from census.variables.repository.models import (
     GroupSet,
-    GroupToVarsMapping,
     VariableSet,
 )
 from typing import Generic, TypeVar
@@ -21,7 +20,6 @@ class IVariableRepository(ABC, Generic[T]):
     # that have been pulled from the API so far
     _variables: VariableSet
     _groups: GroupSet
-    _groupToVarsMapping: GroupToVarsMapping
 
     @abstractmethod
     def getGroups(self) -> T:
@@ -42,7 +40,3 @@ class IVariableRepository(ABC, Generic[T]):
     @property
     def groups(self) -> GroupSet:
         return self._groups
-
-    @property
-    def groupToVarsMapping(self) -> GroupToVarsMapping:
-        return self._groupToVarsMapping

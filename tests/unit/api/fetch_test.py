@@ -157,7 +157,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self._service.healthCheck()
 
         self.castMock(logMock.debug).assert_called_once_with(  # type: ignore
-            "[ApiFetchService] - healthCheck OK"
+            "healthCheck OK"
         )
 
     def test_healthCheck_fail(self, logMock: MagicMock):
@@ -168,7 +168,5 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         with pytest.raises(CensusDoesNotExistException, match=msg):
             self._service.healthCheck()
 
-        self.castMock(logMock.error).assert_called_once_with(  # type: ignore
-            f"[ApiFetchService] - {msg}"
-        )
+        self.castMock(logMock.error).assert_called_once_with(msg)  # type: ignore
         self.castMock(logMock.debug).assert_not_called()  # type: ignore

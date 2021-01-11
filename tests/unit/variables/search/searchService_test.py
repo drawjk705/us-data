@@ -1,6 +1,5 @@
 from census.variables.models import GroupCode
 import pandas
-import pytest
 from census.variables.search.service import VariableSearchService
 from tests.serviceTestFixtures import ServiceTestFixture
 
@@ -31,12 +30,6 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
 
         assert res.to_dict() == expectedRes.to_dict()
 
-    def test_searchVariables_givenBadSearchCriteria_throws(self):
-        with pytest.raises(Exception) as e:
-            self._service.searchVariables("", "banana")  # type: ignore
-
-        assert str(e.value) == 'searchBy parameter must be "name" or "concept"'
-
     def test_searchVariables_inAllGroups(self):
         repoVariables = pandas.DataFrame(
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
@@ -47,7 +40,7 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
             return_value=repoVariables,
         )
 
-        res = self._service.searchVariables("an", "name")
+        res = self._service.searchVariables("an")
 
         assert res.to_dict("records") == pandas.DataFrame(
             [dict(name="banana"), dict(name="elephant")]
@@ -63,7 +56,7 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
             return_value=repoVariables,
         )
 
-        res = self._service.searchVariables("an", "name", [GroupCode("abc")])
+        res = self._service.searchVariables("an", GroupCode("abc"))
 
         assert res.to_dict("records") == pandas.DataFrame(
             [dict(name="banana"), dict(name="elephant")]

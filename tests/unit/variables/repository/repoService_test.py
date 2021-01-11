@@ -65,6 +65,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                     name="variable 1",
                     predicateOnly=False,
                     predicateType="int",
+                    cleanedName="variable1",
                 ),
                 dict(
                     code=VariableCode("2"),
@@ -74,6 +75,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                     name="variable 2",
                     predicateOnly=False,
                     predicateType="int",
+                    cleanedName="variable2",
                 ),
             ]
         )
@@ -100,6 +102,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 limit=0,
                 predicateType="int",
                 predicateOnly=False,
+                cleanedName="Name1",
             ),
             dict(
                 code="var2",
@@ -109,6 +112,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 limit=0,
                 predicateType="int",
                 predicateOnly=False,
+                cleanedName="Name2",
             ),
         ]
         group2Vars: List[Dict[str, Any]] = [
@@ -120,6 +124,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 limit=0,
                 predicateType="int",
                 predicateOnly=False,
+                cleanedName="Name3",
             ),
             dict(
                 code="var4",
@@ -129,6 +134,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 limit=0,
                 predicateType="int",
                 predicateOnly=False,
+                cleanedName="Name4",
             ),
         ]
         group3Vars: List[Dict[str, Any]] = [
@@ -140,6 +146,7 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
                 limit=0,
                 predicateType="int",
                 predicateOnly=False,
+                cleanedName="Name5",
             ),
         ]
 
@@ -154,11 +161,11 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
         self.mocker.patch.object(
             self._service._transformer, "variables", return_value=transformerRes
         )
-        expectedVariables: Dict[str, GroupVariable] = dict(
-            Name1_group1=GroupVariable(**group1Vars[0], cleanedName="Name1"),
-            Name2_group1=GroupVariable(**group1Vars[1], cleanedName="Name2"),
-            Name3_group2=GroupVariable(**group2Vars[0], cleanedName="Name3"),
-            Name4_group2=GroupVariable(**group2Vars[1], cleanedName="Name4"),
+        expectedVariables: Dict[str, str] = dict(
+            Name1_group1=GroupVariable(**group1Vars[0]).code,
+            Name2_group1=GroupVariable(**group1Vars[1]).code,
+            Name3_group2=GroupVariable(**group2Vars[0]).code,
+            Name4_group2=GroupVariable(**group2Vars[1]).code,
         )
 
         res = self._service.getAllVariables()

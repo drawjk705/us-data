@@ -3,6 +3,10 @@ from congress.members.interface import ICongressMemberRepository
 
 
 class Congress:
+    """
+    client for getting congress info
+    """
+
     _memberRepo: ICongressMemberRepository
 
     def __init__(self, memberRepo: ICongressMemberRepository) -> None:

@@ -154,11 +154,13 @@ def test_parseSupportedGeographies(
                     code=GroupCode("B17015"),
                     description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B17015.json",
+                    cleanedName="PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome",
                 ),
                 "B18104": Group(
                     code=GroupCode("B18104"),
                     description="SEX BY AGE BY COGNITIVE DIFFICULTY",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
+                    cleanedName="SexByAgeByCognitiveDifficulty",
                 ),
             },
         ),

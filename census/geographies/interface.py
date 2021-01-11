@@ -7,6 +7,10 @@ T = TypeVar("T")
 
 
 class IGeographyRepository(ABC, Generic[T]):
+    """
+    Gets and stores all geography information
+    """
+
     _supportedGeographies: SupportedGeoSet
 
     @abstractmethod

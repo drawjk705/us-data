@@ -1,7 +1,6 @@
 import logging
 from census.variables.repository.models import (
     GroupSet,
-    GroupToVarsMapping,
     VariableSet,
 )
 from census.utils.timer import timer
@@ -45,7 +44,6 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         # these are inherited from the base class
         self._variables = VariableSet()
         self._groups = GroupSet()
-        self._groupToVarsMapping = GroupToVarsMapping()
 
     @timer
     def getGroups(self) -> pd.DataFrame:
@@ -103,7 +101,6 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         for record in allVars.to_dict("records"):
             var = GroupVariable.fromDfRecord(record)
             self._variables.add(var)
-            self._groupToVarsMapping.add(var)
 
         return allVars
 
@@ -127,6 +124,5 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
             for variableDict in varDf.to_dict("records"):
                 variable = GroupVariable.fromDfRecord(variableDict)
                 self._variables.add(variable)
-                self._groupToVarsMapping.add(variable)
 
         return df

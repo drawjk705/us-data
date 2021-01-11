@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 URL = "https://api.census.gov/data.json"
 
+# documentation: https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/
+
 
 @dataclass(frozen=True)
 class _DatasetsRes:
@@ -29,7 +31,14 @@ class _DatasetsRes:
 
 
 @cache
-def listAvailableDataSets():
+def listAvailableDataSets() -> pd.DataFrame:
+    """
+    The name says it all
+
+    Returns:
+        [pd.DataFrame]: DataFrame with all available datasets,
+        along with their years & descriptions
+    """
     res: Dict[str, Any] = requests.get(URL).json()  # type: ignore
     datasetDicts: List[Dict[str, str]] = []
 

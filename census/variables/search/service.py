@@ -2,7 +2,6 @@ from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
 from census.variables.search.interface import IVariableSearchService
 from census.variables.models import GroupCode
-from typing import Literal
 import pandas as pd
 
 import logging
@@ -32,13 +31,10 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
     def searchVariables(
         self,
         regex: str,
-        searchBy: Literal["name", "concept"] = "name",
         *inGroups: GroupCode,
     ) -> pd.DataFrame:
-        if searchBy not in ["name", "concept"]:
-            raise Exception('searchBy parameter must be "name" or "concept"')
 
-        logging.debug(f"searching variables for pattern `{regex}` by {searchBy}")
+        logging.debug(f"searching variables for pattern `{regex}`")
 
         variables: pd.DataFrame
         if not len(inGroups):
@@ -46,6 +42,6 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         else:
             variables = self._variableRepository.getVariablesByGroup(*inGroups)
 
-        series = variables[searchBy].str.contains(regex, case=False)  # type: ignore
+        series = variables["name"].str.contains(regex, case=False)  # type: ignore
 
         return variables[series].reset_index(drop=True)  # type: ignore

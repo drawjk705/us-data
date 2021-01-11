@@ -1,21 +1,15 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Generic, ItemsView, KeysView, TypeVar, ValuesView, cast
+from typing import Generic, ItemsView, KeysView, TypeVar, ValuesView
 from census.utils.cleanVariableName import cleanVariableName
-from census.variables.models import Group, GroupVariable, VariableCode
+from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 
-_T = TypeVar("_T")
-
-
-@dataclass(frozen=True)
-class _CodeOrCleanedName:
-    code: VariableCode
-    name: str
+CodeType = TypeVar("CodeType")
+ItemType = TypeVar("ItemType")
 
 
-class ICodeSet(ABC, Generic[_T]):
+class ICodeSet(ABC, Generic[CodeType, ItemType]):
     @abstractmethod
-    def add(self, item: _T):
+    def add(self, item: ItemType):
         pass
 
     def __len__(self) -> int:
@@ -24,10 +18,10 @@ class ICodeSet(ABC, Generic[_T]):
     def names(self) -> KeysView[str]:
         return self.__dict__.keys()
 
-    def values(self) -> ValuesView[_T]:
+    def values(self) -> ValuesView[CodeType]:
         return self.__dict__.values()
 
-    def items(self) -> ItemsView[str, _T]:
+    def items(self) -> ItemsView[str, CodeType]:
         return self.__dict__.items()
 
     def __repr__(self) -> str:
@@ -37,7 +31,7 @@ class ICodeSet(ABC, Generic[_T]):
         return self.__repr__()
 
 
-class VariableSet(ICodeSet[GroupVariable]):
+class VariableSet(ICodeSet[VariableCode, GroupVariable]):
     def __init__(self) -> None:
         super().__init__()
 
@@ -45,10 +39,10 @@ class VariableSet(ICodeSet[GroupVariable]):
         cleanedVarName = cleanVariableName(item.name)
         cleanedVarName += f"_{item.groupCode}"
 
-        self.__dict__.update({cleanedVarName: item})
+        self.__dict__.update({cleanedVarName: item.code})
 
 
-class GroupSet(ICodeSet[Group]):
+class GroupSet(ICodeSet[GroupCode, Group]):
     def __init__(self) -> None:
         super().__init__()
 
@@ -56,31 +50,4 @@ class GroupSet(ICodeSet[Group]):
         cleanedGroupName = cleanVariableName(item.description)
         if cleanedGroupName in self.__dict__:
             cleanedGroupName += f"_{item.code}"
-        self.__dict__.update({cleanedGroupName: item})
-
-
-class VariableNameToCodeSet(ICodeSet[GroupVariable]):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def add(self, item: GroupVariable):
-        cleanedName = cleanVariableName(item.name)
-
-        self.__dict__.update({cleanedName: _CodeOrCleanedName(item.code, cleanedName)})
-
-    def __repr__(self) -> str:
-        return str(self.__dict__)
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class GroupToVarsMapping(ICodeSet[GroupVariable]):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def add(self, item: GroupVariable):
-        groupName = cleanVariableName(item.groupConcept)
-        if groupName not in self.__dict__:
-            self.__dict__[groupName] = VariableNameToCodeSet()
-        cast(VariableNameToCodeSet, self.__dict__[groupName]).add(item)
+        self.__dict__.update({cleanedGroupName: item.code})

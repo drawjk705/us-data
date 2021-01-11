@@ -5,6 +5,10 @@ import pandas as pd
 
 
 class ICongressTransformationService(ABC):
+    """
+    translates API results into DataFrames
+    """
+
     @abstractmethod
     def congressmembers(self, members: List[Congressman]) -> pd.DataFrame:
         pass

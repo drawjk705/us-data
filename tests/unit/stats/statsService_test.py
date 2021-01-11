@@ -17,6 +17,7 @@ var1 = GroupVariable(
     limit=1,
     predicateOnly=False,
     predicateType="int",
+    cleanedName="cleanedName1",
 )
 var2 = GroupVariable(
     code=VariableCode("var2"),
@@ -26,6 +27,7 @@ var2 = GroupVariable(
     limit=1,
     predicateOnly=False,
     predicateType="float",
+    cleanedName="cleanedName2",
 )
 var3 = GroupVariable(
     code=VariableCode("var3"),
@@ -35,6 +37,7 @@ var3 = GroupVariable(
     limit=1,
     predicateOnly=False,
     predicateType="string",
+    cleanedName="cleanedName3",
 )
 var4 = GroupVariable(
     code=VariableCode("var4"),
@@ -44,6 +47,7 @@ var4 = GroupVariable(
     limit=1,
     predicateOnly=False,
     predicateType="string",
+    cleanedName="cleanedName4",
 )
 
 variablesInRepo: Dict[str, GroupVariable] = dict(
@@ -99,16 +103,21 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             var2.code,
             var3.code,
         }
-        self.mocker.patch("census.stats.service.cleanVariableName", lambda x: x)  # type: ignore
+
+        df = pd.DataFrame([val.__dict__ for val in variablesInRepo.values()])
         self.mocker.patch.object(
-            self._service._variableRepo, "variables", variablesInRepo
+            self._service._variableRepo, "getVariablesByGroup", return_value=df
         )
 
         columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
             variablesToQuery
         )
 
-        assert columnMapping == {"var1": "name 1", "var2": "name 2", "var3": "name 3"}
+        assert columnMapping == {
+            "var1": "cleanedName1",
+            "var2": "cleanedName2",
+            "var3": "cleanedName3",
+        }
         assert typeMapping == {"var1": float, "var2": float}
 
     def test_getVariableNamesAndTypeConversions_givenDuplicateNamesBetweenGroups(self):
@@ -120,6 +129,15 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             predicateType="string",
             predicateOnly=False,
             name=var1.name,
+            cleanedName=var1.cleanedName,
+        )
+        df = pd.DataFrame([val.__dict__ for val in variablesInRepo.values()])
+        self.mocker.patch.object(
+            self._service._variableRepo,
+            "getVariablesByGroup",
+            return_value=df.append(
+                variableWithDuplicateName.__dict__, ignore_index=True
+            ),
         )
         variablesToQuery = {
             var1.code,
@@ -127,22 +145,16 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             var3.code,
             variableWithDuplicateName.code,
         }
-        self.mocker.patch("census.stats.service.cleanVariableName", lambda x: x)  # type: ignore
-        self.mocker.patch.object(
-            self._service._variableRepo,
-            "variables",
-            dict(variablesInRepo, var5=variableWithDuplicateName),
-        )
 
         columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
             variablesToQuery
         )
 
         assert columnMapping == {
-            "var1": "name 1_g1",
-            "var2": "name 2_g1",
-            "var3": "name 3_g1",
-            "var5": "name 1_g2",
+            "var1": "cleanedName1_g1",
+            "var2": "cleanedName2_g1",
+            "var3": "cleanedName3_g1",
+            "var5": "cleanedName1_g2",
         }
         assert typeMapping == {"var1": float, "var2": float}
 

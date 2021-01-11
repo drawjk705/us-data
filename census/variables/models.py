@@ -23,13 +23,19 @@ class Group:
     def fromJson(cls, jsonDict: Dict[str, str]):
         code = jsonDict["name"]
         description = jsonDict["description"]
-        variables = jsonDict["variables"]
+        variables = jsonDict.get("variables") or ""
 
-        return cls(GroupCode(code), description, variables)
+        return cls(
+            GroupCode(code), description, variables, cleanVariableName(description)
+        )
 
     @classmethod
     def fromDfRecord(cls, record: Dict[str, Any]):
-        return cls(GroupCode(record["code"]), record["description"])
+        return cls(
+            GroupCode(record["code"]),
+            record["description"],
+            cleanedName=record["cleanedName"],
+        )
 
 
 @dataclass
@@ -77,7 +83,7 @@ class GroupVariable:
             record["limit"],
             record["predicateOnly"],
             record["predicateType"],
-            cleanVariableName(record["name"]),
+            record["cleanedName"],
         )
 
     def __hash__(self) -> int:

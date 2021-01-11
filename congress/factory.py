@@ -20,6 +20,16 @@ transformer = CongressTransformationService()
 
 
 def getCongress(congressNum: int) -> Congress:
+    """
+    Returns a Congress client object for the given congress
+
+    Args:
+        congressNum (int): what number congress (e.g., 116)
+
+    Returns:
+        Congress: client object
+    """
+
     apiKey = cast(str, os.getenv("PROPUBLICA_CONG_KEY"))
     config = CongressConfig(congressNum, apiKey)
 

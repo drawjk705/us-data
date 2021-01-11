@@ -1,6 +1,5 @@
-from census.variables.repository.models import _CodeOrCleanedName
 from pytest_mock.plugin import MockerFixture
-from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
+from census.variables.models import GroupCode, VariableCode
 import pandas
 from census.geographies.models import GeoDomain
 from pathlib import Path
@@ -34,62 +33,121 @@ class _Response:
         return self.content
 
 
-expectedStatsRes = [
+expectedStatsResWithoutNames = [
     {
+        "B17015_001E": 172441.0,
+        "B18104_001E": 664816.0,
+        "B18105_001E": 664816.0,
         "NAME": "Congressional District 1 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "01",
-        "B17015_001E": "172441",
-        "B18104_001E": "664816",
-        "B18105_001E": "664816",
+        "state": "01",
     },
     {
+        "B17015_001E": 168129.0,
+        "B18104_001E": 610312.0,
+        "B18105_001E": 610312.0,
         "NAME": "Congressional District 2 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "02",
-        "B17015_001E": "168129",
-        "B18104_001E": "610312",
-        "B18105_001E": "610312",
+        "state": "01",
     },
     {
+        "B17015_001E": 184320.0,
+        "B18104_001E": 664930.0,
+        "B18105_001E": 664930.0,
         "NAME": "Congressional District 3 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "03",
-        "B17015_001E": "184320",
-        "B18104_001E": "664930",
-        "B18105_001E": "664930",
+        "state": "01",
     },
     {
+        "B17015_001E": 179508.0,
+        "B18104_001E": 640347.0,
+        "B18105_001E": 640347.0,
         "NAME": "Congressional District 4 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "04",
-        "B17015_001E": "179508",
-        "B18104_001E": "640347",
-        "B18105_001E": "640347",
+        "state": "01",
     },
     {
+        "B17015_001E": 195668.0,
+        "B18104_001E": 681411.0,
+        "B18105_001E": 681411.0,
         "NAME": "Congressional District 5 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "05",
-        "B17015_001E": "195668",
-        "B18104_001E": "681411",
-        "B18105_001E": "681411",
+        "state": "01",
     },
     {
+        "B17015_001E": 186592.0,
+        "B18104_001E": 653559.0,
+        "B18105_001E": 653559.0,
         "NAME": "Congressional District 6 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "06",
-        "B17015_001E": "186592",
-        "B18104_001E": "653559",
-        "B18105_001E": "653559",
+        "state": "01",
     },
     {
+        "B17015_001E": 151225.0,
+        "B18104_001E": 620542.0,
+        "B18105_001E": 620542.0,
         "NAME": "Congressional District 7 (116th Congress), Alabama",
-        "state": "01",
         "congressional district": "07",
-        "B17015_001E": "151225",
-        "B18104_001E": "620542",
-        "B18105_001E": "620542",
+        "state": "01",
+    },
+]
+
+expectedStatsResWithNames = [
+    {
+        "Estimate_Total_B17015": 172441.0,
+        "Estimate_Total_B18104": 664816.0,
+        "Estimate_Total_B18105": 664816.0,
+        "NAME": "Congressional District 1 (116th Congress), Alabama",
+        "congressional district": "01",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 168129.0,
+        "Estimate_Total_B18104": 610312.0,
+        "Estimate_Total_B18105": 610312.0,
+        "NAME": "Congressional District 2 (116th Congress), Alabama",
+        "congressional district": "02",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 184320.0,
+        "Estimate_Total_B18104": 664930.0,
+        "Estimate_Total_B18105": 664930.0,
+        "NAME": "Congressional District 3 (116th Congress), Alabama",
+        "congressional district": "03",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 179508.0,
+        "Estimate_Total_B18104": 640347.0,
+        "Estimate_Total_B18105": 640347.0,
+        "NAME": "Congressional District 4 (116th Congress), Alabama",
+        "congressional district": "04",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 195668.0,
+        "Estimate_Total_B18104": 681411.0,
+        "Estimate_Total_B18105": 681411.0,
+        "NAME": "Congressional District 5 (116th Congress), Alabama",
+        "congressional district": "05",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 186592.0,
+        "Estimate_Total_B18104": 653559.0,
+        "Estimate_Total_B18105": 653559.0,
+        "NAME": "Congressional District 6 (116th Congress), Alabama",
+        "congressional district": "06",
+        "state": "01",
+    },
+    {
+        "Estimate_Total_B17015": 151225.0,
+        "Estimate_Total_B18104": 620542.0,
+        "Estimate_Total_B18105": 620542.0,
+        "NAME": "Congressional District 7 (116th Congress), Alabama",
+        "congressional district": "07",
+        "state": "01",
     },
 ]
 
@@ -205,8 +263,8 @@ class TestCensus:
         tempDir.joinpath("cache").mkdir(parents=True, exist_ok=True)
         pandas.DataFrame(
             [
-                dict(code="abc", description="alphabet"),
-                dict(code="123", description="numbers"),
+                dict(code="abc", description="alphabet", cleanedName="Alphabet"),
+                dict(code="123", description="numbers", cleanedName="numbers"),
             ]
         ).to_csv("./cache/2019/acs/acs1/groups.csv")
         verifyResource("groups.csv")
@@ -267,7 +325,7 @@ class TestCensus:
     def test_cachedCensus_groupsAndVariables(self, cachedCensus: Census):
         verifyResource("groups.csv", exists=False)
         _ = cachedCensus.getGroups()
-        groupCodes = [groupCode.code for groupCode in cachedCensus.groups.values()]
+        groupCodes = list(cachedCensus.groups.values())
         verifyResource("groups.csv")
         assert len(groupCodes) == 3
 
@@ -304,144 +362,27 @@ class TestCensus:
         cachedCensus.getGroups()
 
         assert dict(cachedCensus.groups.items()) == {
-            "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": Group(
-                code=GroupCode("B17015"),
-                description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
-            ),
-            "SexByAgeByAmbulatoryDifficulty": Group(
-                code=GroupCode("B18105"),
-                description="SEX BY AGE BY AMBULATORY DIFFICULTY",
-            ),
-            "SexByAgeByCognitiveDifficulty": Group(
-                code=GroupCode("B18104"),
-                description="SEX BY AGE BY COGNITIVE DIFFICULTY",
-            ),
+            "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": "B17015",
+            "SexByAgeByAmbulatoryDifficulty": "B18105",
+            "SexByAgeByCognitiveDifficulty": "B18104",
         }
 
     def test_cachedCensus_variables_populatesVariableNames(self, cachedCensus: Census):
         cachedCensus.getAllVariables()
 
         assert dict(cachedCensus.variables.items()) == {
-            "AnnotationOfEstimate_Total_B17015": GroupVariable(
-                code=VariableCode("B17015_001EA"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
-                name="Annotation of Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                cleanedName="AnnotationOfEstimate_Total",
-                predicateType="string",
-            ),
-            "AnnotationOfEstimate_Total_B18104": GroupVariable(
-                code=VariableCode("B18104_001EA"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
-                name="Annotation of Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfEstimate_Total",
-            ),
-            "AnnotationOfEstimate_Total_B18105": GroupVariable(
-                code=VariableCode("B18105_001EA"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
-                name="Annotation of Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfEstimate_Total",
-            ),
-            "AnnotationOfMarginOfError_Total_B17015": GroupVariable(
-                code=VariableCode("B17015_001MA"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
-                name="Annotation of Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                cleanedName="AnnotationOfMarginOfError_Total",
-                predicateType="string",
-            ),
-            "AnnotationOfMarginOfError_Total_B18104": GroupVariable(
-                code=VariableCode("B18104_001MA"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
-                name="Annotation of Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfMarginOfError_Total",
-            ),
-            "AnnotationOfMarginOfError_Total_B18105": GroupVariable(
-                code=VariableCode("B18105_001MA"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
-                name="Annotation of Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfMarginOfError_Total",
-            ),
-            "Estimate_Total_B17015": GroupVariable(
-                code=VariableCode("B17015_001E"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
-                name="Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                cleanedName="Estimate_Total",
-                predicateType="int",
-            ),
-            "Estimate_Total_B18104": GroupVariable(
-                code=VariableCode("B18104_001E"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
-                name="Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Estimate_Total",
-            ),
-            "Estimate_Total_B18105": GroupVariable(
-                code=VariableCode("B18105_001E"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
-                name="Estimate!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Estimate_Total",
-            ),
-            "MarginOfError_Total_B17015": GroupVariable(
-                code=VariableCode("B17015_001M"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
-                name="Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
-            ),
-            "MarginOfError_Total_B18104": GroupVariable(
-                code=VariableCode("B18104_001M"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
-                name="Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
-            ),
-            "MarginOfError_Total_B18105": GroupVariable(
-                code=VariableCode("B18105_001M"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
-                name="Margin of Error!!Total:",
-                limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
-            ),
+            "AnnotationOfEstimate_Total_B17015": "B17015_001EA",
+            "AnnotationOfEstimate_Total_B18104": "B18104_001EA",
+            "AnnotationOfEstimate_Total_B18105": "B18105_001EA",
+            "AnnotationOfMarginOfError_Total_B17015": "B17015_001MA",
+            "AnnotationOfMarginOfError_Total_B18104": "B18104_001MA",
+            "AnnotationOfMarginOfError_Total_B18105": "B18105_001MA",
+            "Estimate_Total_B17015": "B17015_001E",
+            "Estimate_Total_B18104": "B18104_001E",
+            "Estimate_Total_B18105": "B18105_001E",
+            "MarginOfError_Total_B17015": "B17015_001M",
+            "MarginOfError_Total_B18104": "B18104_001M",
+            "MarginOfError_Total_B18105": "B18105_001M",
         }
 
     def test_cachedCensus_supportedGeographies(self, cachedCensus: Census):
@@ -468,10 +409,12 @@ class TestCensus:
 
         expectedRes = [
             {
+                "cleanedName": "SexByAgeByCognitiveDifficulty",
                 "code": "B18104",
                 "description": "SEX BY AGE BY COGNITIVE DIFFICULTY",
             },
             {
+                "cleanedName": "SexByAgeByAmbulatoryDifficulty",
                 "code": "B18105",
                 "description": "SEX BY AGE BY AMBULATORY DIFFICULTY",
             },
@@ -485,45 +428,49 @@ class TestCensus:
         regex = r"estimate"
 
         res = cachedCensus.searchVariables(
-            regex, "name", GroupCode("B18104"), GroupCode("B18105")
+            regex, GroupCode("B18104"), GroupCode("B18105")
         )
 
         expectedRes = [
             {
+                "cleanedName": "Estimate_Total",
                 "code": "B18104_001E",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
-                "name": "Estimate!!Total:",
-                "predicateType": "int",
                 "limit": 0,
+                "name": "Estimate!!Total:",
                 "predicateOnly": True,
+                "predicateType": "int",
             },
             {
+                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18104_001EA",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
-                "name": "Annotation of Estimate!!Total:",
-                "predicateType": "string",
                 "limit": 0,
+                "name": "Annotation of Estimate!!Total:",
                 "predicateOnly": True,
+                "predicateType": "string",
             },
             {
+                "cleanedName": "Estimate_Total",
                 "code": "B18105_001E",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
-                "name": "Estimate!!Total:",
-                "predicateType": "int",
                 "limit": 0,
+                "name": "Estimate!!Total:",
                 "predicateOnly": True,
+                "predicateType": "int",
             },
             {
+                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18105_001EA",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
-                "name": "Annotation of Estimate!!Total:",
-                "predicateType": "string",
                 "limit": 0,
+                "name": "Annotation of Estimate!!Total:",
                 "predicateOnly": True,
+                "predicateType": "string",
             },
         ]
 
@@ -538,10 +485,11 @@ class TestCensus:
     ):
         regex = r"estimate"
 
-        res = cachedCensus.searchVariables(regex, "name")
+        res = cachedCensus.searchVariables(regex)
 
         expectedRes = [
             {
+                "cleanedName": "Estimate_Total",
                 "code": "B17015_001E",
                 "groupCode": "B17015",
                 "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
@@ -553,6 +501,7 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
+                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B17015_001EA",
                 "groupCode": "B17015",
                 "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
@@ -564,6 +513,7 @@ class TestCensus:
                 "predicateType": "string",
             },
             {
+                "cleanedName": "Estimate_Total",
                 "code": "B18104_001E",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -573,6 +523,7 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
+                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18104_001EA",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -582,6 +533,7 @@ class TestCensus:
                 "predicateType": "string",
             },
             {
+                "cleanedName": "Estimate_Total",
                 "code": "B18105_001E",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -591,6 +543,7 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
+                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18105_001EA",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -621,7 +574,7 @@ class TestCensus:
 
         res = cachedCensus.getStats(variables, forDomain, *inDomains)
 
-        assert res.to_dict("records") == expectedStatsRes
+        assert res.to_dict("records") == expectedStatsResWithNames
 
         assert {
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E&for=congressional%20district:*&in=state:01",
@@ -634,7 +587,7 @@ class TestCensus:
             2019,
             shouldLoadFromExistingCache=True,
             shouldCacheOnDisk=True,
-            shouldReplaceColumnHeaders=True,
+            replaceColumnHeaders=False,
         )
 
         variables = [
@@ -646,7 +599,7 @@ class TestCensus:
 
         res = census.getStats(variables, forDomain, *inDomains)
 
-        assert res.to_dict("records") == expectedStatsRes
+        assert res.to_dict("records") == expectedStatsResWithoutNames
         assert (
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E,B18104_001E,B18105_001E&for=congressional%20district:*&in=state:01"
             in apiCalls
@@ -664,7 +617,7 @@ class TestCensus:
             2019,
             shouldLoadFromExistingCache=True,
             shouldCacheOnDisk=True,
-            shouldReplaceColumnHeaders=True,
+            replaceColumnHeaders=True,
         )
 
         # to populate "variables"
@@ -740,7 +693,7 @@ class TestCensus:
             2019,
             shouldLoadFromExistingCache=True,
             shouldCacheOnDisk=True,
-            shouldReplaceColumnHeaders=True,
+            replaceColumnHeaders=True,
         )
 
         # to populate "variables"
@@ -792,61 +745,3 @@ class TestCensus:
                 "Estimate_Total": 151225,
             },
         ]
-
-    def test_cachedCensus_hasInMemGroupToVarMapping(self, cachedCensus: Census):
-        _ = cachedCensus.getAllVariables()
-
-        expectedValue = {
-            "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": {
-                "Estimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B17015_001E"), name="Estimate_Total"
-                ),
-                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B17015_001EA"), name="AnnotationOfEstimate_Total"
-                ),
-                "MarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B17015_001M"), name="MarginOfError_Total"
-                ),
-                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B17015_001MA"),
-                    name="AnnotationOfMarginOfError_Total",
-                ),
-            },
-            "SexByAgeByCognitiveDifficulty": {
-                "Estimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18104_001E"), name="Estimate_Total"
-                ),
-                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18104_001EA"), name="AnnotationOfEstimate_Total"
-                ),
-                "MarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18104_001M"), name="MarginOfError_Total"
-                ),
-                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18104_001MA"),
-                    name="AnnotationOfMarginOfError_Total",
-                ),
-            },
-            "SexByAgeByAmbulatoryDifficulty": {
-                "Estimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18105_001E"), name="Estimate_Total"
-                ),
-                "AnnotationOfEstimate_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18105_001EA"), name="AnnotationOfEstimate_Total"
-                ),
-                "MarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18105_001M"), name="MarginOfError_Total"
-                ),
-                "AnnotationOfMarginOfError_Total": _CodeOrCleanedName(
-                    code=VariableCode("B18105_001MA"),
-                    name="AnnotationOfMarginOfError_Total",
-                ),
-            },
-        }
-
-        mapping = cachedCensus.groupToVarsMapping
-
-        for k, v in mapping.items():
-            match = expectedValue[k]
-
-            assert match == v.__dict__

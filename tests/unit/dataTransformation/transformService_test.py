@@ -71,12 +71,12 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
 
     def test_groupData(self, pandasMock: Mock):
         groupData = {
-            "1": Group(code=GroupCode("1"), description="desc1"),
-            "2": Group(code=GroupCode("2"), description="desc2"),
+            "1": Group.fromJson(dict(name="1", description="desc1")),
+            "2": Group.fromJson(dict(name="1", description="desc2")),
         }
         expectedCalledWith = [
-            {"code": "1", "description": "desc1"},
-            {"code": "2", "description": "desc2"},
+            {"code": "1", "description": "desc1", "cleanedName": "Desc1"},
+            {"code": "2", "description": "desc2", "cleanedName": "Desc2"},
         ]
 
         self._service.groups(groupData)
@@ -106,20 +106,22 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
         ]
         expectedCall = [
             {
+                "cleanedName": "",
                 "code": "123",
                 "groupCode": "g123",
                 "groupConcept": "gCon1",
-                "name": "name1",
                 "limit": 1,
+                "name": "name1",
                 "predicateOnly": True,
                 "predicateType": "string",
             },
             {
+                "cleanedName": "",
                 "code": "456",
                 "groupCode": "g456",
                 "groupConcept": "gCon2",
-                "name": "name2",
                 "limit": 2,
+                "name": "name2",
                 "predicateOnly": False,
                 "predicateType": "int",
             },
@@ -155,7 +157,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
         res = self._service.stats(results, typeConversions, geoDomains, columnHeaders)
 
         if shouldUseColumnHeaders:
-            assert res.dtypes.to_dict() == {
+            assert res.dtypes.to_dict() == {  # type: ignore
                 "NAME": np.dtype("O"),
                 "apple": np.dtype("float64"),
                 "banana": np.dtype("int64"),
@@ -174,7 +176,7 @@ class TestDataFrameTransformer(ServiceTestFixture[DataFrameTransformer]):
                 "peach",
             ]
         else:
-            assert res.dtypes.to_dict() == {
+            assert res.dtypes.to_dict() == {  # type: ignore
                 "NAME": np.dtype("O"),
                 "var2": np.dtype("float64"),
                 "var1": np.dtype("int64"),

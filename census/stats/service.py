@@ -1,13 +1,13 @@
+from py import code
 from census.geographies.interface import IGeographyRepository
 from census.config import Config
 from census.utils.cleanVariableName import cleanVariableName
 from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
-from census.variables.models import VariableCode
+from census.variables.models import Group, GroupVariable, VariableCode
 from census.utils.unique import getUnique
 from functools import cache
 from typing import Any, Dict, List, Set, Tuple
-from tqdm.notebook import tqdm
 
 import pandas as pd
 from census.api.interface import IApiFetchService
@@ -63,7 +63,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             list(variablesToQuery), forDomain, list(inDomains)
         )
 
-        apiResults: List[List[List[str]]] = [res for res in tqdm(pullStats())]  # type: ignore
+        apiResults: List[List[List[str]]] = [res for res in pullStats()]  # type: ignore
 
         columnHeaders, typeConversions = self._getVariableNamesAndTypeConversions(
             set(variablesToQuery)
@@ -83,14 +83,26 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     def _getVariableNamesAndTypeConversions(
         self, variablesToQuery: Set[VariableCode]
     ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
+
+        groups = [
+            Group.fromDfRecord(rec)
+            for rec in self._variableRepo.getGroups().to_dict("records")
+        ]
+        variables = [
+            GroupVariable.fromDfRecord(rec)
+            for rec in self._variableRepo.getVariablesByGroup(
+                *[group.code for group in groups]
+            ).to_dict("records")
+        ]
+
         relevantVariables = {
             variable.code: variable
-            for variable in self._variableRepo.variables.values()
+            for variable in variables
             if variable.code in variablesToQuery
         }
-        hasDuplicateNames = len({v.name for v in relevantVariables.values()}) < len(
-            variablesToQuery
-        )
+        hasDuplicateNames = len(
+            {v.cleanedName for v in relevantVariables.values()}
+        ) < len(variablesToQuery)
 
         typeConversions: Dict[str, Any] = {}
         columnHeaders: Dict[VariableCode, str] = {}
@@ -102,7 +114,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
                     {k: float}
                 )
 
-            cleanedVarName = cleanVariableName(v.name)
+            cleanedVarName = v.cleanedName
             if hasDuplicateNames:
                 cleanedVarName += f"_{v.groupCode}"
 

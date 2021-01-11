@@ -36,7 +36,7 @@ def getCensus(
     cacheDir: str = CACHE_DIR,
     shouldLoadFromExistingCache: bool = False,
     shouldCacheOnDisk: bool = False,
-    shouldReplaceColumnHeaders: bool = True,
+    replaceColumnHeaders: bool = True,
     logFile: str = DEFAULT_LOGFILE,
 ) -> Census:
     """
@@ -65,6 +65,8 @@ def getCensus(
         cache before making API requests. If `False`, this will purge any existing
         caches on disk. Defaults to False.
         shouldCacheOnDisk (bool, optional): whether or not to cache data on-dks. Defaults to False.
+        replaceColumnHeaders (bool, optional): whether or not to replace column headers
+        of census stats with variable names (as opposed to codes). Defaults to True.
         logFile (str, optional): where to write logs. Defaults to DEFAULT_LOGFILE.
 
     Returns:
@@ -78,7 +80,7 @@ def getCensus(
         cacheDir,
         shouldLoadFromExistingCache,
         shouldCacheOnDisk,
-        replaceColumnHeaders=shouldReplaceColumnHeaders,
+        replaceColumnHeaders,
     )
 
     container = punq.Container()

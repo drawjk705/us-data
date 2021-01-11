@@ -39,11 +39,11 @@ class ApiFetchService(IApiFetchService):
         if res.status_code in [404, 400]:
             msg = f"Data does not exist for dataset={self._config.datasetType}; survey={self._config.surveyType}; year={self._config.year}"
 
-            logging.error(f"[ApiFetchService] - {msg}")
+            logging.error(msg)
 
             raise CensusDoesNotExistException(msg)
 
-        logging.debug("[ApiFetchService] - healthCheck OK")
+        logging.debug("healthCheck OK")
 
     @timer
     def geographyCodes(
@@ -69,7 +69,6 @@ class ApiFetchService(IApiFetchService):
 
     @timer
     def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
-
         geogRes = self.__fetch(route="/geography.json")
 
         return self._parser.parseSupportedGeographies(geogRes)

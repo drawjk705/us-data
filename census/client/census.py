@@ -1,7 +1,7 @@
 from census.geographies.models import SupportedGeoSet
 from census.geographies.interface import IGeographyRepository
-from census.variables.repository.models import GroupSet, GroupToVarsMapping, VariableSet
-from typing import List, Literal
+from census.variables.repository.models import GroupSet, VariableSet
+from typing import List
 
 import pandas as pd
 
@@ -57,7 +57,6 @@ class Census:
     def searchVariables(
         self,
         regex: str,
-        searchBy: Literal["name", "concept"] = "name",
         *inGroups: GroupCode,
     ) -> pd.DataFrame:
         """
@@ -69,15 +68,13 @@ class Census:
 
         Args:
             regex (str)
-            searchBy (Literal[, optional): whether to search based on
-            the variables' names or group concepts. Defaults to "name".
             inGroups (List[GroupCode], optional): if populated, this will search
             only the variables within the specified groups. Defaults to [].
 
         Returns:
             pd.DataFrame: with all of the matched variables
         """
-        return self._variableSearch.searchVariables(regex, searchBy, *inGroups)
+        return self._variableSearch.searchVariables(regex, *inGroups)
 
     # repo
     def getGeographyCodes(
@@ -144,7 +141,6 @@ class Census:
         """
         return self._geoRepo.getSupportedGeographies()
 
-    # stats
     def getStats(
         self,
         variablesToQuery: List[VariableCode],
@@ -165,6 +161,8 @@ class Census:
         """
         return self._stats.getStats(variablesToQuery, forDomain, *inDomains)
 
+    # property variables for Jupyter notebook usage
+
     @property
     def variables(self) -> VariableSet:
         return self._variableRepo.variables
@@ -172,10 +170,6 @@ class Census:
     @property
     def groups(self) -> GroupSet:
         return self._variableRepo.groups
-
-    @property
-    def groupToVarsMapping(self) -> GroupToVarsMapping:
-        return self._variableRepo.groupToVarsMapping
 
     @property
     def supportedGeographies(self) -> SupportedGeoSet:
