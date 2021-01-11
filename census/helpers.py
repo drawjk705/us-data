@@ -1,3 +1,5 @@
+from tqdm.notebook import tqdm
+import pandas
 from functools import cache
 from typing import Any, Dict, List, cast
 import requests
@@ -35,7 +37,7 @@ def listAvailableDataSets():
         _DatasetsRes.fromJson(datasetJson) for datasetJson in res["dataset"]
     ]
 
-    for dataset in availableDatasets:
+    for dataset in cast(List[_DatasetsRes], tqdm(availableDatasets)):
         # these won't play nice with the tool
         if not dataset.isAggregate:
             continue
@@ -59,6 +61,8 @@ def listAvailableDataSets():
                 ),
             )
         )
+
+    pandas.set_option("display.max_colwidth", None)  # type: ignore
 
     return (
         pd.DataFrame(datasetDicts)

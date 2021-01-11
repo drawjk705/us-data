@@ -1,10 +1,10 @@
+import logging
 from census.variables.repository.models import (
     GroupSet,
     GroupToVarsMapping,
     VariableSet,
 )
 from census.utils.timer import timer
-import logging
 from functools import cache
 from typing import Tuple, cast
 from tqdm.notebook import tqdm
@@ -113,7 +113,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @cache
     def __getAllVariables(self) -> pd.DataFrame:
-        self.__log("This is a costly operation, and may take time")
+        logging.info("This is a costly operation, and may take time")
 
         allVariables = self._api.allVariables()
         df = self._transformer.variables(allVariables)
@@ -130,6 +130,3 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 self._groupToVarsMapping.add(variable)
 
         return df
-
-    def __log(self, msg: str) -> None:
-        logging.info(f"{LOG_PREFIX} {msg}")

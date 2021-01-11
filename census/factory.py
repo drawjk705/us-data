@@ -1,4 +1,3 @@
-# pyright: reportMissingTypeStubs=false
 # pyright: reportUnknownMemberType=false
 
 from census.geographies.service import GeographyRepository

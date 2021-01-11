@@ -1,6 +1,6 @@
 import logging
 import sys
-from census.logging.filters import PathFilter
+from census.logging.filters import CallerFilter
 
 DEFAULT_LOGFILE = "census.log"
 
@@ -12,12 +12,12 @@ def configureLogger(logFile: str):
     Args:
         logFile (str): the name of the file that log output will be sent to
     """
-    logFormat = "[%(levelname)s] %(asctime)s [%(pathname)s:%(lineno)d] %(message)s"
+    logFormat = "[%(levelname)s] %(asctime)s [%(funcName)s:%(lineno)d] %(message)s"
     dateFormat = "%Y-%m-%d %H:%M:%S %z"
 
     logger = logging.getLogger()
     logger.setLevel(logging.NOTSET)
-    logger.addFilter(PathFilter())
+    logger.addFilter(CallerFilter())
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.INFO)
