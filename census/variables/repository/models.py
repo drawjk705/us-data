@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, ItemsView, KeysView, List, TypeVar, ValuesView
-from census.utils.cleanVariableName import cleanVariableName
+from typing import Generic, ItemsView, KeysView, TypeVar, ValuesView
 from census.variables.models import Group, GroupCode, GroupVariable
 
 ValueType = TypeVar("ValueType")
@@ -9,11 +8,10 @@ ItemType = TypeVar("ItemType")
 
 class ICodeSet(ABC, Generic[ItemType, ValueType]):
     def __init__(self, *items: ItemType) -> None:
-        for item in items:
-            self.add(item)
+        self.add(*items)
 
     @abstractmethod
-    def add(self, item: ItemType):
+    def add(self, *items: ItemType):
         pass
 
     def __len__(self) -> int:
@@ -54,15 +52,23 @@ class ICodeSet(ABC, Generic[ItemType, ValueType]):
 
 
 class VariableSet(ICodeSet[GroupVariable, GroupVariable]):
-    def add(self, item: GroupVariable):
-        cleanedVarName = f"{item.cleanedName}_{item.groupCode}"
+    def add(self, *items: GroupVariable):
+        entries = {f"{item.cleanedName}_{item.groupCode}": item for item in items}
 
-        self.__dict__.update({cleanedVarName: item})
+        self.__dict__.update(entries)
 
 
 class GroupSet(ICodeSet[Group, GroupCode]):
-    def add(self, item: Group):
-        cleanedGroupName = cleanVariableName(item.description)
-        if cleanedGroupName in self.__dict__:
-            cleanedGroupName += f"_{item.code}"
-        self.__dict__.update({cleanedGroupName: item.code})
+    def add(self, *items: Group):
+        itemNames = [item.cleanedName for item in items]
+
+        for item in items:
+            locationOfCleanedName = itemNames.index(item.cleanedName)
+
+            if (
+                item.cleanedName in itemNames[locationOfCleanedName + 1 :]
+                or item.cleanedName in self.__dict__
+            ):
+                self.__dict__.update({f"{item.cleanedName}_{item.code}": item.code})
+            else:
+                self.__dict__.update({item.cleanedName: item.code})

@@ -170,7 +170,7 @@ class TestVariableRepository(ServiceTestFixture[VariableRepository]):
 
         res = self._service.getAllVariables()
 
-        assert res.to_dict() == transformerRes.to_dict()
+        assert res.to_dict() == transformerRes.drop(columns=["cleanedName"]).to_dict()  # type: ignore
         assert dict(self._service.variables.items()) == expectedVariables
 
         cachePut.call_args_list == [

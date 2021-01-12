@@ -126,9 +126,11 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 # we don't need to update `self._variables` in this case
                 continue
 
-            for variableDict in varDf.to_dict("records"):
-                variable = GroupVariable.fromDfRecord(variableDict)
-                self._variables.add(variable)
+            variables = [
+                GroupVariable.fromDfRecord(record)
+                for record in varDf.to_dict("records")
+            ]
+            self._variables.add(*variables)
 
         return df
 
@@ -138,10 +140,11 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         groupsDf = self._cache.get(GROUPS_FILE)
 
         if groupsDf is not None:
-            for record in groupsDf.to_dict("records"):
-                groupObj = Group.fromDfRecord(record)
-                self._logger.debug(f"adding group {groupObj.code}")
-                self._groups.add(groupObj)
+            groups = [
+                Group.fromDfRecord(record) for record in groupsDf.to_dict("records")
+            ]
+            self._logger.debug(f"adding groups {[group.code for group in groups]}")
+            self._groups.add(*groups)
 
         variablesPath = f"{self._cache.cachePath}/{VARIABLES_DIR}"
 
@@ -155,5 +158,8 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
             self._logger.debug(f"adding variables from {file}")
 
-            for record in variableDf.to_dict("records"):
-                self._variables.add(GroupVariable.fromDfRecord(record))
+            variables = [
+                GroupVariable.fromDfRecord(record)
+                for record in variableDf.to_dict("records")
+            ]
+            self._variables.add(*variables)

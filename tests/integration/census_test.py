@@ -1,3 +1,4 @@
+from census.utils.cleanVariableName import cleanVariableName
 import os
 import shutil
 from pathlib import Path
@@ -9,8 +10,7 @@ import requests
 from census.exceptions import CensusDoesNotExistException
 from census.factory import getCensus
 from census.geographies.models import GeoDomain
-from census.variables.models import (Group, GroupCode, GroupVariable,
-                                     VariableCode)
+from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 from census.variables.repository.models import GroupSet, VariableSet
 from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
@@ -212,7 +212,7 @@ def givenCacheWithGroup() -> None:
     pandas.DataFrame(
         [
             dict(code="abc", description="alphabet", cleanedName="Alphabet"),
-            dict(code="123", description="numbers", cleanedName="numbers"),
+            dict(code="123", description="numbers", cleanedName="Numbers"),
         ]
     ).to_csv("./cache/2019/acs/acs1/groups.csv")
     verifyResource("groups.csv")
@@ -350,6 +350,7 @@ class TestCensus:
             verifyResource(f"variables/{code}.csv", exists=False)
 
         variables = census.getVariablesByGroup(*groupCodes)
+        variables["cleanedName"] = variables["name"].apply(cleanVariableName)
         for code in groupCodes:
             verifyResource(
                 f"variables/{code}.csv",
@@ -371,6 +372,7 @@ class TestCensus:
         assert len(census.variables) == 12
 
         for group, variables in allVars.groupby(["groupCode"]):  # type: ignore
+            variables["cleanedName"] = variables["name"].apply(cleanVariableName)
             verifyResource(
                 f"variables/{group}.csv",
                 exists=True,
@@ -543,12 +545,10 @@ class TestCensus:
 
         expectedRes = [
             {
-                "cleanedName": "SexByAgeByCognitiveDifficulty",
                 "code": "B18104",
                 "description": "SEX BY AGE BY COGNITIVE DIFFICULTY",
             },
             {
-                "cleanedName": "SexByAgeByAmbulatoryDifficulty",
                 "code": "B18105",
                 "description": "SEX BY AGE BY AMBULATORY DIFFICULTY",
             },
@@ -564,7 +564,6 @@ class TestCensus:
 
         expectedRes = [
             {
-                "cleanedName": "Estimate_Total",
                 "code": "B18104_001E",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -574,7 +573,6 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
-                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18104_001EA",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -584,7 +582,6 @@ class TestCensus:
                 "predicateType": "string",
             },
             {
-                "cleanedName": "Estimate_Total",
                 "code": "B18105_001E",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -594,7 +591,6 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
-                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18105_001EA",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -619,7 +615,6 @@ class TestCensus:
 
         expectedRes = [
             {
-                "cleanedName": "Estimate_Total",
                 "code": "B17015_001E",
                 "groupCode": "B17015",
                 "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
@@ -631,7 +626,6 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
-                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B17015_001EA",
                 "groupCode": "B17015",
                 "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
@@ -643,7 +637,6 @@ class TestCensus:
                 "predicateType": "string",
             },
             {
-                "cleanedName": "Estimate_Total",
                 "code": "B18104_001E",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -653,7 +646,6 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
-                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18104_001EA",
                 "groupCode": "B18104",
                 "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
@@ -663,7 +655,6 @@ class TestCensus:
                 "predicateType": "string",
             },
             {
-                "cleanedName": "Estimate_Total",
                 "code": "B18105_001E",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -673,7 +664,6 @@ class TestCensus:
                 "predicateType": "int",
             },
             {
-                "cleanedName": "AnnotationOfEstimate_Total",
                 "code": "B18105_001EA",
                 "groupCode": "B18105",
                 "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
@@ -895,7 +885,8 @@ class TestCensus:
             ),
         )
         expectedRepoGroups = GroupSet(
-            Group(GroupCode("abc"), "alphabet"), Group(GroupCode("123"), "numbers")
+            Group(GroupCode("abc"), "alphabet", cleanedName="Alphabet"),
+            Group(GroupCode("123"), "numbers", cleanedName="Numbers"),
         )
 
         repoVars = census.variables
