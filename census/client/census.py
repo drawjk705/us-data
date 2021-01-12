@@ -52,7 +52,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the relevant groups.
         """
-        return self._variableSearch.searchGroups(regex)
+        return self._variableSearch.searchGroups(regex).copy(deep=True)
 
     def searchVariables(
         self,
@@ -74,7 +74,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the matched variables
         """
-        return self._variableSearch.searchVariables(regex, *inGroups)
+        return self._variableSearch.searchVariables(regex, *inGroups).copy(deep=True)
 
     # repo
     def getGeographyCodes(
@@ -98,7 +98,7 @@ class Census:
         Returns:
             pd.DataFrame: [description]
         """
-        return self._geoRepo.getGeographyCodes(forDomain, *inDomains)
+        return self._geoRepo.getGeographyCodes(forDomain, *inDomains).copy(deep=True)
 
     def getGroups(self) -> pd.DataFrame:
         """
@@ -107,7 +107,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the groups
         """
-        return self._variableRepo.getGroups()
+        return self._variableRepo.getGroups().copy(deep=True)
 
     def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
         """
@@ -119,7 +119,7 @@ class Census:
         Returns:
             pd.DataFrame: with the queried variables.
         """
-        return self._variableRepo.getVariablesByGroup(*groups)
+        return self._variableRepo.getVariablesByGroup(*groups).copy(deep=True)
 
     def getAllVariables(self) -> pd.DataFrame:
         """
@@ -129,7 +129,7 @@ class Census:
         Returns:
             pd.DataFrame: with all of the variables.
         """
-        return self._variableRepo.getAllVariables()
+        return self._variableRepo.getAllVariables().copy(deep=True)
 
     def getSupportedGeographies(self) -> pd.DataFrame:
         """
@@ -139,7 +139,7 @@ class Census:
         Returns:
             pd.DataFrame
         """
-        return self._geoRepo.getSupportedGeographies()
+        return self._geoRepo.getSupportedGeographies().copy(deep=True)
 
     def getStats(
         self,
@@ -159,7 +159,9 @@ class Census:
         Returns:
             pd.DataFrame: with the data
         """
-        return self._stats.getStats(variablesToQuery, forDomain, *inDomains)
+        return self._stats.getStats(variablesToQuery, forDomain, *inDomains).copy(
+            deep=True
+        )
 
     # property variables for Jupyter notebook usage
 

@@ -1,19 +1,20 @@
-from py import code
-from census.geographies.interface import IGeographyRepository
-from census.config import Config
-from census.utils.cleanVariableName import cleanVariableName
-from census.utils.timer import timer
-from census.variables.repository.interface import IVariableRepository
-from census.variables.models import Group, GroupVariable, VariableCode
-from census.utils.unique import getUnique
 from functools import cache
+from logging import Logger
 from typing import Any, Dict, List, Set, Tuple
 
 import pandas as pd
 from census.api.interface import IApiFetchService
+from census.config import Config
 from census.dataTransformation.interface import IDataTransformer
+from census.exceptions import EmptyRepositoryException
+from census.geographies.interface import IGeographyRepository
 from census.geographies.models import GeoDomain
+from census.log.factory import ILoggerFactory
 from census.stats.interface import ICensusStatisticsService
+from census.utils.timer import timer
+from census.utils.unique import getUnique
+from census.variables.models import VariableCode
+from census.variables.repository.interface import IVariableRepository
 
 
 class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
@@ -22,6 +23,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _variableRepo: IVariableRepository[pd.DataFrame]
     _geoRepo: IGeographyRepository[pd.DataFrame]
     _config: Config
+    _logger: Logger
 
     def __init__(
         self,
@@ -30,12 +32,14 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         variableRepo: IVariableRepository[pd.DataFrame],
         geoRepo: IGeographyRepository[pd.DataFrame],
         config: Config,
+        loggerFactory: ILoggerFactory,
     ) -> None:
         self._api = api
         self._transformer = transformer
         self._variableRepo = variableRepo
         self._config = config
         self._geoRepo = geoRepo
+        self._logger = loggerFactory.getLogger(__name__)
 
     @timer
     def getStats(
@@ -63,7 +67,7 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             list(variablesToQuery), forDomain, list(inDomains)
         )
 
-        apiResults: List[List[List[str]]] = [res for res in pullStats()]  # type: ignore
+        apiResults: List[List[List[str]]] = [res for res in pullStats()]
 
         columnHeaders, typeConversions = self._getVariableNamesAndTypeConversions(
             set(variablesToQuery)
@@ -84,22 +88,18 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         self, variablesToQuery: Set[VariableCode]
     ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
 
-        groups = [
-            Group.fromDfRecord(rec)
-            for rec in self._variableRepo.getGroups().to_dict("records")
-        ]
-        variables = [
-            GroupVariable.fromDfRecord(rec)
-            for rec in self._variableRepo.getVariablesByGroup(
-                *[group.code for group in groups]
-            ).to_dict("records")
-        ]
-
         relevantVariables = {
             variable.code: variable
-            for variable in variables
+            for variable in self._variableRepo.variables.values()
             if variable.code in variablesToQuery
         }
+        if len(relevantVariables) != len(variablesToQuery):
+            msg = f"Queried {len(variablesToQuery)} variables, but found only {len(relevantVariables)} in repository"
+
+            self._logger.exception(msg)
+
+            raise EmptyRepositoryException(msg)
+
         hasDuplicateNames = len(
             {v.cleanedName for v in relevantVariables.values()}
         ) < len(variablesToQuery)
@@ -107,12 +107,8 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         typeConversions: Dict[str, Any] = {}
         columnHeaders: Dict[VariableCode, str] = {}
         for k, v in relevantVariables.items():
-            if v.predicateType == "float":
+            if v.predicateType in ["int", "float"]:
                 typeConversions.update({k: float})
-            elif v.predicateType == "int":
-                typeConversions.update(  # this is so we don't get errors when int-type fields are null
-                    {k: float}
-                )
 
             cleanedVarName = v.cleanedName
             if hasDuplicateNames:

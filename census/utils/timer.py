@@ -15,7 +15,9 @@ def timer(func: _Func) -> _Func:
 
         elapsedMs = (endTime - startTime) * 1000
 
-        logging.debug(f"[{func.__qualname__}] - duration: {elapsedMs:.2f}ms")
+        logging.getLogger(__name__).debug(
+            f"[{func.__qualname__}] - duration: {elapsedMs:.2f}ms"
+        )
 
         return retval
 

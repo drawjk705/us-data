@@ -3,7 +3,7 @@ from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
 from census.dataTransformation.interface import IDataTransformer
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 from census.api.models import GeographyItem
@@ -86,24 +86,22 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
         for result in results:
             df = pd.DataFrame(result[1:], columns=result[0])
 
-            if mainDf.empty:
+            if mainDf.empty:  # type: ignore
                 mainDf = df
             else:
+                df = df.drop(columns=["NAME"])  # type: ignore
                 mainDf = pd.merge(mainDf, df, on=geoCols, how="inner")  # type: ignore
-                mainDf = mainDf.drop(columns=["NAME_x"]).rename(  # type: ignore
-                    columns=dict(NAME_y="NAME")
-                )
 
-        allCols = mainDf.columns.tolist()  # type: ignore
+        allCols = cast(List[str], mainDf.columns.tolist())  # type: ignore
 
         # reshuffle the columns
         nameCol = ["NAME"]
-        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]  # type: ignore
+        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]
 
         reorderedColumns = nameCol + geoCols + variableCols
 
-        return (  # type: ignore
-            mainDf[reorderedColumns]
+        return (
+            mainDf[reorderedColumns]  # type: ignore
             .astype(typeConversions)
             .rename(columns=columnHeaders or {})
             .sort_values(by=geoCols)

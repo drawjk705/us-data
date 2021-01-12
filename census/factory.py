@@ -1,8 +1,9 @@
 # pyright: reportUnknownMemberType=false
 
+from census.log.factory import ILoggerFactory, LoggerFactory
 from census.geographies.service import GeographyRepository
 from census.geographies.interface import IGeographyRepository
-from census.logging.configureLogger import DEFAULT_LOGFILE, configureLogger
+from census.log.configureLogger import DEFAULT_LOGFILE, configureLogger
 from typing import cast
 
 import pandas
@@ -27,6 +28,7 @@ from census.client.census import Census
 # these are singletons
 serializer = ApiSerializationService()
 transformer = DataFrameTransformer()
+loggerFactory = LoggerFactory()
 
 
 def getCensus(
@@ -89,6 +91,7 @@ def getCensus(
     container.register(Config, instance=config)
     container.register(IApiSerializationService, instance=serializer)
     container.register(IDataTransformer[pandas.DataFrame], instance=transformer)
+    container.register(ILoggerFactory, instance=loggerFactory)
 
     # services
     container.register(ICache[pandas.DataFrame], OnDiskCache)

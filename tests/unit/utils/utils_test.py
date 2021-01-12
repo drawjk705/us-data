@@ -1,3 +1,4 @@
+import logging
 from census.utils.cleanVariableName import cleanVariableName
 import pytest
 from typing import cast
@@ -42,7 +43,9 @@ def test_timer_logsAndReturnsValues(mocker: MockerFixture):
     def fn() -> int:
         return 1
 
-    mockLogger = mocker.patch("census.utils.timer.logging")
+    mockLogging = mocker.patch("census.utils.timer.logging")
+    mockLogger = MagicMock()
+    cast(MagicMock, cast(logging, mockLogging).getLogger).return_value = mockLogger
     mockPerfCounter = mocker.patch("census.utils.timer.time")
     mockPerfCounter.perf_counter.side_effect = [1, 2]  # type: ignore
 

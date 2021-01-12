@@ -13,7 +13,7 @@ class Congress:
         self._memberRepo = memberRepo
 
     def getSenators(self) -> pd.DataFrame:
-        return self._memberRepo.getSenators()
+        return self._memberRepo.getSenators().copy(deep=True)
 
     def getRepresentatives(self) -> pd.DataFrame:
-        return self._memberRepo.getRepresentatives()
+        return self._memberRepo.getRepresentatives().copy(deep=True)

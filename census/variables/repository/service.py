@@ -1,28 +1,25 @@
-import logging
-from census.variables.repository.models import (
-    GroupSet,
-    VariableSet,
-)
-from census.utils.timer import timer
+import os
 from functools import cache
+from logging import Logger
+from pathlib import Path
 from typing import Tuple, cast
-from tqdm.notebook import tqdm
 
 import pandas as pd
 from census.api.interface import IApiFetchService
 from census.dataTransformation.interface import IDataTransformer
-from census.utils.unique import getUnique
-from census.variables.models import Group, GroupVariable, GroupCode
+from census.log.factory import ILoggerFactory
 from census.persistence.interface import ICache
+from census.utils.timer import timer
+from census.utils.unique import getUnique
+from census.variables.models import Group, GroupCode, GroupVariable
 from census.variables.repository.interface import IVariableRepository
+from census.variables.repository.models import GroupSet, VariableSet
+from tqdm.notebook import tqdm
 
 GROUPS_FILE = "groups.csv"
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
 
 VARIABLES_DIR = "variables"
-QUERY_RESULTS_DIR = "queryResults"
-
-LOG_PREFIX = "[Variable Repository]"
 
 
 class VariableRepository(IVariableRepository[pd.DataFrame]):
@@ -30,20 +27,25 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
     _cache: ICache[pd.DataFrame]
     _api: IApiFetchService
     _transformer: IDataTransformer[pd.DataFrame]
+    _logger: Logger
 
     def __init__(
         self,
         cache: ICache[pd.DataFrame],
         transformer: IDataTransformer[pd.DataFrame],
         api: IApiFetchService,
+        loggerFactory: ILoggerFactory,
     ):
         self._cache = cache
         self._api = api
         self._transformer = transformer
+        self._logger = loggerFactory.getLogger(__name__)
 
         # these are inherited from the base class
         self._variables = VariableSet()
         self._groups = GroupSet()
+
+        self.__populateRepository()
 
     @timer
     def getGroups(self) -> pd.DataFrame:
@@ -110,13 +112,14 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @cache
     def __getAllVariables(self) -> pd.DataFrame:
-        logging.info("This is a costly operation, and may take time")
+        self._logger.info("This is a costly operation, and may take time")
 
         allVariables = self._api.allVariables()
         df = self._transformer.variables(allVariables)
 
         for groupCode, variables in df.groupby(["groupCode"]):  # type: ignore
             varDf = cast(pd.DataFrame, variables)
+
             if not self._cache.put(f"{VARIABLES_DIR}/{groupCode}.csv", varDf):
                 # we don't need to update `self._variables` in this case
                 continue
@@ -126,3 +129,29 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                 self._variables.add(variable)
 
         return df
+
+    def __populateRepository(self) -> None:
+        self._logger.debug("populating repository")
+
+        groupsDf = self._cache.get(GROUPS_FILE)
+
+        if groupsDf is not None:
+            for record in groupsDf.to_dict("records"):
+                groupObj = Group.fromDfRecord(record)
+                self._logger.debug(f"adding group {groupObj.code}")
+                self._groups.add(groupObj)
+
+        variablesPath = f"{self._cache.cachePath}/{VARIABLES_DIR}"
+
+        if not Path(variablesPath).exists():
+            self._logger.debug("no variables")
+            return
+
+        for file in os.listdir(variablesPath):
+            cacheRes = self._cache.get(f"{VARIABLES_DIR}/{file}")
+            variableDf = cacheRes if cacheRes is not None else pd.DataFrame()
+
+            self._logger.debug(f"adding variables from {file}")
+
+            for record in variableDf.to_dict("records"):
+                self._variables.add(GroupVariable.fromDfRecord(record))

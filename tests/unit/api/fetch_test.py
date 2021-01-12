@@ -1,5 +1,4 @@
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from pytest_mock.plugin import MockerFixture
 from census.variables.models import VariableCode
 from typing import Any, Collection, List
 from unittest.mock import MagicMock, call
@@ -12,11 +11,6 @@ from census.api.fetch import ApiFetchService
 from tests.serviceTestFixtures import ApiServiceTestFixture
 
 mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
-
-
-@pytest.fixture
-def logMock(mocker: MockerFixture):
-    return mocker.patch("census.api.fetch.logging")
 
 
 class MockRes:
@@ -33,7 +27,7 @@ class MockRes:
 
 class ApiServiceWrapper(ApiFetchService):
     def __init__(self, parser: IApiSerializationService) -> None:
-        super().__init__(config=mockConfig, parser=parser)
+        super().__init__(config=mockConfig, parser=parser, loggingFactory=MagicMock())
 
 
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
@@ -151,16 +145,16 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         with pytest.raises(StopIteration):
             next(res)
 
-    def test_healthCheck_pass(self, logMock: MagicMock):
+    def test_healthCheck_pass(self):
         self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(200))
 
         self._service.healthCheck()
 
-        self.castMock(logMock.debug).assert_called_once_with(  # type: ignore
+        self.castMock(self._service._logger.debug).assert_called_once_with(
             "healthCheck OK"
         )
 
-    def test_healthCheck_fail(self, logMock: MagicMock):
+    def test_healthCheck_fail(self):
         self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(404))
 
         msg = "Data does not exist for dataset=acs; survey=acs1; year=2019"
@@ -168,5 +162,4 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         with pytest.raises(CensusDoesNotExistException, match=msg):
             self._service.healthCheck()
 
-        self.castMock(logMock.error).assert_called_once_with(msg)  # type: ignore
-        self.castMock(logMock.debug).assert_not_called()  # type: ignore
+        self.castMock(self._service._logger.exception).assert_called_once_with(msg)

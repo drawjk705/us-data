@@ -1,5 +1,6 @@
+from census.log.factory import ILoggerFactory
 from census.utils.timer import timer
-import logging
+from logging import Logger
 import shutil
 from pathlib import Path
 
@@ -11,57 +12,51 @@ LOG_PREFIX = "[On-Disk Cache]"
 
 
 class OnDiskCache(ICache[pd.DataFrame]):
-    __cachePath: Path
     _config: Config
+    _logger: Logger
 
-    def __init__(
-        self,
-        config: Config,
-    ) -> None:
+    def __init__(self, config: Config, loggerFactory: ILoggerFactory) -> None:
         self._config = config
+        self._logger = loggerFactory.getLogger(__name__)
 
-        if not self._config.shouldCacheOnDisk:
-            logging.debug("Not creating an on-disk cache")
-            return
-
-        datasetTypeValue = config.datasetType
-
-        surveyTypeValue = config.surveyType
-
-        self.__cachePath = Path(
-            f"{config.cacheDir}/{config.year}/{datasetTypeValue}/{surveyTypeValue}"
+        self._cachePath = Path(
+            f"{config.cacheDir}/{config.year}/{config.datasetType}/{config.surveyType}"
         )
 
-        logging.debug(f"creating cache for {self.__cachePath}")
+        if not self._config.shouldCacheOnDisk:
+            self._logger.debug("Not creating an on-disk cache")
+            return
+
+        self._logger.debug(f"creating cache for {self._cachePath}")
 
         self.__setUpOnDiskCache()
 
     @timer
     def __setUpOnDiskCache(self) -> None:
-        logging.debug("setting up on disk cache")
+        self._logger.debug("setting up on disk cache")
 
         if not self._config.shouldLoadFromExistingCache:
-            logging.debug("purging on disk cache")
+            self._logger.debug("purging on disk cache")
 
             if Path(self._config.cacheDir).exists():
                 shutil.rmtree(self._config.cacheDir)
 
-        self.__cachePath.mkdir(parents=True, exist_ok=True)
+        self._cachePath.mkdir(parents=True, exist_ok=True)
 
     @timer
     def put(self, resource: str, data: pd.DataFrame) -> bool:
         if not self._config.shouldCacheOnDisk:
-            return False
+            return True
 
-        path = self.__cachePath.joinpath(Path(resource))
+        path = self._cachePath.joinpath(Path(resource))
 
         if path.exists():
-            logging.debug(f'resource "{resource}" already exists; terminating')
+            self._logger.debug(f'resource "{resource}" already exists; terminating')
             return False
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        logging.debug(f'persisting "{path}" on disk')
+        self._logger.debug(f'persisting "{path}" on disk')
 
         data.to_csv(str(path.absolute()), index=False)
         return True
@@ -74,12 +69,12 @@ class OnDiskCache(ICache[pd.DataFrame]):
         ):
             return pd.DataFrame()
 
-        path = self.__cachePath.joinpath(Path(resource))
+        path = self._cachePath.joinpath(Path(resource))
 
         if not path.exists():
-            logging.debug(f'cache miss for "{path}"')
+            self._logger.debug(f'cache miss for "{path}"')
             return pd.DataFrame()
 
-        logging.debug(f'cache hit for "{path}"')
+        self._logger.debug(f'cache hit for "{path}"')
 
         return pd.read_csv(path.absolute())  # type: ignore

@@ -90,8 +90,8 @@ class GroupVariable:
     def __hash__(self) -> int:
         return hash(self.code)
 
-    def __repr__(self) -> str:
-        return self.__dict__.__repr__()
+    # def __repr__(self) -> str:
+    #     return self.__dict__.__repr__()
 
-    def __str__(self) -> str:
-        return self.__repr__()
+    # def __str__(self) -> str:
+    #     return self.__repr__()

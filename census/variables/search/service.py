@@ -1,21 +1,28 @@
+from census.log.factory import ILoggerFactory
 from census.utils.timer import timer
 from census.variables.repository.interface import IVariableRepository
 from census.variables.search.interface import IVariableSearchService
 from census.variables.models import GroupCode
 import pandas as pd
 
-import logging
+from logging import Logger
 
 
 class VariableSearchService(IVariableSearchService[pd.DataFrame]):
     _variableRepository: IVariableRepository[pd.DataFrame]
+    _logger: Logger
 
-    def __init__(self, variableRepository: IVariableRepository[pd.DataFrame]) -> None:
+    def __init__(
+        self,
+        variableRepository: IVariableRepository[pd.DataFrame],
+        loggerFactory: ILoggerFactory,
+    ) -> None:
         self._variableRepository = variableRepository
+        self._logger = loggerFactory.getLogger(__name__)
 
     @timer
     def searchGroups(self, regex: str) -> pd.DataFrame:
-        logging.debug(f"searching groups for regex: `{regex}`")
+        self._logger.debug(f"searching groups for regex: `{regex}`")
 
         groups = self._variableRepository.getGroups()
 
@@ -34,7 +41,7 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         *inGroups: GroupCode,
     ) -> pd.DataFrame:
 
-        logging.debug(f"searching variables for pattern `{regex}`")
+        self._logger.debug(f"searching variables for pattern `{regex}`")
 
         variables: pd.DataFrame
         if not len(inGroups):

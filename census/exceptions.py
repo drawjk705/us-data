@@ -15,3 +15,13 @@ class InvalidQueryException(Exception):
 
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class EmptyRepositoryException(Exception):
+    """
+    Thrown when trying to make a query on variables
+    whose metadata is not in the repository
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)

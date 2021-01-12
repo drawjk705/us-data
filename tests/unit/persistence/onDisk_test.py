@@ -11,6 +11,10 @@ from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
 
 
+def makeCache(config: Config) -> OnDiskCache:
+    return OnDiskCache(config, MagicMock())
+
+
 @pytest.fixture
 def pathMock(mocker: MockerFixture) -> MagicMock:
     mock = mocker.patch("census.persistence.onDisk.Path")
@@ -41,7 +45,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         config = Config(cacheDir="cache", shouldCacheOnDisk=True)
         self.givenExistenceOfPath(pathMock, pathExists)
 
-        _ = OnDiskCache(config)
+        _ = makeCache(config)
 
         if pathExists:
             shutilMock.rmtree.assert_called_once_with("cache")  # type: ignore
@@ -55,7 +59,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
     ):
         config = Config(2019, shouldCacheOnDisk=False)
 
-        _ = OnDiskCache(config)
+        _ = makeCache(config)
 
         pathMock().mkdir.assert_not_called()  # type: ignore
         self.castMock(shutilMock.rmtree).assert_not_called()  # type: ignore
@@ -84,14 +88,14 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         data = MagicMock(spec=pandas.DataFrame)
         self.givenExistenceOfPath(pathMock, resourceExists)
 
-        cache = OnDiskCache(config)
+        cache = OnDiskCache(config, MagicMock())
 
         putRes = cache.put(resource, data)
 
         if shouldCacheOnDisk and not resourceExists:
             self.castMock(data.to_csv).assert_called_once_with(String(), index=False)  # type: ignore
 
-        assert putRes == (shouldCacheOnDisk and not resourceExists)
+        assert putRes != (resourceExists and shouldCacheOnDisk)
 
     @pytest.mark.parametrize(
         *shuffledCases(
@@ -115,7 +119,9 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
             shouldLoadFromExistingCache=shouldLoadFromExistingCache,
         )
         resource = "resource"
-        cache = OnDiskCache(config)
+
+        cache = makeCache(config)
+
         self.givenExistenceOfPath(pathMock, resourceExists)
         mockReadCsv = MagicMock()
         getRetval = MagicMock(spec=pandas.DataFrame)

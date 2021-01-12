@@ -1,12 +1,13 @@
-from pytest_mock.plugin import MockerFixture
-from census.variables.models import GroupCode, VariableCode
+from pytest_mock import MockerFixture
+from census.variables.repository.models import GroupSet, VariableSet
+from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 import pandas
 from census.geographies.models import GeoDomain
 from pathlib import Path
 from census.client.census import Census
 from census.factory import getCensus
 from census.exceptions import CensusDoesNotExistException
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, Generator, List, Optional, Set
 from tests.integration.mockApiResponses import MOCK_API
 import requests
 from pytest import MonkeyPatch
@@ -157,10 +158,11 @@ def verifyResource(
     exists: bool = True,
     expectedData: Optional[List[Dict[str, Any]]] = None,
 ):
+    path = Path(f"cache/2019/acs/acs1/{resource}")
+
     if not exists:
-        assert not Path(f"cache/2019/acs/acs1/{resource}").exists()
+        assert not path.exists()
     else:
-        path = Path(f"cache/2019/acs/acs1/{resource}")
         assert path.exists()
 
         if expectedData:
@@ -169,7 +171,7 @@ def verifyResource(
 
 
 @pytest.fixture(scope="function", autouse=True)
-def apiCalls(monkeypatch: MonkeyPatch):
+def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
     _apiCalls: Set[str] = set()
 
     def mockGet(route: str):
@@ -184,7 +186,7 @@ def apiCalls(monkeypatch: MonkeyPatch):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setPathToTest():
+def setPathToTest() -> Generator[None, None, None]:
     parentPath = Path(__file__).parent.absolute()
 
     os.chdir(parentPath)
@@ -205,23 +207,50 @@ def setPathToTest():
 
 
 @pytest.fixture
+def givenCacheWithGroup() -> None:
+    Path("cache/2019/acs/acs1/").mkdir(parents=True, exist_ok=True)
+    pandas.DataFrame(
+        [
+            dict(code="abc", description="alphabet", cleanedName="Alphabet"),
+            dict(code="123", description="numbers", cleanedName="numbers"),
+        ]
+    ).to_csv("./cache/2019/acs/acs1/groups.csv")
+    verifyResource("groups.csv")
+
+
+@pytest.fixture
+def givenCacheWithVariables() -> None:
+    Path("cache/2019/acs/acs1/variables/").mkdir(parents=True, exist_ok=True)
+    pandas.DataFrame(
+        [
+            dict(
+                code="v1",
+                groupCode="g1",
+                groupConcept="group 1",
+                name="variable 1",
+                predicateType="int",
+                predicateOnly=True,
+                limit=0,
+                cleanedName="Variable 1",
+            ),
+            dict(
+                code="v2",
+                groupCode="g1",
+                groupConcept="group 1",
+                name="variable 2",
+                predicateType="int",
+                predicateOnly=True,
+                limit=0,
+                cleanedName="Variable 2",
+            ),
+        ]
+    ).to_csv("./cache/2019/acs/acs1/variables/varsForGroup.csv")
+    verifyResource("variables/varsForGroup.csv")
+
+
+@pytest.fixture
 def tempDir() -> Path:
     return Path()
-
-
-@pytest.fixture
-def censusNoCache() -> Census:
-    return getCensus(2019, shouldCacheOnDisk=False)
-
-
-@pytest.fixture
-def censusCacheNoLoad() -> Census:
-    return getCensus(2019, shouldCacheOnDisk=True, shouldLoadFromExistingCache=False)
-
-
-@pytest.fixture
-def cachedCensus() -> Census:
-    return getCensus(2019, shouldCacheOnDisk=True, shouldLoadFromExistingCache=True)
 
 
 @pytest.mark.integration
@@ -230,54 +259,39 @@ class TestCensus:
         with pytest.raises(CensusDoesNotExistException, match=""):
             _ = getCensus(2020)
 
-    def test_censusNoCache_doesNotCreateCache(
-        self, censusNoCache: Census, tempDir: Path
+    def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
+        self, tempDir: Path
     ):
-        _ = censusNoCache.getGroups()
+        _ = getCensus(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=False)
 
         assert not tempDir.joinpath("cache").exists()
 
-    def test_censusCacheNoLoad_createsCacheButDoesNotLoadIt(
-        self, censusCacheNoLoad: Census, tempDir: Path, apiCalls: Set[str]
+    def test_census_givenCensusDoesNotLoadFromExistingCache_purgesExistingCache(
+        self, tempDir: Path, givenCacheWithGroup: None
     ):
-        tempDir.joinpath("cache").mkdir(parents=True, exist_ok=True)
-        pandas.DataFrame(
-            [
-                dict(code="abc", description="alphabet"),
-                dict(code="123", description="numbers"),
-            ]
-        ).to_csv("./cache/2019/acs/acs1/groups.csv")
-        verifyResource("groups.csv")
-
-        _ = censusCacheNoLoad.getGroups()
-
-        assert {"https://api.census.gov/data/2019/acs/acs1/groups.json"}.issubset(
-            apiCalls
-        )
+        _ = getCensus(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=True)
 
         assert tempDir.joinpath("cache").exists()
+        assert len(list(tempDir.joinpath("cache/2019/acs/acs1").iterdir())) == 0
 
-    def test_cachedCensus_createsCacheAndLoadsItOnQuery(
-        self, cachedCensus: Census, tempDir: Path, apiCalls: Set[str]
+    def test_census_createsCacheAndLoadsItOnQuery(
+        self, tempDir: Path, apiCalls: Set[str], givenCacheWithGroup: None
     ):
-        tempDir.joinpath("cache").mkdir(parents=True, exist_ok=True)
-        pandas.DataFrame(
-            [
-                dict(code="abc", description="alphabet", cleanedName="Alphabet"),
-                dict(code="123", description="numbers", cleanedName="numbers"),
-            ]
-        ).to_csv("./cache/2019/acs/acs1/groups.csv")
-        verifyResource("groups.csv")
+        census = getCensus(
+            2019, shouldLoadFromExistingCache=True, shouldCacheOnDisk=True
+        )
 
-        _ = cachedCensus.getGroups()
+        census.getGroups()
 
         assert "https://api.census.gov/data/2019/acs/acs1/groups.json" not in apiCalls
         assert len(apiCalls) == 1
 
         assert tempDir.joinpath("cache").exists()
 
-    def test_cachedCensus_getGeographyCodes(self, cachedCensus: Census, tempDir: Path):
-        codes = cachedCensus.getGeographyCodes(
+    def test_census_getGeographyCodes(self, tempDir: Path):
+        census = getCensus(2019)
+
+        codes = census.getGeographyCodes(
             GeoDomain("congressional district"),
             GeoDomain("state", "01"),
         )
@@ -322,16 +336,20 @@ class TestCensus:
 
         assert codes.to_dict("records") == expected
 
-    def test_cachedCensus_groupsAndVariables(self, cachedCensus: Census):
+    def test_census_groupsAndVariables(self):
+        census = getCensus(2019, shouldCacheOnDisk=True)
         verifyResource("groups.csv", exists=False)
-        _ = cachedCensus.getGroups()
-        groupCodes = list(cachedCensus.groups.values())
+
+        _ = census.getGroups()
+
+        groupCodes = list(census.groups.values())
         verifyResource("groups.csv")
         assert len(groupCodes) == 3
 
         for code in groupCodes:
             verifyResource(f"variables/{code}.csv", exists=False)
-        variables = cachedCensus.getVariablesByGroup(*groupCodes)
+
+        variables = census.getVariablesByGroup(*groupCodes)
         for code in groupCodes:
             verifyResource(
                 f"variables/{code}.csv",
@@ -343,13 +361,14 @@ class TestCensus:
                 ],
             )
 
-        assert len(cachedCensus.variables) == 12
+        assert len(census.variables) == 12
 
-    def test_cachedCensus_getAllVariables(self, cachedCensus: Census):
-        allVars = cachedCensus.getAllVariables()
+    def test_census_getAllVariables(self):
+        census = getCensus(2019, shouldCacheOnDisk=True)
+        allVars = census.getAllVariables()
 
         assert len(allVars.to_dict("records")) == 12
-        assert len(cachedCensus.variables) == 12
+        assert len(census.variables) == 12
 
         for group, variables in allVars.groupby(["groupCode"]):  # type: ignore
             verifyResource(
@@ -358,39 +377,153 @@ class TestCensus:
                 expectedData=variables.to_dict("records"),
             )
 
-    def test_cachedCensus_groups_populatesGroupNames(self, cachedCensus: Census):
-        cachedCensus.getGroups()
+    def test_census_groups_populatesGroupNames(self):
+        census = getCensus(2019)
 
-        assert dict(cachedCensus.groups.items()) == {
+        _ = census.getGroups()
+
+        assert dict(census.groups.items()) == {
             "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": "B17015",
             "SexByAgeByAmbulatoryDifficulty": "B18105",
             "SexByAgeByCognitiveDifficulty": "B18104",
         }
 
-    def test_cachedCensus_variables_populatesVariableNames(self, cachedCensus: Census):
-        cachedCensus.getAllVariables()
+    def test_census_variables_populatesVariableNames(self):
+        census = getCensus(2019)
 
-        assert dict(cachedCensus.variables.items()) == {
-            "AnnotationOfEstimate_Total_B17015": "B17015_001EA",
-            "AnnotationOfEstimate_Total_B18104": "B18104_001EA",
-            "AnnotationOfEstimate_Total_B18105": "B18105_001EA",
-            "AnnotationOfMarginOfError_Total_B17015": "B17015_001MA",
-            "AnnotationOfMarginOfError_Total_B18104": "B18104_001MA",
-            "AnnotationOfMarginOfError_Total_B18105": "B18105_001MA",
-            "Estimate_Total_B17015": "B17015_001E",
-            "Estimate_Total_B18104": "B18104_001E",
-            "Estimate_Total_B18105": "B18105_001E",
-            "MarginOfError_Total_B17015": "B17015_001M",
-            "MarginOfError_Total_B18104": "B18104_001M",
-            "MarginOfError_Total_B18105": "B18105_001M",
+        census.getAllVariables()
+
+        assert dict(census.variables.items()) == {
+            "AnnotationOfEstimate_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001EA"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfEstimate_Total",
+            ),
+            "AnnotationOfEstimate_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001EA"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfEstimate_Total",
+            ),
+            "AnnotationOfEstimate_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001EA"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Annotation of Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfEstimate_Total",
+            ),
+            "AnnotationOfMarginOfError_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001MA"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfMarginOfError_Total",
+            ),
+            "AnnotationOfMarginOfError_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001MA"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfMarginOfError_Total",
+            ),
+            "AnnotationOfMarginOfError_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001MA"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Annotation of Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="string",
+                cleanedName="AnnotationOfMarginOfError_Total",
+            ),
+            "Estimate_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001E"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="Estimate_Total",
+            ),
+            "Estimate_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001E"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="Estimate_Total",
+            ),
+            "Estimate_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001E"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Estimate!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="Estimate_Total",
+            ),
+            "MarginOfError_Total_B17015": GroupVariable(
+                code=VariableCode("B17015_001M"),
+                groupCode=GroupCode("B17015"),
+                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="MarginOfError_Total",
+            ),
+            "MarginOfError_Total_B18104": GroupVariable(
+                code=VariableCode("B18104_001M"),
+                groupCode=GroupCode("B18104"),
+                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="MarginOfError_Total",
+            ),
+            "MarginOfError_Total_B18105": GroupVariable(
+                code=VariableCode("B18105_001M"),
+                groupCode=GroupCode("B18105"),
+                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                name="Margin of Error!!Total:",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="MarginOfError_Total",
+            ),
         }
 
-    def test_cachedCensus_supportedGeographies(self, cachedCensus: Census):
+    def test_census_supportedGeographies(self):
+        census = getCensus(2019, shouldCacheOnDisk=True)
+
         verifyResource("supportedGeographies.csv", exists=False)
 
-        _ = cachedCensus.getSupportedGeographies()
+        _ = census.getSupportedGeographies()
 
-        inMemSupportedGeos = cachedCensus.supportedGeographies
+        inMemSupportedGeos = census.supportedGeographies
 
         assert inMemSupportedGeos.__dict__ == {
             "CongressionalDistrict": "congressional district",
@@ -402,10 +535,11 @@ class TestCensus:
         }
         verifyResource("supportedGeographies.csv")
 
-    def test_cachedCensus_searchGroups(self, cachedCensus: Census):
+    def test_census_searchGroups(self):
+        census = getCensus(2019)
         regex = r"sex by age by .* difficulty"
 
-        res = cachedCensus.searchGroups(regex)
+        res = census.searchGroups(regex)
 
         expectedRes = [
             {
@@ -422,14 +556,11 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    def test_cachedCensus_searchVariablesWithinGroups(
-        self, cachedCensus: Census, apiCalls: Set[str]
-    ):
+    def test_census_searchVariablesWithinGroups(self, apiCalls: Set[str]):
+        census = getCensus(2019)
         regex = r"estimate"
 
-        res = cachedCensus.searchVariables(
-            regex, GroupCode("B18104"), GroupCode("B18105")
-        )
+        res = census.searchVariables(regex, GroupCode("B18104"), GroupCode("B18105"))
 
         expectedRes = [
             {
@@ -480,12 +611,11 @@ class TestCensus:
         }.issubset(apiCalls)
         assert res.to_dict("records") == expectedRes
 
-    def test_cachedCensus_searchAllVariables(
-        self, cachedCensus: Census, apiCalls: Set[str]
-    ):
+    def test_census_searchAllVariables(self, apiCalls: Set[str]):
+        census = getCensus(2019)
         regex = r"estimate"
 
-        res = cachedCensus.searchVariables(regex)
+        res = census.searchVariables(regex)
 
         expectedRes = [
             {
@@ -560,9 +690,12 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    def test_cachedCensus_stats_batchedApiCalls(
-        self, cachedCensus: Census, apiCalls: Set[str], mocker: MockerFixture
+    @pytest.mark.parametrize("shouldRenameColumns", [(True), (False)])
+    def test_census_stats_batchedApiCalls(
+        self, apiCalls: Set[str], mocker: MockerFixture, shouldRenameColumns: bool
     ):
+        census = getCensus(2019, replaceColumnHeaders=shouldRenameColumns)
+
         mocker.patch("census.api.fetch.MAX_QUERY_SIZE", 2)
 
         variables = [
@@ -571,10 +704,15 @@ class TestCensus:
         ]
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
+        _ = census.getAllVariables()
 
-        res = cachedCensus.getStats(variables, forDomain, *inDomains)
+        res = census.getStats(variables, forDomain, *inDomains)
 
-        assert res.to_dict("records") == expectedStatsResWithNames
+        assert res.to_dict("records") == (
+            expectedStatsResWithNames
+            if shouldRenameColumns
+            else expectedStatsResWithoutNames
+        )
 
         assert {
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E&for=congressional%20district:*&in=state:01",
@@ -582,30 +720,7 @@ class TestCensus:
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18105_001E&for=congressional%20district:*&in=state:01",
         }.issubset(apiCalls)
 
-    def test_census_stats_noColumnNameChange(self, apiCalls: Set[str]):
-        census = getCensus(
-            2019,
-            shouldLoadFromExistingCache=True,
-            shouldCacheOnDisk=True,
-            replaceColumnHeaders=False,
-        )
-
-        variables = [
-            VariableCode(code)
-            for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
-        ]
-        forDomain = GeoDomain("congressional district")
-        inDomains = [GeoDomain("state", "01")]
-
-        res = census.getStats(variables, forDomain, *inDomains)
-
-        assert res.to_dict("records") == expectedStatsResWithoutNames
-        assert (
-            "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E,B18104_001E,B18105_001E&for=congressional%20district:*&in=state:01"
-            in apiCalls
-        )
-
-    def test_cachedCensus_stats_columnNameChangeWithDuplicate(self):
+    def test_census_stats_columnNameChangeWithDuplicate(self):
         variables = [
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
@@ -615,8 +730,6 @@ class TestCensus:
 
         census = getCensus(
             2019,
-            shouldLoadFromExistingCache=True,
-            shouldCacheOnDisk=True,
             replaceColumnHeaders=True,
         )
 
@@ -684,7 +797,7 @@ class TestCensus:
             },
         ]
 
-    def test_cachedCensus_stats_columnNameChangeWithoutDuplicate(self):
+    def test_census_stats_columnNameChangeWithoutDuplicate(self):
         variables = [VariableCode("B17015_001E")]
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
@@ -745,3 +858,52 @@ class TestCensus:
                 "Estimate_Total": 151225,
             },
         ]
+
+    @pytest.mark.parametrize("shouldLoadFromCache", [(True), (False)])
+    def test_census_givenLoadFromCache_populatesRepository(
+        self,
+        shouldLoadFromCache: bool,
+        givenCacheWithGroup: None,
+        givenCacheWithVariables: None,
+    ):
+
+        census = getCensus(
+            2019,
+            shouldLoadFromExistingCache=shouldLoadFromCache,
+            shouldCacheOnDisk=True,
+        )
+        expectedRepoVars = VariableSet(
+            GroupVariable(
+                code=VariableCode("v1"),
+                groupCode=GroupCode("g1"),
+                groupConcept="group 1",
+                name="variable 1",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="Variable 1",
+            ),
+            GroupVariable(
+                code=VariableCode("v2"),
+                groupCode=GroupCode("g1"),
+                groupConcept="group 1",
+                name="variable 2",
+                limit=0,
+                predicateOnly=True,
+                predicateType="int",
+                cleanedName="Variable 2",
+            ),
+        )
+        expectedRepoGroups = GroupSet(
+            Group(GroupCode("abc"), "alphabet"), Group(GroupCode("123"), "numbers")
+        )
+
+        repoVars = census.variables
+        repoGroups = census.groups
+
+        if shouldLoadFromCache:
+            assert repoVars == expectedRepoVars
+            assert repoGroups == expectedRepoGroups
+        else:
+            assert len(repoVars) == 0
+            assert len(repoGroups) == 0

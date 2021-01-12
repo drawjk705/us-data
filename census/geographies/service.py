@@ -1,15 +1,14 @@
-from census.geographies.models import SupportedGeoSet
-from census.utils.unique import getUnique
 from functools import cache
 from typing import Tuple
-from census.utils.timer import timer
-from census.geographies.models import GeoDomain
-from census.geographies.interface import IGeographyRepository
 
 import pandas as pd
 from census.api.interface import IApiFetchService
-from census.persistence.interface import ICache
 from census.dataTransformation.interface import IDataTransformer
+from census.geographies.interface import IGeographyRepository
+from census.geographies.models import GeoDomain, SupportedGeoSet
+from census.persistence.interface import ICache
+from census.utils.timer import timer
+from census.utils.unique import getUnique
 
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
 

@@ -15,7 +15,7 @@ from unittest.mock import call
 apiRetval = "banana"
 
 
-class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
+class TestVariableRepository(ServiceTestFixture[VariableRepository]):
     @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
     def test_getGroups_givenCacheRetval(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
@@ -161,11 +161,11 @@ class TestVariableStorageService(ServiceTestFixture[VariableRepository]):
         self.mocker.patch.object(
             self._service._transformer, "variables", return_value=transformerRes
         )
-        expectedVariables: Dict[str, str] = dict(
-            Name1_group1=GroupVariable(**group1Vars[0]).code,
-            Name2_group1=GroupVariable(**group1Vars[1]).code,
-            Name3_group2=GroupVariable(**group2Vars[0]).code,
-            Name4_group2=GroupVariable(**group2Vars[1]).code,
+        expectedVariables: Dict[str, GroupVariable] = dict(
+            Name1_group1=GroupVariable(**group1Vars[0]),
+            Name2_group1=GroupVariable(**group1Vars[1]),
+            Name3_group2=GroupVariable(**group2Vars[0]),
+            Name4_group2=GroupVariable(**group2Vars[1]),
         )
 
         res = self._service.getAllVariables()

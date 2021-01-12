@@ -1,3 +1,4 @@
+from census.exceptions import EmptyRepositoryException
 import pandas as pd
 from tests.utils import shuffledCases
 import pytest
@@ -97,6 +98,16 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             columnHeaders=expectedColumnMapping if shouldReplaceColumnHeaders else None,
         )
 
+    def test_getVariableNamesAndTypeConversions_givenEmptyRepo_throws(self):
+        variablesToQuery = [var1.code]
+        self.mocker.patch.object(self._service._variableRepo, "variables", dict())
+
+        with pytest.raises(
+            EmptyRepositoryException,
+            match="Queried 1 variables, but found only 0 in repository",
+        ):
+            self._service.getStats(variablesToQuery, GeoDomain("place"))
+
     def test_getVariableNamesAndTypeConversions_givenUniqueNames(self):
         variablesToQuery = {
             var1.code,
@@ -104,9 +115,8 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             var3.code,
         }
 
-        df = pd.DataFrame([val.__dict__ for val in variablesInRepo.values()])
         self.mocker.patch.object(
-            self._service._variableRepo, "getVariablesByGroup", return_value=df
+            self._service._variableRepo, "variables", variablesInRepo
         )
 
         columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
@@ -131,13 +141,10 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             name=var1.name,
             cleanedName=var1.cleanedName,
         )
-        df = pd.DataFrame([val.__dict__ for val in variablesInRepo.values()])
         self.mocker.patch.object(
             self._service._variableRepo,
-            "getVariablesByGroup",
-            return_value=df.append(
-                variableWithDuplicateName.__dict__, ignore_index=True
-            ),
+            "variables",
+            dict(variablesInRepo, var5=variableWithDuplicateName),
         )
         variablesToQuery = {
             var1.code,

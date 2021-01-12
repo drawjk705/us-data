@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Generic, Optional, TypeVar
 
 
@@ -11,6 +12,8 @@ class ICache(ABC, Generic[T]):
     so we don't need to make repeat API calls.
     """
 
+    _cachePath: Path
+
     @abstractmethod
     def put(self, resource: str, data: T) -> bool:
         """
@@ -21,8 +24,7 @@ class ICache(ABC, Generic[T]):
             data (T): the data that's being cached
 
         Returns:
-            bool: `True` if the data was persisted, `False` if not (e.g., the data already existed
-                    in the cache).
+            bool: `True` if the data did not exist in the cache, `False` if it did
         """
         pass
 
@@ -38,3 +40,7 @@ class ICache(ABC, Generic[T]):
             Optional[T]
         """
         pass
+
+    @property
+    def cachePath(self) -> Path:
+        return self._cachePath

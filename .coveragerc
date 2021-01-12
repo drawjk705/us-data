@@ -6,5 +6,5 @@ omit =
     *constants.py
     *models.py
     census/helpers.py
-    *logging/*
+    *log/*
 

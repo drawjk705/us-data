@@ -1,5 +1,5 @@
-import logging
 from collections import OrderedDict
+from logging import Logger
 from typing import Any, Dict, Generator, List
 
 import requests
@@ -8,6 +8,7 @@ from census.api.models import GeographyItem
 from census.config import Config
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.geographies.models import GeoDomain
+from census.log.factory import ILoggerFactory
 from census.utils.chunk import chunk
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
@@ -22,8 +23,14 @@ class ApiFetchService(IApiFetchService):
     _url: str
     _parser: IApiSerializationService
     _config: Config
+    _logger: Logger
 
-    def __init__(self, config: Config, parser: IApiSerializationService) -> None:
+    def __init__(
+        self,
+        config: Config,
+        parser: IApiSerializationService,
+        loggingFactory: ILoggerFactory,
+    ) -> None:
         datasetTypeValue = config.datasetType
         surveyTypeValue = config.surveyType
 
@@ -32,6 +39,7 @@ class ApiFetchService(IApiFetchService):
         )
         self._parser = parser
         self._config = config
+        self._logger = loggingFactory.getLogger(__name__)
 
     def healthCheck(self) -> None:
         res = requests.get(self._url + ".json")  # type: ignore
@@ -39,11 +47,11 @@ class ApiFetchService(IApiFetchService):
         if res.status_code in [404, 400]:
             msg = f"Data does not exist for dataset={self._config.datasetType}; survey={self._config.surveyType}; year={self._config.year}"
 
-            logging.error(msg)
+            self._logger.exception(msg)
 
             raise CensusDoesNotExistException(msg)
 
-        logging.debug("healthCheck OK")
+        self._logger.debug("healthCheck OK")
 
     @timer
     def geographyCodes(
@@ -120,6 +128,8 @@ class ApiFetchService(IApiFetchService):
         url = self._url + route
         res = requests.get(url)  # type: ignore
         if res.status_code in [400, 404]:
-            raise InvalidQueryException(f"Could not make query for route `{route}`")
+            msg = f"Could not make query for route `{route}`"
+            self._logger.exception(msg)
+            raise InvalidQueryException(msg)
 
         return res.json()  # type: ignore
