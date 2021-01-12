@@ -27,12 +27,6 @@ def configureLogger(logFile: str) -> None:
     streamHandler.setFormatter(formatter)
     logger.addHandler(streamHandler)
 
-    fileHandler = logging.FileHandler(logFile)
-    fileHandler.setLevel(logging.NOTSET)
-    formatter = logging.Formatter(logFormat, datefmt=dateFormat)
-    fileHandler.setFormatter(formatter)
-    logger.addHandler(fileHandler)
-
     rootHandler = logging.FileHandler(logFile)
     rootHandler.setLevel(logging.NOTSET)
     rootHandler.addFilter(ModuleFilter())

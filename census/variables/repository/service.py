@@ -49,7 +49,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @timer
     def getGroups(self) -> pd.DataFrame:
-        return self.__getGroups()
+        return self.__getGroups().drop(columns=["cleanedName"])  # type: ignore
 
     @cache
     def __getGroups(self) -> pd.DataFrame:
@@ -71,7 +71,9 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @timer
     def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
-        return self.__getVariablesByGroup(tuple(getUnique(groups)))
+        return self.__getVariablesByGroup(tuple(getUnique(groups))).drop(  # type: ignore
+            columns=["cleanedName"]
+        )
 
     @cache
     def __getVariablesByGroup(self, groups: Tuple[GroupCode, ...]) -> pd.DataFrame:
@@ -108,7 +110,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @timer
     def getAllVariables(self) -> pd.DataFrame:
-        return self.__getAllVariables()
+        return self.__getAllVariables().drop(columns=["cleanedName"])  # type: ignore
 
     @cache
     def __getAllVariables(self) -> pd.DataFrame:
