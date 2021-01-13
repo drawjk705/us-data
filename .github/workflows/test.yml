@@ -45,8 +45,3 @@ jobs:
                   source ./.venv/bin/activate
                   poe test-coverage -vv
                   coverage report
-
-            - name: upload coverage
-              uses: codecov/codecov-action@v1
-              fail_ci_if_error: true
-              verbose: true
