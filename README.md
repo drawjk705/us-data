@@ -193,6 +193,22 @@ dataset.getStats(variables["code"].tolist(),
 
 (Right now, this will work only with state & congressional district political parties.)
 
+##### Requirements
+
+For this package to work, you must [get an API key from ProPublica](https://www.propublica.org/datastore/api/propublica-congress-api), whose API this uses, and set the following the environment variable `PROPUBLICA_CONG_KEY` to whatever that key is, either with
+
+```bash
+export PROPUBLICA_CONG_KEY=<your key>
+```
+
+or in a `.env` file:
+
+```
+PROPUBLICA_CONG_KEY=<your key>
+```
+
+##### The package
+
 If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
 
 ```python
