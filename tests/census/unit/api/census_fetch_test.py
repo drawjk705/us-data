@@ -1,7 +1,8 @@
+from tests.utils import MockRes
 from callee import String, StartsWith
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.variables.models import VariableCode
-from typing import Any, Collection, List
+from typing import List
 from unittest.mock import MagicMock, call
 from census.config import Config
 from census.api.interface import ICensusApiSerializationService
@@ -14,18 +15,6 @@ from tests.serviceTestFixtures import ApiServiceTestFixture
 mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
 
 
-class MockRes:
-    status_code: int
-    content: Collection[Any]
-
-    def __init__(self, status_code: int, content: Collection[Any] = {}) -> None:
-        self.status_code = status_code
-        self.content = content
-
-    def json(self) -> Collection[Any]:
-        return self.content
-
-
 class ApiServiceWrapper(CensusApiFetchService):
     def __init__(self, parser: ICensusApiSerializationService) -> None:
         super().__init__(config=mockConfig, parser=parser, loggingFactory=MagicMock())
@@ -33,7 +22,7 @@ class ApiServiceWrapper(CensusApiFetchService):
 
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     def test_fetch_givenStatusCodeNot200(self):
-        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(404))
+        self.requestsGetMock.return_value = MockRes(404)
 
         with pytest.raises(
             InvalidQueryException, match="Could not make query for route `/groups.json`"
@@ -68,12 +57,14 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     ):
         self._service.geographyCodes(domain, parentDomains)
 
-        self.requestsMock.get.assert_called_once_with(String() & StartsWith(expectedRoute))  # type: ignore
+        self.requestsGetMock.assert_called_once_with(
+            String() & StartsWith(expectedRoute)
+        )
 
     def test_groupData_callsFetch(self):
         self._service.groupData()
 
-        self.requestsMock.get.assert_called_once_with(  # type: ignore
+        self.requestsGetMock.assert_called_once_with(
             String()
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/groups.json")
         )
@@ -81,7 +72,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     def test_supportedGeographies_callsFetch(self):
         self._service.supportedGeographies()
 
-        self.requestsMock.get.assert_called_once_with(  # type: ignore
+        self.requestsGetMock.assert_called_once_with(
             String()
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/geography.json")
         )
@@ -91,7 +82,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
 
         self._service.variablesForGroup(group)
 
-        self.requestsMock.get.assert_called_with(  # type: ignore
+        self.requestsGetMock.assert_called_with(
             String()
             & StartsWith(
                 f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
@@ -112,7 +103,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
 
         for _ in self._service.stats(varCodes, forDomain, inDomains):
             ...
-        assert self.requestsMock.get.call_args_list == [  # type: ignore
+        assert self.requestsGetMock.call_args_list == [
             call(
                 String()
                 & StartsWith(
@@ -130,7 +121,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     def test_allVariables(self):
         self._service.allVariables()
 
-        self.castMock(self.requestsMock.get).assert_called_once_with(  # type: ignore
+        self.requestsGetMock.assert_called_once_with(
             String()
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/variables.json")
         )
@@ -144,7 +135,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             VariableCode("3"),
             VariableCode("4"),
         ]
-        self.requestsMock.get.side_effect = [  # type: ignore
+        self.requestsGetMock.side_effect = [
             MockRes(200, [["header1", "header2"], ["a", "b"], ["c", "d"]]),
             MockRes(200, [["header1", "header2"], ["e", "f"], ["g", "h"]]),
         ]
@@ -158,7 +149,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             next(res)
 
     def test_healthCheck_pass(self):
-        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(200))
+        self.requestsGetMock.return_value = MockRes(200)
 
         self._service.healthCheck()
 
@@ -167,7 +158,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_healthCheck_fail(self):
-        self.mocker.patch.object(self.requestsMock, "get", return_value=MockRes(404))
+        self.requestsGetMock.return_value = MockRes(404)
 
         msg = "Data does not exist for dataset=acs; survey=acs1; year=2019"
 

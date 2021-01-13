@@ -2,12 +2,11 @@ import inspect
 from typing import Dict, cast
 from unittest.mock import MagicMock
 
-import requests
-
 import pytest
 from pytest import MonkeyPatch
 from pytest import FixtureRequest
-from pytest_mock.plugin import MockerFixture  # type: ignore
+from pytest_mock.plugin import MockerFixture
+import requests  # type: ignore
 
 from tests import utils
 
@@ -22,7 +21,7 @@ def no_requests(monkeypatch: MonkeyPatch):
 
 @pytest.fixture(scope="function")
 def apiFixture(request: FixtureRequest, mocker: MockerFixture):
-    request.cls.requestsMock = mocker.patch(requests)
+    request.cls.requestsGetMock = mocker.patch.object(requests, "get")  # type: ignore
 
 
 @pytest.fixture(scope="function")

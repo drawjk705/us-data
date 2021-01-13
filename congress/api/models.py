@@ -4,21 +4,19 @@ from typing import Any, Dict
 
 
 @dataclass(frozen=True)
-class _Percents:
-    missedVotes: float
-    votesWithParty: float
-    votesAgainstParty: float
-
-
-@dataclass(frozen=True)
-class _Votes:
-    total: int
-    missed: int
-    present: int
-
-
-@dataclass(frozen=True)
 class Congressman:
+    @dataclass(frozen=True)
+    class _Percents:
+        missedVotes: float
+        votesWithParty: float
+        votesAgainstParty: float
+
+    @dataclass(frozen=True)
+    class _Votes:
+        total: int
+        missed: int
+        present: int
+
     id: str
     title: str
     shortTitle: str
@@ -33,7 +31,7 @@ class Congressman:
 
     @staticmethod
     def _getPercents(jsonRes: Dict[str, Any]) -> _Percents:
-        return _Percents(
+        return Congressman._Percents(
             missedVotes=jsonRes.get("missed_votes_pct") or 0,
             votesWithParty=jsonRes.get("votes_with_party_pct") or 0,
             votesAgainstParty=jsonRes.get("votes_against_party_pct") or 0,
@@ -41,7 +39,7 @@ class Congressman:
 
     @staticmethod
     def _getVotes(jsonRes: Dict[str, Any]) -> _Votes:
-        return _Votes(
+        return Congressman._Votes(
             total=jsonRes.get("total_votes") or 0,
             missed=jsonRes.get("missed_votes") or 0,
             present=jsonRes.get("total_present") or 0,

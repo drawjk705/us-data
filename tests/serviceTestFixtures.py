@@ -24,4 +24,4 @@ class ServiceTestFixture(Generic[_T]):
 
 @pytest.mark.usefixtures("apiFixture")
 class ApiServiceTestFixture(ServiceTestFixture[_T]):
-    requestsMock: MagicMock
+    requestsGetMock: MagicMock

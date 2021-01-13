@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Any, List, Tuple
+from typing import Any, Collection, List, Tuple
 
 from callee.base import Matcher  # type: ignore
 import pandas
@@ -92,3 +92,15 @@ class DataFrameColumnMatcher(Matcher):
             return False
         values = value[self._columnToMatch].tolist()  # type: ignore
         return self._columnsValues == values
+
+
+class MockRes:
+    status_code: int
+    content: Collection[Any]
+
+    def __init__(self, status_code: int, content: Collection[Any] = {}) -> None:
+        self.status_code = status_code
+        self.content = content
+
+    def json(self) -> Collection[Any]:
+        return self.content
