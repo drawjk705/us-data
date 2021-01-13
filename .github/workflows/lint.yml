@@ -53,7 +53,7 @@ jobs:
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
 
             - name: install pyright dependencies
-              run: npm install pyright
+              run: sudo npm install -g pyright
               if: steps.cached-npm-dependencies.outputs.cache-hit != 'true'
 
             - name: lint
