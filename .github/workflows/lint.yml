@@ -22,6 +22,11 @@ jobs:
               with:
                   python-version: ${{ matrix.python-version }}
 
+            - name: set up node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '12'
+
             - name: Install Poetry Action
               uses: snok/install-poetry@v1.1.1
               with:
@@ -36,9 +41,20 @@ jobs:
                   path: .venv
                   key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-            - name: install dependencies
+            - name: install poetry dependencies
               run: poetry install
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
+            - name: load cached npm
+              id: cached-npm-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+            - name: install pyright dependencies
+              run: npm install pyright
+              if: steps.cached-npm-dependencies.outputs.cache-hit != 'true'
 
             - name: lint
               run: |
