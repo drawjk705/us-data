@@ -58,8 +58,6 @@ jobs:
 
             - name: lint
               run: |
-                  mkdir typings
-                  source ./.venv/bin/activate
-                  poe typing
-                  poe lint
-                  poe sort-imports
+                  poetry run poe typing
+                  poetry run poe lint
+                  poetry run poe sort-imports
