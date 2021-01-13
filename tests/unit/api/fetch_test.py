@@ -1,3 +1,4 @@
+from callee import String, StartsWith
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
 from census.variables.models import VariableCode
 from typing import Any, Collection, List
@@ -67,20 +68,22 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     ):
         self._service.geographyCodes(domain, parentDomains)
 
-        self.requestsMock.get.assert_called_once_with(expectedRoute)  # type: ignore
+        self.requestsMock.get.assert_called_once_with(String() & StartsWith(expectedRoute))  # type: ignore
 
     def test_groupData_callsFetch(self):
         self._service.groupData()
 
         self.requestsMock.get.assert_called_once_with(  # type: ignore
-            "https://api.census.gov/data/2019/acs/acs1/groups.json"
+            String()
+            & StartsWith("https://api.census.gov/data/2019/acs/acs1/groups.json")
         )
 
     def test_supportedGeographies_callsFetch(self):
         self._service.supportedGeographies()
 
         self.requestsMock.get.assert_called_once_with(  # type: ignore
-            "https://api.census.gov/data/2019/acs/acs1/geography.json"
+            String()
+            & StartsWith("https://api.census.gov/data/2019/acs/acs1/geography.json")
         )
 
     def test_variablesForGroup_callsFetch(self):
@@ -89,7 +92,10 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self._service.variablesForGroup(group)
 
         self.requestsMock.get.assert_called_with(  # type: ignore
-            f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
+            String()
+            & StartsWith(
+                f"https://api.census.gov/data/2019/acs/acs1/groups/{group}.json"
+            )
         )
 
     def test_stats_callsFetchInBatches(self):
@@ -109,10 +115,16 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
 
         assert self.requestsMock.get.call_args_list == [  # type: ignore
             call(
-                "https://api.census.gov/data/2019/acs/acs1?get=NAME,1,2&for=banana:*&in=phone:92"
+                String()
+                & StartsWith(
+                    "https://api.census.gov/data/2019/acs/acs1?get=NAME,1,2&for=banana:*&in=phone:92"
+                )
             ),
             call(
-                "https://api.census.gov/data/2019/acs/acs1?get=NAME,3,4&for=banana:*&in=phone:92"
+                String()
+                & StartsWith(
+                    "https://api.census.gov/data/2019/acs/acs1?get=NAME,3,4&for=banana:*&in=phone:92"
+                )
             ),
         ]
 
@@ -120,7 +132,8 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         self._service.allVariables()
 
         self.castMock(self.requestsMock.get).assert_called_once_with(  # type: ignore
-            "https://api.census.gov/data/2019/acs/acs1/variables.json"
+            String()
+            & StartsWith("https://api.census.gov/data/2019/acs/acs1/variables.json")
         )
 
     def test_stats_yieldsBatches(self):

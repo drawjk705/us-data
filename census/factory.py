@@ -1,29 +1,32 @@
 # pyright: reportUnknownMemberType=false
 
-from census.log.factory import ILoggerFactory, LoggerFactory
-from census.geographies.service import GeographyRepository
-from census.geographies.interface import IGeographyRepository
-from census.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from census.exceptions import NoApiKeyException
+import os
 from typing import cast
 
+import dotenv
 import pandas
-from census.persistence.interface import ICache
-from census.persistence.onDisk import OnDiskCache
-from census.stats.service import CensusStatisticsService
-from census.stats.interface import ICensusStatisticsService
-from census.variables.search.interface import IVariableSearchService
-from census.variables.repository.interface import IVariableRepository
-from census.variables.repository.service import VariableRepository
-from census.dataTransformation.interface import IDataTransformer
-from census.variables.search.service import VariableSearchService
-from census.api.interface import IApiFetchService, IApiSerializationService
 import punq
 
 from census.api.fetch import ApiFetchService
+from census.api.interface import IApiFetchService, IApiSerializationService
 from census.api.serialization import ApiSerializationService
-from census.config import CACHE_DIR, Config
-from census.dataTransformation.service import DataFrameTransformer
 from census.client.census import Census
+from census.config import CACHE_DIR, Config
+from census.dataTransformation.interface import IDataTransformer
+from census.dataTransformation.service import DataFrameTransformer
+from census.geographies.interface import IGeographyRepository
+from census.geographies.service import GeographyRepository
+from census.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from census.log.factory import ILoggerFactory, LoggerFactory
+from census.persistence.interface import ICache
+from census.persistence.onDisk import OnDiskCache
+from census.stats.interface import ICensusStatisticsService
+from census.stats.service import CensusStatisticsService
+from census.variables.repository.interface import IVariableRepository
+from census.variables.repository.service import VariableRepository
+from census.variables.search.interface import IVariableSearchService
+from census.variables.search.service import VariableSearchService
 
 # these are singletons
 serializer = ApiSerializationService()
@@ -75,6 +78,14 @@ def getCensus(
         Census
     """
 
+    dotenvPath = dotenv.find_dotenv()
+    dotenv.load_dotenv(dotenvPath)
+
+    apiKey = os.getenv("CENSUS_API_KEY")
+
+    if apiKey is None:
+        raise NoApiKeyException("Could not find `CENSUS_API_KEY` in .env")
+
     config = Config(
         year,
         datasetType,
@@ -83,6 +94,7 @@ def getCensus(
         shouldLoadFromExistingCache,
         shouldCacheOnDisk,
         replaceColumnHeaders,
+        apiKey,
     )
 
     container = punq.Container()

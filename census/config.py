@@ -18,3 +18,4 @@ class Config:
     shouldLoadFromExistingCache: bool = False
     shouldCacheOnDisk: bool = False
     replaceColumnHeaders: bool = False
+    apiKey: str = ""

@@ -18,6 +18,8 @@ This will present you with a pandas DataFrame listing all available datasets fro
 
 ### Querying a dataset
 
+Before getting started, you need to [get a Census API key](https://api.census.gov/data/key_signup.html), and set the following the environment variable `CENSUS_API_KEY` to whatever that key is.
+
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
 ```python
@@ -27,6 +29,38 @@ dataset = getCensus(year=2019, datasetType="acs", surveyType="acs1")
 ```
 
 The `dataset` object will now let you query any census data for the the ACS 1-year estimates of 2019. We'll now dive into how to query this dataset with the tool. However, if you aren't familiar with dataset "architecture", check out [this](#dataset-architecture) section.
+
+### Arguments to `getCensus`
+
+This is the signature of `getCensus`:
+
+```python
+def getCensus(year: int,
+              datasetType: str = "acs",
+              surveyType: str = "acs1",
+              cacheDir: str = CACHE_DIR,        # cache
+              shouldLoadFromExistingCache: bool = False,
+              shouldCacheOnDisk: bool = False,
+              replaceColumnHeaders: bool = True,
+              logFile: str = DEFAULT_LOGFILE):  # census.log
+    pass
+```
+
+-   `year`: the year of the dataset
+-   `datasetType`: type of the dataset, specified by [`listAvailableDatasets`](#which-dataset)
+-   `surveyType`: type of the survey, specified by [`listAvailableDatasets`](#which-dataset)
+-   `cacheDir`: if you opt in to on-disk caching (more on this below), the name of the directory in which to store cached data
+-   `shouldLoadFromExistingCache`: if you have cached data from a previous session, this will reload cached data into the `Census` object, instead of hitting the Census API when that data is queried
+-   `shouldCacheOnDisk`: whether or not to cache data on disk, to avoid repeat API calls. The following data will be cached:
+    -   Supported Geographies
+    -   Group codes
+    -   Variable codes
+-   `replaceColumnHeaders`: whether or not to replace column header names for variables with more intelligible names instead of their codes
+-   `logFile`: name of the file in which to store logging information
+
+###### A note on caching
+
+While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `dataset.getGroups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
 
 #### Supported geographies
 
@@ -59,7 +93,7 @@ dataset.getGeographyCodes(GeoDomain("school district", "*"),
                           GeoDomain("state", "08"))
 ```
 
-Note that geography code queries must follow supported geography guidelines
+Note that geography code queries must follow supported geography guidelines.
 
 #### Groups
 

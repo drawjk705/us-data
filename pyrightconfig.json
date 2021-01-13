@@ -2,7 +2,7 @@
     "include": ["census"],
     "ignore": ["typings"],
 
-    "venvPath": "./.venv/bin/python3.9",
+    "venvPath": "./.venv/",
 
     "verboseOutput": true,
 

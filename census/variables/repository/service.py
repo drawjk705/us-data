@@ -49,7 +49,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     @timer
     def getGroups(self) -> pd.DataFrame:
-        return self.__getGroups().drop(columns=["cleanedName"])  # type: ignore
+        return self.__getGroups()
 
     @cache
     def __getGroups(self) -> pd.DataFrame:
@@ -63,17 +63,14 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
             self._cache.put(GROUPS_FILE, df)
 
-        for record in df.to_dict("records"):
-            group = Group.fromDfRecord(record)
-            self._groups.add(group)
+        groups = [Group.fromDfRecord(rec) for rec in df.to_dict("records")]
+        self._groups.add(*groups)
 
-        return df
+        return df.drop(columns=["cleanedName"])  # type: ignore
 
     @timer
     def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
-        return self.__getVariablesByGroup(tuple(getUnique(groups))).drop(  # type: ignore
-            columns=["cleanedName"]
-        )
+        return self.__getVariablesByGroup(tuple(getUnique(groups)))
 
     @cache
     def __getVariablesByGroup(self, groups: Tuple[GroupCode, ...]) -> pd.DataFrame:
@@ -106,11 +103,11 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
             var = GroupVariable.fromDfRecord(record)
             self._variables.add(var)
 
-        return allVars
+        return allVars.drop(columns=["cleanedName"])  # type: ignore
 
     @timer
     def getAllVariables(self) -> pd.DataFrame:
-        return self.__getAllVariables().drop(columns=["cleanedName"])  # type: ignore
+        return self.__getAllVariables()
 
     @cache
     def __getAllVariables(self) -> pd.DataFrame:
@@ -132,7 +129,7 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
             ]
             self._variables.add(*variables)
 
-        return df
+        return df.drop(columns=["cleanedName"])  # type: ignore
 
     def __populateRepository(self) -> None:
         self._logger.debug("populating repository")

@@ -4,10 +4,11 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Set
 
+import re
 import pandas
 import pytest
 import requests
-from census.exceptions import CensusDoesNotExistException
+from census.exceptions import CensusDoesNotExistException, NoApiKeyException
 from census.factory import getCensus
 from census.geographies.models import GeoDomain
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
@@ -175,8 +176,9 @@ def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
     _apiCalls: Set[str] = set()
 
     def mockGet(route: str):
-        _apiCalls.add(route)
-        res = MOCK_API.get(route)
+        routeWithoutKey = re.sub(r"&key=.*", "", route)
+        _apiCalls.add(routeWithoutKey)
+        res = MOCK_API.get(routeWithoutKey)
         status_code = 404 if res is None else 200
         return _Response(status_code, res)
 
@@ -256,8 +258,18 @@ def tempDir() -> Path:
 @pytest.mark.integration
 class TestCensus:
     def test_census_givenInvalidDataRequest(self):
-        with pytest.raises(CensusDoesNotExistException, match=""):
+        with pytest.raises(
+            CensusDoesNotExistException,
+            match="Data does not exist for dataset=acs; survey=acs1; year=2020",
+        ):
             _ = getCensus(2020)
+
+    def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
+        mocker.patch.object(os, "getenv", return_value=None)
+        with pytest.raises(
+            NoApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
+        ):
+            _ = getCensus(2019)
 
     def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
         self, tempDir: Path

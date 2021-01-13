@@ -25,3 +25,9 @@ class EmptyRepositoryException(Exception):
 
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class NoApiKeyException(Exception):
+    """
+    Thrown when no Census API key is provided
+    """

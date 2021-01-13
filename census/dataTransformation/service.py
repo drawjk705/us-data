@@ -70,7 +70,11 @@ class DataFrameTransformer(IDataTransformer[pd.DataFrame]):
                 }
             )
 
-        return pd.DataFrame(variableDictList).sort_values(by=["code"])
+        return (
+            pd.DataFrame(variableDictList)
+            .sort_values(by=["code"])
+            .reset_index(drop=True)
+        )
 
     @timer
     def stats(
