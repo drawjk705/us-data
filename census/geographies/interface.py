@@ -15,11 +15,11 @@ class IGeographyRepository(ABC, Generic[T]):
 
     @abstractmethod
     def getSupportedGeographies(self) -> T:
-        pass
+        ...
 
     @abstractmethod
     def getGeographyCodes(self, forDomain: GeoDomain, *inDomains: GeoDomain) -> T:
-        pass
+        ...
 
     @property
     def supportedGeographies(self) -> SupportedGeoSet:

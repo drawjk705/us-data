@@ -12,7 +12,7 @@ class ICodeSet(ABC, Generic[ItemType, ValueType]):
 
     @abstractmethod
     def add(self, *items: ItemType):
-        pass
+        ...
 
     def __len__(self) -> int:
         return len(self.__dict__)

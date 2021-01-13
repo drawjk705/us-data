@@ -23,15 +23,15 @@ class IVariableRepository(ABC, Generic[T]):
 
     @abstractmethod
     def getGroups(self) -> T:
-        pass
+        ...
 
     @abstractmethod
     def getVariablesByGroup(self, *groups: GroupCode) -> T:
-        pass
+        ...
 
     @abstractmethod
     def getAllVariables(self) -> T:
-        pass
+        ...
 
     @property
     def variables(self) -> VariableSet:

@@ -3,6 +3,8 @@ name = "census"
 version = "0.1.0"
 description = "tool for getting and querying US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
+packages = [{ include = "census" }, { include = "congress" }]
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -32,6 +34,7 @@ ipython = "^7.19.0"
 jupyterlab = "^3.0.1"
 ipywidgets = "^7.6.2"
 matplotlib = "^3.3.3"
+pre-commit = "^2.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -40,6 +43,12 @@ build-backend = "poetry.core.masonry.api"
 [tool.poe.tasks]
 test = "pytest -m \"not integration\""
 test-integration = "pytest -m integration"
-test-coverage = "pytest --cov-report term-missing:skip-covered --cov=census tests/"
+test-coverage = "pytest --cov-report term-missing:skip-covered --cov=census --cov=congress tests/"
 lint = "pyright"
+run-black = "black ."
 clean = "rm rf ./**/__pycache__"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+secondary = true

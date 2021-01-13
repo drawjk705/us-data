@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Tuple, cast
 
 import pandas as pd
-from census.api.interface import IApiFetchService
-from census.dataTransformation.interface import IDataTransformer
+from census.api.interface import ICensusApiFetchService
+from census.dataTransformation.interface import ICensusDataTransformer
 from census.log.factory import ILoggerFactory
 from census.persistence.interface import ICache
 from census.utils.timer import timer
@@ -25,15 +25,15 @@ VARIABLES_DIR = "variables"
 class VariableRepository(IVariableRepository[pd.DataFrame]):
 
     _cache: ICache[pd.DataFrame]
-    _api: IApiFetchService
-    _transformer: IDataTransformer[pd.DataFrame]
+    _api: ICensusApiFetchService
+    _transformer: ICensusDataTransformer[pd.DataFrame]
     _logger: Logger
 
     def __init__(
         self,
         cache: ICache[pd.DataFrame],
-        transformer: IDataTransformer[pd.DataFrame],
-        api: IApiFetchService,
+        transformer: ICensusDataTransformer[pd.DataFrame],
+        api: ICensusApiFetchService,
         loggerFactory: ILoggerFactory,
     ):
         self._cache = cache

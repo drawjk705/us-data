@@ -6,7 +6,7 @@ from census.geographies.models import GeoDomain
 from census.api.models import GeographyItem
 
 
-class IApiFetchService(ABC):
+class ICensusApiFetchService(ABC):
     """
     Interface for our API client, which will
     perform all fetches for the Census API
@@ -18,7 +18,7 @@ class IApiFetchService(ABC):
         makes sure that the API client is
         configured properly
         """
-        pass
+        ...
 
     @abstractmethod
     def geographyCodes(
@@ -40,7 +40,7 @@ class IApiFetchService(ABC):
         Returns:
             List[List[str]]: API response
         """
-        pass
+        ...
 
     @abstractmethod
     def groupData(self) -> Dict[str, Group]:
@@ -50,7 +50,7 @@ class IApiFetchService(ABC):
         Returns:
             Dict[str, Group]: Mapping of group ID to concept
         """
-        pass
+        ...
 
     @abstractmethod
     def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
@@ -61,7 +61,7 @@ class IApiFetchService(ABC):
             OrderedDict[str, GeographyItem]: mapping between a geography
             and possible queries that can be made on it
         """
-        pass
+        ...
 
     @abstractmethod
     def variablesForGroup(self, group: str) -> List[GroupVariable]:
@@ -74,7 +74,7 @@ class IApiFetchService(ABC):
         Returns:
             List[GroupVariable]
         """
-        pass
+        ...
 
     @abstractmethod
     def allVariables(self) -> List[GroupVariable]:
@@ -84,7 +84,7 @@ class IApiFetchService(ABC):
         Returns:
             List[GroupVariable]: all of the variables.
         """
-        pass
+        ...
 
     @abstractmethod
     def stats(
@@ -107,10 +107,10 @@ class IApiFetchService(ABC):
         Yields:
             Generator[List[List[str]], None, None]
         """
-        pass
+        ...
 
 
-class IApiSerializationService(ABC):
+class ICensusApiSerializationService(ABC):
     """
     Serialization layer between the raw API results & models
     """
@@ -127,7 +127,7 @@ class IApiSerializationService(ABC):
             List[GroupVariable]:
         """
 
-        pass
+        ...
 
     @abstractmethod
     def parseSupportedGeographies(
@@ -143,7 +143,7 @@ class IApiSerializationService(ABC):
             OrderedDict[str, GeographyItem]: mapping the geography title to its name and code
         """
 
-        pass
+        ...
 
     @abstractmethod
     def parseGroups(
@@ -158,4 +158,4 @@ class IApiSerializationService(ABC):
         Returns:
             Dict[str, Group]
         """
-        pass
+        ...

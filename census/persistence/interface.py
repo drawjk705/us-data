@@ -26,7 +26,7 @@ class ICache(ABC, Generic[T]):
         Returns:
             bool: `True` if the data did not exist in the cache, `False` if it did
         """
-        pass
+        ...
 
     @abstractmethod
     def get(self, resource: str) -> Optional[T]:
@@ -39,7 +39,7 @@ class ICache(ABC, Generic[T]):
         Returns:
             Optional[T]
         """
-        pass
+        ...
 
     @property
     def cachePath(self) -> Path:

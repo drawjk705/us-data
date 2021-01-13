@@ -1,6 +1,6 @@
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable
-from census.api.interface import IApiSerializationService
+from census.api.interface import ICensusApiSerializationService
 from typing import Any, Dict, List
 from collections import OrderedDict
 from census.api.models import (
@@ -10,7 +10,7 @@ from census.api.models import (
 )
 
 
-class ApiSerializationService(IApiSerializationService):
+class ApiSerializationService(ICensusApiSerializationService):
     @timer
     def parseGroupVariables(self, groupVariables: Any) -> List[GroupVariable]:
         variables: List[GroupVariable] = []

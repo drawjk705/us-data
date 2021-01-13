@@ -3,9 +3,9 @@ from logging import Logger
 from typing import Any, Dict, List, Set, Tuple
 
 import pandas as pd
-from census.api.interface import IApiFetchService
+from census.api.interface import ICensusApiFetchService
 from census.config import Config
-from census.dataTransformation.interface import IDataTransformer
+from census.dataTransformation.interface import ICensusDataTransformer
 from census.exceptions import EmptyRepositoryException
 from census.geographies.interface import IGeographyRepository
 from census.geographies.models import GeoDomain
@@ -18,8 +18,8 @@ from census.variables.repository.interface import IVariableRepository
 
 
 class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
-    _api: IApiFetchService
-    _transformer: IDataTransformer[pd.DataFrame]
+    _api: ICensusApiFetchService
+    _transformer: ICensusDataTransformer[pd.DataFrame]
     _variableRepo: IVariableRepository[pd.DataFrame]
     _geoRepo: IGeographyRepository[pd.DataFrame]
     _config: Config
@@ -27,8 +27,8 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
 
     def __init__(
         self,
-        api: IApiFetchService,
-        transformer: IDataTransformer[pd.DataFrame],
+        api: ICensusApiFetchService,
+        transformer: ICensusDataTransformer[pd.DataFrame],
         variableRepo: IVariableRepository[pd.DataFrame],
         geoRepo: IGeographyRepository[pd.DataFrame],
         config: Config,

@@ -1,6 +1,5 @@
 # pyright: reportUnknownMemberType=false
 
-from census.exceptions import NoApiKeyException
 import os
 from typing import cast
 
@@ -8,13 +7,14 @@ import dotenv
 import pandas
 import punq
 
-from census.api.fetch import ApiFetchService
-from census.api.interface import IApiFetchService, IApiSerializationService
+from census.api.fetch import CensusApiFetchService
+from census.api.interface import ICensusApiFetchService, ICensusApiSerializationService
 from census.api.serialization import ApiSerializationService
 from census.client.census import Census
 from census.config import CACHE_DIR, Config
-from census.dataTransformation.interface import IDataTransformer
-from census.dataTransformation.service import DataFrameTransformer
+from census.dataTransformation.interface import ICensusDataTransformer
+from census.dataTransformation.service import CensusDataTransformer
+from census.exceptions import NoApiKeyException
 from census.geographies.interface import IGeographyRepository
 from census.geographies.service import GeographyRepository
 from census.log.configureLogger import DEFAULT_LOGFILE, configureLogger
@@ -30,7 +30,7 @@ from census.variables.search.service import VariableSearchService
 
 # these are singletons
 serializer = ApiSerializationService()
-transformer = DataFrameTransformer()
+transformer = CensusDataTransformer()
 loggerFactory = LoggerFactory()
 
 
@@ -101,13 +101,13 @@ def getCensus(
 
     # singletons
     container.register(Config, instance=config)
-    container.register(IApiSerializationService, instance=serializer)
-    container.register(IDataTransformer[pandas.DataFrame], instance=transformer)
+    container.register(ICensusApiSerializationService, instance=serializer)
+    container.register(ICensusDataTransformer[pandas.DataFrame], instance=transformer)
     container.register(ILoggerFactory, instance=loggerFactory)
 
     # services
     container.register(ICache[pandas.DataFrame], OnDiskCache)
-    container.register(IApiFetchService, ApiFetchService)
+    container.register(ICensusApiFetchService, CensusApiFetchService)
     container.register(IVariableRepository[pandas.DataFrame], VariableRepository)
     container.register(IVariableSearchService[pandas.DataFrame], VariableSearchService)
     container.register(IGeographyRepository[pandas.DataFrame], GeographyRepository)

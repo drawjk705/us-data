@@ -2,8 +2,8 @@ from functools import cache
 from typing import Tuple
 
 import pandas as pd
-from census.api.interface import IApiFetchService
-from census.dataTransformation.interface import IDataTransformer
+from census.api.interface import ICensusApiFetchService
+from census.dataTransformation.interface import ICensusDataTransformer
 from census.geographies.interface import IGeographyRepository
 from census.geographies.models import GeoDomain, SupportedGeoSet
 from census.persistence.interface import ICache
@@ -15,14 +15,14 @@ SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
 
 class GeographyRepository(IGeographyRepository[pd.DataFrame]):
     _cache: ICache[pd.DataFrame]
-    _api: IApiFetchService
-    _transformer: IDataTransformer[pd.DataFrame]
+    _api: ICensusApiFetchService
+    _transformer: ICensusDataTransformer[pd.DataFrame]
 
     def __init__(
         self,
         cache: ICache[pd.DataFrame],
-        api: IApiFetchService,
-        transformer: IDataTransformer[pd.DataFrame],
+        api: ICensusApiFetchService,
+        transformer: ICensusDataTransformer[pd.DataFrame],
     ) -> None:
         self._cache = cache
         self._api = api

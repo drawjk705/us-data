@@ -8,7 +8,7 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 T = TypeVar("T")
 
 
-class IDataTransformer(Generic[T]):
+class ICensusDataTransformer(Generic[T]):
     """
     This takes care of converting parsed API data
     into more meaningfully consumable data (e.g., DataFrames)
@@ -16,19 +16,19 @@ class IDataTransformer(Generic[T]):
 
     @abstractmethod
     def supportedGeographies(self, supportedGeos: OrderedDict[str, GeographyItem]) -> T:
-        pass
+        ...
 
     @abstractmethod
     def geographyCodes(self, geoCodes: List[List[str]]) -> T:
-        pass
+        ...
 
     @abstractmethod
     def groups(self, groups: Dict[str, Group]) -> T:
-        pass
+        ...
 
     @abstractmethod
     def variables(self, variables: List[GroupVariable]) -> T:
-        pass
+        ...
 
     @abstractmethod
     def stats(
@@ -38,4 +38,4 @@ class IDataTransformer(Generic[T]):
         geoDomains: List[GeoDomain],
         columnHeaders: Optional[Dict[VariableCode, str]],
     ) -> T:
-        pass
+        ...

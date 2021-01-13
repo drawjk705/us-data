@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from census.api.fetch import IApiFetchService
+from census.api.fetch import ICensusApiFetchService
 from census.geographies.models import GeoDomain
 from census.stats.interface import ICensusStatisticsService
 from census.variables.models import GroupCode, VariableCode
@@ -28,7 +28,7 @@ class Census:
         variableRepo: IVariableRepository[pd.DataFrame],
         variableSearch: IVariableSearchService[pd.DataFrame],
         stats: ICensusStatisticsService[pd.DataFrame],
-        api: IApiFetchService,
+        api: ICensusApiFetchService,
         geoRepo: IGeographyRepository[pd.DataFrame],
     ) -> None:
         self._variableRepo = variableRepo

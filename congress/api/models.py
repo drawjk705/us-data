@@ -49,7 +49,7 @@ class Congressman:
 
     @abstractclassmethod
     def fromJson(cls, jsonRes: Dict[str, Any]) -> Any:
-        pass
+        ...
 
 
 @dataclass(frozen=True)

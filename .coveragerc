@@ -1,3 +1,7 @@
+[paths]
+source =
+    us-stats/
+
 [run]
 omit =
     tests/*
@@ -7,4 +11,3 @@ omit =
     *models.py
     census/helpers.py
     *log/*
-

@@ -24,7 +24,7 @@ def extractService(obj: _RequestCls.Obj) -> Any:
     of the TypeVar that we pass in to `ServiceTestFixture`.
     So if we create a test suite such as:
 
-    ```python3
+    ```python
     class Suite(ServiceTestFixture[MyService]):
         pass
     ```
@@ -87,8 +87,8 @@ class DataFrameColumnMatcher(Matcher):
         self._columnsValues = columnsValues
         self._columnToMatch = columnToMatch
 
-    def match(self, df: Any):
-        if not isinstance(df, pandas.DataFrame):
+    def match(self, value: Any):
+        if not isinstance(value, pandas.DataFrame):
             return False
-        values = df[self._columnToMatch].tolist()  # type: ignore
+        values = value[self._columnToMatch].tolist()  # type: ignore
         return self._columnsValues == values

@@ -3,7 +3,7 @@ from logging import Logger
 from typing import Any, Dict, Generator, List
 
 import requests
-from census.api.interface import IApiFetchService, IApiSerializationService
+from census.api.interface import ICensusApiFetchService, ICensusApiSerializationService
 from census.api.models import GeographyItem
 from census.config import Config
 from census.exceptions import CensusDoesNotExistException, InvalidQueryException
@@ -19,16 +19,16 @@ MAX_QUERY_SIZE = 50
 API_URL_FORMAT = "https://api.census.gov/data/{0}/{1}/{2}"
 
 
-class ApiFetchService(IApiFetchService):
+class CensusApiFetchService(ICensusApiFetchService):
     _url: str
-    _parser: IApiSerializationService
+    _parser: ICensusApiSerializationService
     _config: Config
     _logger: Logger
 
     def __init__(
         self,
         config: Config,
-        parser: IApiSerializationService,
+        parser: ICensusApiSerializationService,
         loggingFactory: ILoggerFactory,
     ) -> None:
         datasetTypeValue = config.datasetType
@@ -110,8 +110,8 @@ class ApiFetchService(IApiFetchService):
             inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
 
             if len(inDomainStr) > 0:
-                domainStr += "&"
-                domainStr += inDomainStr
+                domainStr += "&"  # type: ignore
+                domainStr += inDomainStr  # type: ignore
 
             route = f"?{varStr}&{domainStr}"
 

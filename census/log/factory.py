@@ -5,7 +5,7 @@ import logging
 class ILoggerFactory(ABC):
     @abstractmethod
     def getLogger(self, name: str) -> logging.Logger:
-        pass
+        ...
 
 
 class LoggerFactory(ILoggerFactory):

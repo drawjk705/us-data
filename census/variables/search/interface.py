@@ -13,7 +13,7 @@ class IVariableSearchService(ABC, Generic[_T]):
 
     @abstractmethod
     def searchGroups(self, regex: str) -> _T:
-        pass
+        ...
 
     @abstractmethod
     def searchVariables(
@@ -21,4 +21,4 @@ class IVariableSearchService(ABC, Generic[_T]):
         regex: str,
         *inGroups: GroupCode,
     ) -> _T:
-        pass
+        ...
