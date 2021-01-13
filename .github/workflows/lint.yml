@@ -59,7 +59,7 @@ jobs:
             - name: lint
               run: |
                   mkdir typings
-                  poetry shell
+                  source ./.venv/bin/activate
                   poe typing
                   poe lint
                   poe sort-imports
