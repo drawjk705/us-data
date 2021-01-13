@@ -1,4 +1,4 @@
-name: unit-test
+name: test
 on:
     push:
     pull_request:
@@ -6,7 +6,7 @@ on:
             - '**'
 
 jobs:
-    lint:
+    test:
         runs-on: ubuntu-latest
         strategy:
             matrix:
