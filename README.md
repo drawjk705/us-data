@@ -54,7 +54,7 @@ def getCensus(year: int,
               shouldLoadFromExistingCache: bool = False,
               shouldCacheOnDisk: bool = False,
               replaceColumnHeaders: bool = True,
-              logFile: str = DEFAULT_LOGFILE):  # census.log
+              logFile: str = DEFAULT_LOGFILE):  # us_data.log
     pass
 ```
 

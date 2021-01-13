@@ -129,7 +129,8 @@ class CensusApiFetchService(ICensusApiFetchService):
             yield self.__fetch(uriRoute)
 
     def __fetch(self, route: str = "") -> Any:
-        url = self._url + route + "&key=" + self._config.apiKey
+        ampersandOrQuestionMark = "&" if "?" in route else "?"
+        url = self._url + route + ampersandOrQuestionMark + "key=" + self._config.apiKey
         res = requests.get(url)  # type: ignore
         if res.status_code in [400, 404]:
             msg = f"Could not make query for route `{route}`"

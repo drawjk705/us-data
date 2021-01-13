@@ -15,16 +15,20 @@ from us_data.congress.members.interface import ICongressMemberRepository
 from us_data.congress.members.service import CongressMemberRepository
 from us_data.congress.transformation.interface import ICongressDataTransformationService
 from us_data.congress.transformation.service import CongressDataTransformationService
+from us_data.utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from us_data.utils.log.factory import ILoggerFactory, LoggerFactory
 
 transformer = CongressDataTransformationService()
+loggerFactory = LoggerFactory()
 
 
-def getCongress(congressNum: int) -> Congress:
+def getCongress(congressNum: int, logFile: str = DEFAULT_LOGFILE) -> Congress:
     """
     Returns a Congress client object for the given congress
 
     Args:
         congressNum (int): what number congress (e.g., 116)
+        logFile (str)
 
     Returns:
         Congress: client object
@@ -43,11 +47,14 @@ def getCongress(congressNum: int) -> Congress:
     container = punq.Container()
 
     container.register(ICongressDataTransformationService, instance=transformer)
-
     container.register(CongressConfig, instance=config)
+    container.register(ILoggerFactory, instance=loggerFactory)
+
     container.register(ICongressApiFetchService, CongressApiFetchService)
     container.register(ICongressMemberRepository, CongressMemberRepository)
 
     container.register(Congress)
+
+    configureLogger(logFile)
 
     return cast(Congress, container.resolve(Congress))

@@ -1,4 +1,5 @@
 from functools import cache
+from logging import Logger
 from typing import Tuple
 
 import pandas as pd
@@ -8,6 +9,7 @@ from us_data.census.dataTransformation.interface import ICensusDataTransformer
 from us_data.census.geographies.interface import IGeographyRepository
 from us_data.census.geographies.models import GeoDomain, SupportedGeoSet
 from us_data.census.persistence.interface import ICache
+from us_data.utils.log.factory import ILoggerFactory
 from us_data.utils.timer import timer
 from us_data.utils.unique import getUnique
 
@@ -18,16 +20,19 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
     _cache: ICache[pd.DataFrame]
     _api: ICensusApiFetchService
     _transformer: ICensusDataTransformer[pd.DataFrame]
+    _logger: Logger
 
     def __init__(
         self,
         cache: ICache[pd.DataFrame],
         api: ICensusApiFetchService,
         transformer: ICensusDataTransformer[pd.DataFrame],
+        loggerFactory: ILoggerFactory,
     ) -> None:
         self._cache = cache
         self._api = api
         self._transformer = transformer
+        self._logger = loggerFactory.getLogger(__name__)
 
         self._supportedGeographies = SupportedGeoSet()
 
@@ -43,6 +48,7 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
     def __getGeographyCodes(
         self, forDomain: GeoDomain, inDomains: Tuple[GeoDomain, ...] = ()
     ) -> pd.DataFrame:
+        self._logger.debug(f"getting geography codes for {forDomain} in {inDomains}")
         res = self._api.geographyCodes(forDomain, list(inDomains))
         df = self._transformer.geographyCodes(res)
 
@@ -54,6 +60,8 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
 
     @cache
     def __getSupportedGeographies(self) -> pd.DataFrame:
+        self._logger.debug("getting supported geographies")
+
         df = self._cache.get(SUPPORTED_GEOS_FILE)
 
         if df is None:

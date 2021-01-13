@@ -3,7 +3,7 @@ import sys
 
 from us_data.utils.log.filters import ModuleFilter
 
-DEFAULT_LOGFILE = "us_data.census.log"
+DEFAULT_LOGFILE = "us_data.log"
 
 
 def configureLogger(logFile: str) -> None:
@@ -31,5 +31,6 @@ def configureLogger(logFile: str) -> None:
     rootHandler = logging.FileHandler(logFile)
     rootHandler.setLevel(logging.NOTSET)
     rootHandler.addFilter(ModuleFilter())
+    rootHandler.setFormatter(formatter)
 
     logging.basicConfig(level=logging.DEBUG, format=logFormat, handlers=[rootHandler])
