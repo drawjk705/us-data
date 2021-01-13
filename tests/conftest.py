@@ -2,6 +2,8 @@ import inspect
 from typing import Dict, cast
 from unittest.mock import MagicMock
 
+import requests
+
 import pytest
 from pytest import MonkeyPatch
 from pytest import FixtureRequest
@@ -20,7 +22,7 @@ def no_requests(monkeypatch: MonkeyPatch):
 
 @pytest.fixture(scope="function")
 def apiFixture(request: FixtureRequest, mocker: MockerFixture):
-    request.cls.requestsMock = mocker.patch("census.api.fetch.requests")  # type: ignore
+    request.cls.requestsMock = mocker.patch(requests)
 
 
 @pytest.fixture(scope="function")
