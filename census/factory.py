@@ -49,13 +49,13 @@ def getCensus(
     This should be called once per set of census-data being queried.
     So if you want to start querying for the 2019 ACS1 just do this:
 
-    >>> c = getCensus(2019, DatasetType.ACS, SurveyType.ACS1)
+    >>> c = getCensus(2019, "acs", "acs1")
 
     and use `c` to make all subsequent queries.
 
     If you decide you're interested in the 2019 ACS5, do this:
 
-    >>> d = getCensus(2019, DatasetType.ACS, SurveyType.ACS5)
+    >>> d = getCensus(2019, "acs", "acs5")
 
     and perform all subsequent operations with `d`.
 
