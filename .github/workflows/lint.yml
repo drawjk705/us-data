@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.8, 3.9]
             fail-fast: false
 
         steps:
@@ -58,6 +58,6 @@ jobs:
 
             - name: lint
               run: |
-                  poetry run poe lint
+                  poetry run pyright . --createstub us callee punq tqdm
                   poetry run poe format --check
                   poetry run poe sort-imports
