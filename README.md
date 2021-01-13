@@ -4,7 +4,7 @@ Want to work with US Census data? Look no further.
 
 ## Getting started
 
-### Which dataset?
+### View all datasets
 
 If you you're not sure what Census dataset you're interested in, the following code will take care of you:
 
@@ -16,7 +16,7 @@ listAvailableDataSets()
 
 This will present you with a pandas DataFrame listing all available datasets from the US Census API. (This includes only aggregate datasets, as they other types [of which there are very few] don't play nice with the client).
 
-### Querying a dataset
+### Selecting a dataset
 
 Before getting started, you need to [get a Census API key](https://api.census.gov/data/key_signup.html), and set the following the environment variable `CENSUS_API_KEY` to whatever that key is, either with
 
@@ -72,7 +72,9 @@ def getCensus(year: int,
 
 While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `dataset.getGroups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
 
-#### Supported geographies
+## Making queries
+
+### Supported geographies
 
 Getting the [supported geographies](#supported-geographies) for a dataset as as simple as this:
 
@@ -82,7 +84,7 @@ dataset.getSupportedGeographies()
 
 This will output a DataFrame will all possible supported geographies (e.g., if I can query all school districts across all states).
 
-#### Geography codes
+### Geography codes
 
 If you decide you want to query a particular geography (e.g., a particular school district within a particular state), you'll need the [FIPS](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code#FIPS_state_codes) codes for that school district and state.
 
@@ -105,7 +107,7 @@ dataset.getGeographyCodes(GeoDomain("school district", "*"),
 
 Note that geography code queries must follow supported geography guidelines.
 
-#### Groups
+### Groups
 
 Want to figure out what groups are available for your dataset? No problem. This will do the trick for ya:
 
@@ -115,7 +117,7 @@ dataset.getGroups()
 
 ...and you'll get a DataFrame with all groups for your dataset.
 
-##### Searching groups
+#### Searching groups
 
 `dataset.getGroups()` will return a lot of data that might be difficult to slog through. In that case, run this:
 
@@ -125,7 +127,7 @@ dataset.searchGroups(regex=r"my regex")
 
 and you'll get a filtered DataFrame with matches to your regex.
 
-##### Groups autocomplete
+#### Groups autocomplete
 
 If you're working in a Jupyter notebook and have autocomplete enabled, running `dataset.groups.`, followed by a tab, will trigger an autocomplete menu for possible groups by their name (as opposed to their code, which doesn't have any inherent meaning in and of itself).
 
@@ -133,7 +135,7 @@ If you're working in a Jupyter notebook and have autocomplete enabled, running `
 dataset.groups.SexByAge   # code for this group
 ```
 
-#### Variables
+### Variables
 
 You can either get a DataFrame of variables based on a set of groups:
 
@@ -150,7 +152,7 @@ dataset.getAllVariables()
 
 This second operation, can, however, take a lot of time.
 
-##### Searching variables
+#### Searching variables
 
 Similar to groups, you can search variables by regex:
 
@@ -165,7 +167,7 @@ dataset.searchVariables(r"my regex",
                         dataset.groups.SexByAge)
 ```
 
-##### Variables autocomplete
+#### Variables autocomplete
 
 Variables also support autocomplete for their codes, as with groups.
 
@@ -175,7 +177,7 @@ dataset.variables.EstimateTotal_B01001  # code for this variable
 
 (These names must be suffixed with the group code, since, while variable codes are unique across groups, their names are not unique across groups.)
 
-#### Statistics
+### Statistics
 
 Once you have the variables you want to query, along with the geography you're interested in, you can now make statistics queries from your dataset:
 
@@ -189,11 +191,11 @@ dataset.getStats(variables["code"].tolist(),
                  GeoDomain("state", "08"))
 ```
 
-#### Experimental: Political Party
+## Experimental: Political Party
 
 (Right now, this will work only with state & congressional district political parties.)
 
-##### Requirements
+### Requirements
 
 For this package to work, you must [get an API key from ProPublica](https://www.propublica.org/datastore/api/propublica-congress-api), whose API this uses, and set the following the environment variable `PROPUBLICA_CONG_KEY` to whatever that key is, either with
 
@@ -207,7 +209,7 @@ or in a `.env` file:
 PROPUBLICA_CONG_KEY=<your key>
 ```
 
-##### The package
+### The package
 
 If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
 
