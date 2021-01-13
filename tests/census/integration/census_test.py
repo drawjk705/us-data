@@ -1,14 +1,15 @@
+from tests.utils import MockRes
 from census.utils.cleanVariableName import cleanVariableName
 import os
 import shutil
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Set
+from typing import Any, Collection, Dict, Generator, List, Optional, Set, cast
 
 import re
 import pandas
 import pytest
 import requests
-from census.exceptions import CensusDoesNotExistException, NoApiKeyException
+from census.exceptions import CensusDoesNotExistException, NoCensusApiKeyException
 from census.factory import getCensus
 from census.geographies.models import GeoDomain
 from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
@@ -18,21 +19,6 @@ from pytest_mock import MockerFixture
 from tests.census.integration.mockApiResponses import MOCK_API
 
 # pyright: reportUnknownMemberType=false
-
-
-class _Response:
-    status_code: int
-    content: Any
-
-    def __init__(self, status_code: int, content: Any) -> None:
-        self.content = content
-        self.status_code = status_code
-
-    def json(self) -> Any:
-        if self.status_code != 200:
-            raise Exception("Uh oh")
-
-        return self.content
 
 
 expectedStatsResWithoutNames = [
@@ -178,9 +164,9 @@ def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
     def mockGet(route: str):
         routeWithoutKey = re.sub(r"&key=.*", "", route)
         _apiCalls.add(routeWithoutKey)
-        res = MOCK_API.get(routeWithoutKey)
+        res = cast(Collection[Any], MOCK_API.get(routeWithoutKey))
         status_code = 404 if res is None else 200
-        return _Response(status_code, res)
+        return MockRes(status_code, res)
 
     monkeypatch.setattr(requests, "get", mockGet)
 
@@ -267,7 +253,7 @@ class TestCensus:
     def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
         mocker.patch.object(os, "getenv", return_value=None)
         with pytest.raises(
-            NoApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
+            NoCensusApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
         ):
             _ = getCensus(2019)
 

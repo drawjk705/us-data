@@ -4,7 +4,7 @@ from typing import List
 import pandas as pd
 
 
-class ICongressTransformationService(ABC):
+class ICongressDataTransformationService(ABC):
     """
     translates API results into DataFrames
     """

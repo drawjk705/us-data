@@ -14,7 +14,7 @@ from census.client.census import Census
 from census.config import CACHE_DIR, Config
 from census.dataTransformation.interface import ICensusDataTransformer
 from census.dataTransformation.service import CensusDataTransformer
-from census.exceptions import NoApiKeyException
+from census.exceptions import NoCensusApiKeyException
 from census.geographies.interface import IGeographyRepository
 from census.geographies.service import GeographyRepository
 from census.log.configureLogger import DEFAULT_LOGFILE, configureLogger
@@ -84,7 +84,7 @@ def getCensus(
     apiKey = os.getenv("CENSUS_API_KEY")
 
     if apiKey is None:
-        raise NoApiKeyException("Could not find `CENSUS_API_KEY` in .env")
+        raise NoCensusApiKeyException("Could not find `CENSUS_API_KEY` in .env")
 
     config = Config(
         year,

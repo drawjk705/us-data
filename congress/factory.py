@@ -1,22 +1,20 @@
 # pyright: reportUnknownMemberType=false
 
+from congress.exceptions import NoCongressApiKeyException
 from congress.client.congress import Congress
 from congress.members.service import CongressMemberRepository
 from congress.members.interface import ICongressMemberRepository
 from congress.api.fetch import CongressApiFetchService
 from congress.api.interface import ICongressApiFetchService
-from congress.transformation.interface import ICongressTransformationService
-from congress.transformation.service import CongressTransformationService
+from congress.transformation.interface import ICongressDataTransformationService
+from congress.transformation.service import CongressDataTransformationService
 from typing import cast
 from congress.config import CongressConfig
 import dotenv
 import os
 import punq
 
-dotenvPath = dotenv.find_dotenv()
-dotenv.load_dotenv(dotenvPath)  # type: ignore
-
-transformer = CongressTransformationService()
+transformer = CongressDataTransformationService()
 
 
 def getCongress(congressNum: int) -> Congress:
@@ -30,12 +28,19 @@ def getCongress(congressNum: int) -> Congress:
         Congress: client object
     """
 
-    apiKey = cast(str, os.getenv("PROPUBLICA_CONG_KEY"))
+    dotenvPath = dotenv.find_dotenv()
+    dotenv.load_dotenv(dotenvPath)  # type: ignore
+
+    apiKey = os.getenv("PROPUBLICA_CONG_KEY")
+
+    if apiKey is None:
+        raise NoCongressApiKeyException("Could not find `PROPUBLICA_CONG_KEY in .env")
+
     config = CongressConfig(congressNum, apiKey)
 
     container = punq.Container()
 
-    container.register(ICongressTransformationService, instance=transformer)
+    container.register(ICongressDataTransformationService, instance=transformer)
 
     container.register(CongressConfig, instance=config)
     container.register(ICongressApiFetchService, CongressApiFetchService)

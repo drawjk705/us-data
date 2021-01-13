@@ -2,10 +2,10 @@ import us
 import pandas as pd
 from congress.api.models import Congressman
 from typing import Any, Dict, List
-from congress.transformation.interface import ICongressTransformationService
+from congress.transformation.interface import ICongressDataTransformationService
 
 
-class CongressTransformationService(ICongressTransformationService):
+class CongressDataTransformationService(ICongressDataTransformationService):
     def congressmembers(self, members: List[Congressman]) -> pd.DataFrame:
         membersFlat: List[Dict[str, Any]] = []
 

@@ -103,4 +103,7 @@ class MockRes:
         self.content = content
 
     def json(self) -> Collection[Any]:
+        if self.status_code != 200:
+            raise Exception("uh oh")
+
         return self.content

@@ -1,7 +1,7 @@
 from functools import cache
 from congress.api.models import Congressman
 from typing import List, cast
-from congress.transformation.interface import ICongressTransformationService
+from congress.transformation.interface import ICongressDataTransformationService
 from congress.api.interface import ICongressApiFetchService
 import pandas as pd
 from congress.members.interface import ICongressMemberRepository
@@ -9,12 +9,12 @@ from congress.members.interface import ICongressMemberRepository
 
 class CongressMemberRepository(ICongressMemberRepository):
     _api: ICongressApiFetchService
-    _transformer: ICongressTransformationService
+    _transformer: ICongressDataTransformationService
 
     def __init__(
         self,
         api: ICongressApiFetchService,
-        transformer: ICongressTransformationService,
+        transformer: ICongressDataTransformationService,
     ) -> None:
         self._api = api
         self._transformer = transformer

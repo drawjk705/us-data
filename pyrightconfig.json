@@ -1,5 +1,5 @@
 {
-    "include": ["census"],
+    "include": ["census", "congress"],
     "ignore": ["typings"],
 
     "venvPath": "./.venv/",
