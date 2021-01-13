@@ -58,6 +58,8 @@ jobs:
 
             - name: lint
               run: |
-                  poetry run poe typing
-                  poetry run poe lint
-                  poetry run poe sort-imports
+                  mkdir typings
+                  poetry shell
+                  poe typing
+                  poe lint
+                  poe sort-imports
