@@ -2,6 +2,7 @@ import os
 from typing import Any, Collection, Set, cast
 
 import pytest
+from pytest_mock.plugin import MockerFixture
 import requests
 from pytest import MonkeyPatch
 
@@ -25,6 +26,11 @@ def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
     monkeypatch.setattr(requests, "get", mockGet)
 
     return _apiCalls
+
+
+@pytest.fixture(autouse=True)
+def givenEnvVar(mocker: MockerFixture):
+    mocker.patch.object(os, "getenv", return_value="banana")
 
 
 class DummyClass:

@@ -245,6 +245,11 @@ def givenCacheWithVariables() -> None:
     verifyResource("variables/varsForGroup.csv")
 
 
+@pytest.fixture(autouse=True)
+def givenEnvVar(mocker: MockerFixture):
+    mocker.patch.object(os, "getenv", return_value="banana")
+
+
 @pytest.fixture
 def tempDir() -> Path:
     return Path()

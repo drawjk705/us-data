@@ -58,6 +58,7 @@ jobs:
 
             - name: lint
               run: |
-                  poetry run poe typing
-                  poetry run poe lint
-                  poetry run poe sort-imports
+                  source ./.venv/bin/activate
+                  poe typing
+                  poe lint
+                  poe sort-imports
