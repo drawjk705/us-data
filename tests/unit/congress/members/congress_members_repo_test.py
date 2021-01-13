@@ -1,0 +1,34 @@
+from unittest.mock import MagicMock
+
+from tests.serviceTestFixtures import ServiceTestFixture
+from us_data.congress.members.service import CongressMemberRepository
+
+
+class TestCongressMembersRepository(ServiceTestFixture[CongressMemberRepository]):
+    def test_getRepresentatives(self):
+        apiRetval = MagicMock()
+        apiGet = self.mocker.patch.object(
+            self._service._api, "getRepresentatives", return_value=apiRetval
+        )
+
+        _ = self._service.getRepresentatives()
+
+        apiGet.assert_called_once()
+        self.castMock(self._service._api.getRepresentatives).assert_called_once()
+        self.castMock(
+            self._service._transformer.congressmembers
+        ).assert_called_once_with(apiRetval)
+
+    def test_getSenators(self):
+        apiRetval = MagicMock()
+        apiGet = self.mocker.patch.object(
+            self._service._api, "getSenators", return_value=apiRetval
+        )
+
+        _ = self._service.getSenators()
+
+        apiGet.assert_called_once()
+        self.castMock(self._service._api.getSenators).assert_called_once()
+        self.castMock(
+            self._service._transformer.congressmembers
+        ).assert_called_once_with(apiRetval)

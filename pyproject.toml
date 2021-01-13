@@ -1,9 +1,8 @@
 [tool.poetry]
-name = "census"
-version = "0.1.0"
-description = "tool for getting and querying US Census data"
+name = "us-data"
+version = "0.1.1"
+description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
-packages = [{ include = "census" }, { include = "congress" }]
 
 
 [tool.poetry.dependencies]
@@ -43,7 +42,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poe.tasks]
 test = "pytest -m \"not integration\""
 test-integration = "pytest -m integration"
-test-coverage = "pytest --cov-report term-missing:skip-covered --cov=census --cov=congress tests/"
+test-coverage = "pytest --cov-report term-missing:skip-covered --cov=us_data tests/"
 lint = "pyright"
 black = "black ."
 sort-imports = "isort ."

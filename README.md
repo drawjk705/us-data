@@ -1,6 +1,6 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-# US-Stats
+# US-Data
 
 Want to work with US Census data? Look no further.
 
@@ -11,7 +11,7 @@ Want to work with US Census data? Look no further.
 If you you're not sure what Census dataset you're interested in, the following code will take care of you:
 
 ```python
-from census import listAvailableDataSets()
+from us_data.census import listAvailableDataSets()
 
 listAvailableDataSets()
 ```
@@ -35,7 +35,7 @@ CENSUS_API_KEY=<your key>
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
 ```python
-from census import getCensus
+from us_data.census import getCensus
 
 dataset = getCensus(year=2019, datasetType="acs", surveyType="acs1")
 ```
@@ -95,7 +95,7 @@ So, if you're interested in all school districts in Colorado, here's what you'd 
 1. Get FIPS codes for all states:
 
 ```python
-from census import GeoDomain
+from us_data.census import GeoDomain
 
 dataset.getGeographyCodes(GeoDomain("state", "*"))
 ```
@@ -184,7 +184,7 @@ dataset.variables.EstimateTotal_B01001  # code for this variable
 Once you have the variables you want to query, along with the geography you're interested in, you can now make statistics queries from your dataset:
 
 ```python
-from census import GeoDomain
+from us_data.census import GeoDomain
 
 variables = dataset.getVariablesForGroup(dataset.groups.SexByAge)
 
@@ -216,7 +216,7 @@ PROPUBLICA_CONG_KEY=<your key>
 If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
 
 ```python
-from congress import getCongress
+from us_data.congress import getCongress
 
 cong = getCongress(116)
 ```
