@@ -21,4 +21,6 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: get full python version
               id: full-python-version
-              run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+              run: |
+                  echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+                  echo hello
