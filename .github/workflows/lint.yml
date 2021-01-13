@@ -17,9 +17,8 @@ jobs:
             - uses: actions/checkout@v2
             - name: set up python
               uses: actions/setup-python@v2
-                  with:
-                      python-version: ${{ matrix.python-version }}
+              with:
+                  python-version: ${{ matrix.python-version }}
             - name: get full python version
               id: full-python-version
               run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
-
