@@ -18,7 +18,17 @@ This will present you with a pandas DataFrame listing all available datasets fro
 
 ### Querying a dataset
 
-Before getting started, you need to [get a Census API key](https://api.census.gov/data/key_signup.html), and set the following the environment variable `CENSUS_API_KEY` to whatever that key is.
+Before getting started, you need to [get a Census API key](https://api.census.gov/data/key_signup.html), and set the following the environment variable `CENSUS_API_KEY` to whatever that key is, either with
+
+```bash
+export CENSUS_API_KEY=<your key>
+```
+
+or in a `.env` file:
+
+```
+CENSUS_API_KEY=<your key>
+```
 
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
