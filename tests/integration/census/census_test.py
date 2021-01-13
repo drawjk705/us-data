@@ -171,7 +171,7 @@ def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
     _apiCalls: Set[str] = set()
 
     def mockGet(route: str):
-        routeWithoutKey = re.sub(r"&key=.*", "", route)
+        routeWithoutKey = re.sub(r"(\?|&)key=.*", "", route)
         _apiCalls.add(routeWithoutKey)
         res = cast(Collection[Any], MOCK_API.get(routeWithoutKey))
         status_code = 404 if res is None else 200
