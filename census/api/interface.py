@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from census.variables.models import Group, GroupVariable, VariableCode
-from typing import Any, Dict, Generator, List
 from collections import OrderedDict
-from census.geographies.models import GeoDomain
+from typing import Any, Dict, Generator, List
+
 from census.api.models import GeographyItem
+from census.geographies.models import GeoDomain
+from census.variables.models import Group, GroupVariable, VariableCode
 
 
 class ICensusApiFetchService(ABC):

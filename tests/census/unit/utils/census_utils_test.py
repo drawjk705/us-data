@@ -1,13 +1,14 @@
 import logging
-from census.utils.cleanVariableName import cleanVariableName
-import pytest
 from typing import cast
 from unittest.mock import MagicMock
-from census.utils.chunk import chunk
-from census.utils.unique import getUnique
-from census.utils.timer import timer
 
+import pytest
 from pytest_mock import MockerFixture
+
+from census.utils.chunk import chunk
+from census.utils.cleanVariableName import cleanVariableName
+from census.utils.timer import timer
+from census.utils.unique import getUnique
 
 
 def test_chunk_givenChunkLessThanSize():

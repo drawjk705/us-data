@@ -1,6 +1,7 @@
-from census.log.filters import ModuleFilter
 import logging
 import sys
+
+from census.log.filters import ModuleFilter
 
 DEFAULT_LOGFILE = "census.log"
 

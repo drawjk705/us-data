@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Tuple, cast
 
 import pandas as pd
+from tqdm.notebook import tqdm
+
 from census.api.interface import ICensusApiFetchService
 from census.dataTransformation.interface import ICensusDataTransformer
 from census.log.factory import ILoggerFactory
@@ -14,7 +16,6 @@ from census.utils.unique import getUnique
 from census.variables.models import Group, GroupCode, GroupVariable
 from census.variables.repository.interface import IVariableRepository
 from census.variables.repository.models import GroupSet, VariableSet
-from tqdm.notebook import tqdm
 
 GROUPS_FILE = "groups.csv"
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"

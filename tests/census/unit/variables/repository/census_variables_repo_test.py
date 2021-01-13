@@ -1,13 +1,14 @@
-from tests.utils import DataFrameColumnMatcher, shuffledCases
-from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
 from typing import Any, Dict, List, Union
+from unittest.mock import call
 
-from census.variables.repository.service import VariableRepository
-
-from tests.serviceTestFixtures import ServiceTestFixture
 import pandas
 import pytest
-from unittest.mock import call
+
+from census.variables.models import (Group, GroupCode, GroupVariable,
+                                     VariableCode)
+from census.variables.repository.service import VariableRepository
+from tests.serviceTestFixtures import ServiceTestFixture
+from tests.utils import DataFrameColumnMatcher, shuffledCases
 
 # pyright: reportPrivateUsage = false
 

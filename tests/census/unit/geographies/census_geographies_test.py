@@ -1,10 +1,11 @@
 from unittest.mock import MagicMock
-from tests.utils import shuffledCases
+
 import pandas
 import pytest
+
 from census.geographies.service import GeographyRepository
 from tests.serviceTestFixtures import ServiceTestFixture
-
+from tests.utils import shuffledCases
 
 apiRetval = "banana"
 

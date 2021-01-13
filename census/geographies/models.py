@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 from census.utils.cleanVariableName import cleanVariableName
 
 

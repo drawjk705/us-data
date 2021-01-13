@@ -1,6 +1,7 @@
-from census.utils.unique import getUnique
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, cast
+
+from census.utils.unique import getUnique
 
 
 @dataclass(frozen=True)

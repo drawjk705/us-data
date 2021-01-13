@@ -1,10 +1,13 @@
 from functools import cache
-from congress.api.models import Congressman
 from typing import List, cast
-from congress.transformation.interface import ICongressDataTransformationService
-from congress.api.interface import ICongressApiFetchService
+
 import pandas as pd
+
+from congress.api.interface import ICongressApiFetchService
+from congress.api.models import Congressman
 from congress.members.interface import ICongressMemberRepository
+from congress.transformation.interface import \
+    ICongressDataTransformationService
 
 
 class CongressMemberRepository(ICongressMemberRepository):

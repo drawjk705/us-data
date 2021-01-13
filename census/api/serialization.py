@@ -1,13 +1,11 @@
+from collections import OrderedDict
+from typing import Any, Dict, List
+
+from census.api.interface import ICensusApiSerializationService
+from census.api.models import (GeographyClauseSet, GeographyItem,
+                               GeographyResponseItem)
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable
-from census.api.interface import ICensusApiSerializationService
-from typing import Any, Dict, List
-from collections import OrderedDict
-from census.api.models import (
-    GeographyClauseSet,
-    GeographyItem,
-    GeographyResponseItem,
-)
 
 
 class ApiSerializationService(ICensusApiSerializationService):

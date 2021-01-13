@@ -1,8 +1,10 @@
-from congress.api.models import Representative, Senator
 from typing import Any, Dict, List, cast
+
 import requests
-from congress.config import CongressConfig
+
 from congress.api.interface import ICongressApiFetchService
+from congress.api.models import Representative, Senator
+from congress.config import CongressConfig
 
 BASE_URL = "https://api.propublica.org/congress/v1"
 

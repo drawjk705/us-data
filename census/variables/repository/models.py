@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Generic, ItemsView, KeysView, TypeVar, ValuesView
+
 from census.variables.models import Group, GroupCode, GroupVariable
 
 ValueType = TypeVar("ValueType")

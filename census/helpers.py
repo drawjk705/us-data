@@ -1,10 +1,11 @@
-from tqdm.notebook import tqdm
-import pandas
+from dataclasses import dataclass
 from functools import cache
 from typing import Any, Dict, List, cast
-import requests
+
+import pandas
 import pandas as pd
-from dataclasses import dataclass
+import requests
+from tqdm.notebook import tqdm
 
 URL = "https://api.census.gov/data.json"
 

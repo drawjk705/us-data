@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from congress.api.models import Congressman
 from typing import List
+
 import pandas as pd
+
+from congress.api.models import Congressman
 
 
 class ICongressDataTransformationService(ABC):

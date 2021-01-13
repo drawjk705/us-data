@@ -1,5 +1,3 @@
-from congress.factory import getCongress
-from congress.exceptions import NoCongressApiKeyException
 import os
 from typing import Any, Collection, Set, cast
 
@@ -7,8 +5,10 @@ import pytest
 import requests
 from pytest import MonkeyPatch
 
-from tests.serviceTestFixtures import ServiceTestFixture
+from congress.exceptions import NoCongressApiKeyException
+from congress.factory import getCongress
 from tests.congress.integration.mockApi import MOCK_CONGRESS_API
+from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import MockRes
 
 

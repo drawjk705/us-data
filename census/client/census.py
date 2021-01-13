@@ -1,15 +1,14 @@
-from census.geographies.models import SupportedGeoSet
-from census.geographies.interface import IGeographyRepository
-from census.variables.repository.models import GroupSet, VariableSet
 from typing import List
 
 import pandas as pd
 
 from census.api.fetch import ICensusApiFetchService
-from census.geographies.models import GeoDomain
+from census.geographies.interface import IGeographyRepository
+from census.geographies.models import GeoDomain, SupportedGeoSet
 from census.stats.interface import ICensusStatisticsService
 from census.variables.models import GroupCode, VariableCode
 from census.variables.repository.interface import IVariableRepository
+from census.variables.repository.models import GroupSet, VariableSet
 from census.variables.search.interface import IVariableSearchService
 
 

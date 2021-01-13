@@ -1,5 +1,6 @@
-from census.variables.models import GroupCode
 import pandas
+
+from census.variables.models import GroupCode
 from census.variables.search.service import VariableSearchService
 from tests.serviceTestFixtures import ServiceTestFixture
 

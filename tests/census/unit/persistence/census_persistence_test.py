@@ -1,14 +1,15 @@
-from tests.utils import shuffledCases
-from callee import String
 from unittest.mock import MagicMock, Mock
-import pandas
 
+import pandas
 import pytest
+from callee import String
 from pytest import MonkeyPatch
+from pytest_mock.plugin import MockerFixture
+
 from census.config import Config
 from census.persistence.onDisk import OnDiskCache
-from pytest_mock.plugin import MockerFixture
 from tests.serviceTestFixtures import ServiceTestFixture
+from tests.utils import shuffledCases
 
 
 def makeCache(config: Config) -> OnDiskCache:

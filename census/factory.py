@@ -8,7 +8,8 @@ import pandas
 import punq
 
 from census.api.fetch import CensusApiFetchService
-from census.api.interface import ICensusApiFetchService, ICensusApiSerializationService
+from census.api.interface import (ICensusApiFetchService,
+                                  ICensusApiSerializationService)
 from census.api.serialization import ApiSerializationService
 from census.client.census import Census
 from census.config import CACHE_DIR, Config

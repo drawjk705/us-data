@@ -1,8 +1,8 @@
 from itertools import product
 from typing import Any, Collection, List, Tuple
 
-from callee.base import Matcher  # type: ignore
 import pandas
+from callee.base import Matcher  # type: ignore
 
 
 class ServiceTestFixtureException(Exception):

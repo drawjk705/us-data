@@ -2,6 +2,7 @@ from functools import cache
 from typing import Tuple
 
 import pandas as pd
+
 from census.api.interface import ICensusApiFetchService
 from census.dataTransformation.interface import ICensusDataTransformer
 from census.geographies.interface import IGeographyRepository

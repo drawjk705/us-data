@@ -1,8 +1,8 @@
 # from dataclasses import dataclass
-from census.utils.cleanVariableName import cleanVariableName
 from dataclasses import dataclass, field
 from typing import Any, Dict, Literal, NewType
 
+from census.utils.cleanVariableName import cleanVariableName
 
 VariableCode = NewType("VariableCode", str)
 GroupCode = NewType("GroupCode", str)

@@ -1,8 +1,11 @@
-import us
-import pandas as pd
-from congress.api.models import Congressman
 from typing import Any, Dict, List
-from congress.transformation.interface import ICongressDataTransformationService
+
+import pandas as pd
+import us
+
+from congress.api.models import Congressman
+from congress.transformation.interface import \
+    ICongressDataTransformationService
 
 
 class CongressDataTransformationService(ICongressDataTransformationService):

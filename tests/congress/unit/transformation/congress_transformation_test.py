@@ -1,4 +1,5 @@
 from typing import List, cast
+
 from congress.api.models import Congressman, Representative, Senator
 from congress.transformation.service import CongressDataTransformationService
 from tests.serviceTestFixtures import ServiceTestFixture

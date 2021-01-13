@@ -3,6 +3,7 @@ from logging import Logger
 from typing import Any, Dict, List, Set, Tuple
 
 import pandas as pd
+
 from census.api.interface import ICensusApiFetchService
 from census.config import Config
 from census.dataTransformation.interface import ICensusDataTransformer

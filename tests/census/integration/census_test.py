@@ -1,22 +1,25 @@
-from tests.utils import MockRes
-from census.utils.cleanVariableName import cleanVariableName
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Any, Collection, Dict, Generator, List, Optional, Set, cast
 
-import re
 import pandas
 import pytest
 import requests
-from census.exceptions import CensusDoesNotExistException, NoCensusApiKeyException
-from census.factory import getCensus
-from census.geographies.models import GeoDomain
-from census.variables.models import Group, GroupCode, GroupVariable, VariableCode
-from census.variables.repository.models import GroupSet, VariableSet
 from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
+
+from census.exceptions import (CensusDoesNotExistException,
+                               NoCensusApiKeyException)
+from census.factory import getCensus
+from census.geographies.models import GeoDomain
+from census.utils.cleanVariableName import cleanVariableName
+from census.variables.models import (Group, GroupCode, GroupVariable,
+                                     VariableCode)
+from census.variables.repository.models import GroupSet, VariableSet
 from tests.census.integration.mockApiResponses import MOCK_API
+from tests.utils import MockRes
 
 # pyright: reportUnknownMemberType=false
 

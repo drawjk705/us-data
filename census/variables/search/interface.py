@@ -1,7 +1,7 @@
-from census.variables.models import GroupCode
-from typing import Generic, TypeVar
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
+from census.variables.models import GroupCode
 
 _T = TypeVar("_T")
 

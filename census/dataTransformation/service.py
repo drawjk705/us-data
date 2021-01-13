@@ -1,12 +1,13 @@
-from census.geographies.models import GeoDomain
-from census.utils.timer import timer
-from census.variables.models import Group, GroupVariable, VariableCode
-from census.dataTransformation.interface import ICensusDataTransformer
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
+
 from census.api.models import GeographyItem
+from census.dataTransformation.interface import ICensusDataTransformer
+from census.geographies.models import GeoDomain
+from census.utils.timer import timer
+from census.variables.models import Group, GroupVariable, VariableCode
 
 
 class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):

@@ -1,18 +1,20 @@
 # pyright: reportMissingTypeStubs=false
 
-from tests.utils import shuffledCases
-from census.geographies.models import GeoDomain
-from typing import Any, Dict, Optional
-import numpy as np
-from census.variables.models import Group, GroupVariable, GroupCode, VariableCode
-from census.dataTransformation.service import CensusDataTransformer
-from tests.serviceTestFixtures import ServiceTestFixture
-from census.api.models import GeographyClauseSet, GeographyItem
 from collections import OrderedDict
+from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, Mock
 
+import numpy as np
 import pytest
 from pytest_mock import MockFixture
+
+from census.api.models import GeographyClauseSet, GeographyItem
+from census.dataTransformation.service import CensusDataTransformer
+from census.geographies.models import GeoDomain
+from census.variables.models import (Group, GroupCode, GroupVariable,
+                                     VariableCode)
+from tests.serviceTestFixtures import ServiceTestFixture
+from tests.utils import shuffledCases
 
 
 @pytest.fixture

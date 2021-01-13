@@ -1,9 +1,10 @@
 from typing import Any, Dict
-from congress.api.models import Congressman, Representative, Senator
-from tests.utils import MockRes
-from congress.config import CongressConfig
+
 from congress.api.fetch import CongressApiFetchService
+from congress.api.models import Congressman, Representative, Senator
+from congress.config import CongressConfig
 from tests.serviceTestFixtures import ApiServiceTestFixture
+from tests.utils import MockRes
 
 apiKey = "apiKey"
 config = CongressConfig(116, apiKey)

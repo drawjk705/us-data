@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 CACHE_DIR = "cache"
 
 

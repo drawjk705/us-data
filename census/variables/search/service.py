@@ -1,11 +1,12 @@
-from census.log.factory import ILoggerFactory
-from census.utils.timer import timer
-from census.variables.repository.interface import IVariableRepository
-from census.variables.search.interface import IVariableSearchService
-from census.variables.models import GroupCode
+from logging import Logger
+
 import pandas as pd
 
-from logging import Logger
+from census.log.factory import ILoggerFactory
+from census.utils.timer import timer
+from census.variables.models import GroupCode
+from census.variables.repository.interface import IVariableRepository
+from census.variables.search.interface import IVariableSearchService
 
 
 class VariableSearchService(IVariableSearchService[pd.DataFrame]):

@@ -1,16 +1,18 @@
-from tests.utils import MockRes
-from callee import String, StartsWith
-from census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from census.variables.models import VariableCode
 from typing import List
 from unittest.mock import MagicMock, call
-from census.config import Config
-from census.api.interface import ICensusApiSerializationService
-from census.geographies.models import GeoDomain
 
 import pytest
+from callee import StartsWith, String
+
 from census.api.fetch import CensusApiFetchService
+from census.api.interface import ICensusApiSerializationService
+from census.config import Config
+from census.exceptions import (CensusDoesNotExistException,
+                               InvalidQueryException)
+from census.geographies.models import GeoDomain
+from census.variables.models import VariableCode
 from tests.serviceTestFixtures import ApiServiceTestFixture
+from tests.utils import MockRes
 
 mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
 

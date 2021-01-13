@@ -3,16 +3,19 @@ from logging import Logger
 from typing import Any, Dict, Generator, List
 
 import requests
-from census.api.interface import ICensusApiFetchService, ICensusApiSerializationService
+from requests.utils import requote_uri
+
+from census.api.interface import (ICensusApiFetchService,
+                                  ICensusApiSerializationService)
 from census.api.models import GeographyItem
 from census.config import Config
-from census.exceptions import CensusDoesNotExistException, InvalidQueryException
+from census.exceptions import (CensusDoesNotExistException,
+                               InvalidQueryException)
 from census.geographies.models import GeoDomain
 from census.log.factory import ILoggerFactory
 from census.utils.chunk import chunk
 from census.utils.timer import timer
 from census.variables.models import Group, GroupVariable, VariableCode
-from requests.utils import requote_uri
 
 # we can query only 50 variables at a time, max
 MAX_QUERY_SIZE = 50

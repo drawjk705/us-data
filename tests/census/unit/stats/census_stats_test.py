@@ -1,12 +1,14 @@
-from census.exceptions import EmptyRepositoryException
-import pandas as pd
-from tests.utils import shuffledCases
-import pytest
-from census.geographies.models import GeoDomain
 from typing import Any, Dict
+
+import pandas as pd
+import pytest
+
+from census.exceptions import EmptyRepositoryException
+from census.geographies.models import GeoDomain
+from census.stats.service import CensusStatisticsService
 from census.variables.models import GroupCode, GroupVariable, VariableCode
 from tests.serviceTestFixtures import ServiceTestFixture
-from census.stats.service import CensusStatisticsService
+from tests.utils import shuffledCases
 
 # pyright: reportPrivateUsage=false
 

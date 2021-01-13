@@ -1,11 +1,8 @@
 from abc import ABC, abstractmethod
-from census.variables.repository.models import (
-    GroupSet,
-    VariableSet,
-)
 from typing import Generic, TypeVar
 
 from census.variables.models import GroupCode
+from census.variables.repository.models import GroupSet, VariableSet
 
 T = TypeVar("T")
 

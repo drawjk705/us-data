@@ -1,11 +1,9 @@
 from typing import Any, Generic, TypeVar, cast
 from unittest.mock import MagicMock
-from pytest import MonkeyPatch
 
-
-from pytest_mock.plugin import MockerFixture  # type: ignore
 import pytest
-
+from pytest import MonkeyPatch
+from pytest_mock.plugin import MockerFixture  # type: ignore
 
 _T = TypeVar("_T")
 

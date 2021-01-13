@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from census.variables.models import VariableCode
-from census.geographies.models import GeoDomain
-
 from typing import Generic, List, TypeVar
 
+from census.geographies.models import GeoDomain
+from census.variables.models import VariableCode
 
 _T = TypeVar("_T")
 
