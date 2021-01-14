@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "us-data"
-version = "0.2.0"
+version = "0.1.0"
 description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
 
@@ -50,4 +50,4 @@ clean = "rm rf ./**/__pycache__"
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"
-secondary = false
+secondary = true
