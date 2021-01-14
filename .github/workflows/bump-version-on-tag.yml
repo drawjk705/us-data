@@ -3,7 +3,7 @@ name: bump version on tag
 on:
     create:
         tags:
-            - 'v*.*.*'
+            - 'v**'
 
 jobs:
     bump-version:
