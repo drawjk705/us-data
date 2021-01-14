@@ -169,7 +169,6 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag_name: v${{ env.version }}
             release_name: v${{ env.version }}
             draft: false
             prerelease: false
@@ -178,4 +177,4 @@ jobs:
         uses: EndBug/add-and-commit@v6
         with:
           tag: v${{ env.version }}
-          message: bumping version to v${{ env.version }}
+          message: bump v${{ env.version }}
