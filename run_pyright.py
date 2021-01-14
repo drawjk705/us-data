@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, cast
-import toml
 import os
+from typing import Any, Dict, List, cast
+
+import toml
 
 
 def run_pyright() -> None:
