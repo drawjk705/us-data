@@ -1,18 +1,16 @@
-name: test
+name: CD Deploy
+
 on:
     push:
-    pull_request:
         branches:
-            - '**'
+            - main
 
 jobs:
-    test:
+    publish:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.8, 3.9]
-            fail-fast: false
-
+                python-version: [3.9]
         steps:
             - name: check out repo
               uses: actions/checkout@v2
@@ -40,8 +38,24 @@ jobs:
               run: poetry install
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-            - name: test
+            - name: bump major
+              if: startsWith(github.event.head_commit.message, 'breaking:')
               run: |
-                  source ./.venv/bin/activate
-                  poe test-coverage -vv
-                  coverage report
+                  poetry version major
+
+            - name: bump patch
+              if: ${{ startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:' )}}
+              run: |
+                  poetry version patch
+
+            - name: bump minor
+              run: |
+                  poetry version minor
+
+            - name: publish
+              env:
+                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+              run: |
+                  poetry version
+                  poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+                  poetry publish -r testpypi
