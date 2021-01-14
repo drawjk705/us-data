@@ -66,6 +66,7 @@ jobs:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: echo it
-              run: echo $TAG
+              run: |
+                  echo $TAG
               env:
-                  TAG: { { steps.tag_version.outputs.new_tag } }
+                  TAG: ${{ steps.tag_version.outputs.new_tag }}
