@@ -1,4 +1,4 @@
-name: CI
+name: Deploy
 on:
     push:
         branches:
@@ -146,6 +146,12 @@ jobs:
               run: |
                   poetry version minor
 
+            - name: Poetry publish
+              run: |
+                  poetry build
+                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
+                  poetry publish -r testpypi
+
             - name: Get version number
               run: |
                   VERSION=$(poetry version)
@@ -163,12 +169,6 @@ jobs:
               with:
                   data: ${{ env.version }}
                   variable: TAGGED_VERSION
-
-            - name: Poetry publish
-              run: |
-                  poetry build
-                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
-                  poetry publish -r testpypi
 
     github_release:
         needs: [tag_and_publish]
