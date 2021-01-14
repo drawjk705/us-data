@@ -1,9 +1,11 @@
 name: bump version on tag
 
 on:
-    create:
-        tags:
-            - 'v**'
+    push:
+      branches:
+        - main
+      tags:
+        - 'v*.*.*'
 
 jobs:
     bump-version:
