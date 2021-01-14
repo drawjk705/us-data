@@ -157,7 +157,7 @@ jobs:
             - name: checkout new branch
               uses: actions/checkout@v2
               with:
-                ref: refs/tags/${{ env.version }}
+                ref: refs/tags/v${{ env.version }}
 
             - name: cat again
               run: |
