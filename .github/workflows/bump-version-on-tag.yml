@@ -1,3 +1,5 @@
+name: bump version on tag
+
 on:
     create:
         tags:
