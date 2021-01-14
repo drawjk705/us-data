@@ -137,7 +137,7 @@ jobs:
             poetry version major
 
       - name: Maybe bump minor
-        if: ${{ !(startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:')) && !(startsWith(github.event.head_commit.message, 'breaking:')))}}
+        if: ${{ !(startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:')) && !startsWith(github.event.head_commit.message, 'breaking:'))}}
         run: |
             poetry version minor
 
