@@ -50,6 +50,7 @@ clean = "rm rf ./**/__pycache__"
 [tool.isort]
 profile = "black"
 src_paths = ["us_data", "tests"]
+skip_glob = '**/typings/**'
 
 [[tool.poetry.source]]
 name = "testpypi"
