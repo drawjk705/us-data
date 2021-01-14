@@ -33,7 +33,6 @@ jupyterlab = "^3.0.1"
 ipywidgets = "^7.6.2"
 matplotlib = "^3.3.3"
 isort = "^5.7.0"
-toml = "^0.10.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -53,8 +52,3 @@ clean = "rm rf ./**/__pycache__"
 profile = "black"
 src_paths = ["us_data", "tests"]
 skip_glob = '**/typings/**'
-
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/legacy/"
-secondary = true
