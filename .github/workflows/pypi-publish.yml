@@ -67,4 +67,4 @@ jobs:
                   poetry publish -r testpypi
                   echo published!
               env:
-                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+                  PYPI_TEST_TOKEN: hello there
