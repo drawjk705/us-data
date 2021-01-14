@@ -49,5 +49,5 @@ clean = "rm rf ./**/__pycache__"
 
 [[tool.poetry.source]]
 name = "testpypi"
-url = "https://test.pypi.org/simple/"
+url = "https://test.pypi.org/legacy/"
 secondary = true
