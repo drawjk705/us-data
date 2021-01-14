@@ -49,7 +49,7 @@ clean = "rm rf ./**/__pycache__"
 
 [tool.isort]
 profile = "black"
-src_paths = ["tests", "us_data"]
+src_paths = ["us_data", "tests"]
 
 [[tool.poetry.source]]
 name = "testpypi"
