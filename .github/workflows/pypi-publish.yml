@@ -1,4 +1,4 @@
-name: CD Deploy
+name: publish
 
 on:
     push:
@@ -57,5 +57,6 @@ jobs:
                   PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
               run: |
                   poetry version
+                  poetry config repositories.testpypi https://test.pypi.org/legacy/
                   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
                   poetry publish -r testpypi
