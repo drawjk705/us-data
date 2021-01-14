@@ -52,14 +52,14 @@ jobs:
               run: |
                   poetry version minor
 
-            - name: publish
+            - name: build and publish
               run: |
                   poetry version
 
+                  poetry build
+
                   poetry config repositories.testpypi https://test.pypi.org/simple/
                   echo set up testpypi repository
-
-                  echo $PYPI_TEST_TOKEN
 
                   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
                   echo set up token for testpypi
