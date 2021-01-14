@@ -52,7 +52,7 @@ jobs:
             - name: build and publish
               run: |
                   VERSION=$(poetry version)
-                  VERSION=${VERSION#"us-stats "}
+                  VERSION=${VERSION#"us-data "}
                   echo $VERSION
 
                   echo "version=$VERSION" >> $GITHUB_ENV
