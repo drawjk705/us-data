@@ -151,7 +151,7 @@ jobs:
       - name: Get version number
         run: |
           VERSION=$(poetry version)
-          VERSION=${VERSION#"us-data "}
+          VERSION=v${VERSION#"us-data "}
           echo "version=$VERSION" >> $GITHUB_ENV
 
 
@@ -163,18 +163,18 @@ jobs:
       # #   env:
       # #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
 
+      - name: Commit to master
+        uses: EndBug/add-and-commit@v6
+        with:
+          message: bump ${{ env.version }}
+
       - name: Create release
         id: create_release
         uses: actions/create-release@latest
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            release_name: v${{ env.version }}
+            tag_name: ${{ env.version }}
+            release_name: ${{ env.version }}
             draft: false
             prerelease: false
-
-      - name: Commit to master
-        uses: EndBug/add-and-commit@v6
-        with:
-          tag: v${{ env.version }}
-          message: bump v${{ env.version }}
