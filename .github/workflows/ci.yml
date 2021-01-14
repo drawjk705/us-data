@@ -161,6 +161,7 @@ jobs:
               with:
                 ref: 'refs/tags/${{ steps.version_number.output }}'
 
+            - name: cat again
               run: |
                 cat pyproject.toml
 
