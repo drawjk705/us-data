@@ -163,7 +163,10 @@ jobs:
 
             - name: cat again
               run: |
+                echo $REF
                 cat pyproject.toml
+              env:
+                REF: ${{ github.ref }}
 
             # # - name: Build and publish
             # #   run: |
