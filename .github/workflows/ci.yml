@@ -135,16 +135,18 @@ jobs:
         if: startsWith(github.event.head_commit.message, 'breaking:')
         run: |
             poetry version major
-
-      - name: Maybe bump minor
-        if: ${{ !(startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:')) && !startsWith(github.event.head_commit.message, 'breaking:'))}}
-        run: |
-            poetry version minor
-
+            echo "isMajor=1" >> $GITHUB_ENV
+      
       - name: Maybe bump patch
         if: ${{ startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:' }}
         run: |
           poetry version patch
+          echo "isPatch=1" >> $GITHUB_ENV
+    
+      - name: Maybe bump minor
+        if: ${{ !env.isMajor && !env.isPatch }}
+        run: |
+            poetry version minor
 
       - name: Get version number
         run: |
