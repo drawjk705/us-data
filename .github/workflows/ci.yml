@@ -1,180 +1,167 @@
 name: CI
 on:
     push:
-    pull_request:
         branches:
-            - '**'
-
+            - main
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9]
-      fail-fast: false
+    lint:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [3.8, 3.9]
+            fail-fast: false
 
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v2
+        steps:
+            - name: Check out repo
+              uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.1.1
-        with:
-          version: 1.1.4
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+            - name: Set up Node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '12'
+            - name: Install Poetry
+              uses: snok/install-poetry@v1.1.1
+              with:
+                  version: 1.1.4
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
 
-      - name: Install Poetry dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+            - name: Load cached venv
+              id: cached-poetry-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: .venv
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Load cached npm
-        id: cached-npm-dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Install Poetry dependencies
+              run: poetry install
+              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-      - name: Install pyright dependencies
-        run: sudo npm install -g pyright
+            - name: Load cached npm
+              id: cached-npm-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Lint
-        run: |
-          source ./.venv/bin/activate
-          poe typing
-          poe lint
-          poe sort-imports
+            - name: Install pyright dependencies
+              run: sudo npm install -g pyright
 
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9]
-      fail-fast: false
+            - name: Lint
+              run: |
+                  source ./.venv/bin/activate
+                  poe typing
+                  poe lint
+                  poe sort-imports
 
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v2
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [3.8, 3.9]
+            fail-fast: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+        steps:
+            - name: Check out repo
+              uses: actions/checkout@v2
 
-      - name: Install Poetry action
-        uses: snok/install-poetry@v1.1.1
-        with:
-          version: 1.1.4
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+            - name: Install Poetry action
+              uses: snok/install-poetry@v1.1.1
+              with:
+                  version: 1.1.4
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
 
-      - name: Install Poetry dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+            - name: Load cached venv
+              id: cached-poetry-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: .venv
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Test it
-        run: |
-          source ./.venv/bin/activate
-          poe test-coverage -vv
-          coverage report
+            - name: Install Poetry dependencies
+              run: poetry install
+              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-  publish:
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v2
+            - name: Test it
+              run: |
+                  source ./.venv/bin/activate
+                  poe test-coverage -vv
+                  coverage report
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
+    publish:
+        needs: [lint, test]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repo
+              uses: actions/checkout@v2
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.1.1
-        with:
-          version: 1.1.4
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.9
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+            - name: Install Poetry
+              uses: snok/install-poetry@v1.1.1
+              with:
+                  version: 1.1.4
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
 
-      - name: Install Poetry dependencies
-        run: poetry install
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+            - name: Load cached venv
+              id: cached-poetry-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: .venv
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Maybe bump major
-        if: startsWith(github.event.head_commit.message, 'breaking:')
-        run: |
-            poetry version major
-            echo "isMajor=1" >> $GITHUB_ENV
-      
-      - name: Maybe bump patch
-        if: ${{ startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:') }}
-        run: |
-          poetry version patch
-          echo "isPatch=1" >> $GITHUB_ENV
-    
-      - name: Maybe bump minor
-        if: ${{ !env.isMajor && !env.isPatch }}
-        run: |
-            poetry version minor
+            - name: Install Poetry dependencies
+              run: poetry install
+              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-      - name: Get version number
-        run: |
-          VERSION=$(poetry version)
-          VERSION=v${VERSION#"us-data "}
-          echo "version=$VERSION" >> $GITHUB_ENV
+            - name: Maybe bump major
+              if: startsWith(github.event.head_commit.message, 'breaking:')
+              run: |
+                  poetry version major
+                  echo "isMajor=1" >> $GITHUB_ENV
 
+            - name: Maybe bump patch
+              if: ${{ startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:') }}
+              run: |
+                  poetry version patch
+                  echo "isPatch=1" >> $GITHUB_ENV
 
-      # # - name: Build and publish
-      # #   run: |
-      # #       poetry build
-      # #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
-      # #       poetry publish -r testpypi
-      # #   env:
-      # #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+            - name: Maybe bump minor
+              if: ${{ !env.isMajor && !env.isPatch }}
+              run: |
+                  poetry version minor
 
-      - name: Commit to master
-        uses: EndBug/add-and-commit@v6
-        with:
-          message: bump ${{ env.version }}
+            - name: Get version number
+              run: |
+                  VERSION=$(poetry version)
+                  VERSION=v${VERSION#"us-data "}
+                  echo "version=$VERSION" >> $GITHUB_ENV
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-            tag_name: ${{ env.version }}
-            release_name: ${{ env.version }}
-            draft: false
-            prerelease: false
+            # # - name: Build and publish
+            # #   run: |
+            # #       poetry build
+            # #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+            # #       poetry publish -r testpypi
+            # #   env:
+            # #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+
+            - name: Commit to master
+              uses: EndBug/add-and-commit@v6
+              with:
+                  message: bump ${{ env.version }}
+                  tag: ${{ env.version }}
