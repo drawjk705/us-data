@@ -56,13 +56,13 @@ jobs:
                   VERSION=${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
-            - name: Build and publish
-              run: |
-                  poetry build
-                  poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
-                  poetry publish -r testpypi
-              env:
-                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+            # - name: Build and publish
+            #   run: |
+            #       poetry build
+            #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+            #       poetry publish -r testpypi
+            #   env:
+            #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
 
             - name: Create release
               id: create_release
@@ -70,6 +70,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ env.version }}
-                  release_name: Release ${{ env.version }}
-                  draft: true
+                  tag_name: v${{ env.version }}
+                  release_name: v${{ env.version }}
+                  draft: false
+                  prerelease: false
