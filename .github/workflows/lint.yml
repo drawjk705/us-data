@@ -59,6 +59,9 @@ jobs:
             - name: lint
               run: |
                   source ./.venv/bin/activate
-                  sudo poe typing
+                  echo making dir typings
+                  sudo mkdir typings
+                  echo made dir typings
+                  poe typing
                   poe lint
                   poe sort-imports
