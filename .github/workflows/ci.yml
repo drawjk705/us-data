@@ -101,3 +101,10 @@ jobs:
                   source ./.venv/bin/activate
                   poe test-coverage -vv
                   coverage report
+
+            - name: maybe dispatch
+              if: github.ref == 'main'
+              uses: peter-evans/repository-dispatch@v1
+              with:
+                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
+                  event-type: my-event
