@@ -33,6 +33,7 @@ jupyterlab = "^3.0.1"
 ipywidgets = "^7.6.2"
 matplotlib = "^3.3.3"
 isort = "^5.7.0"
+toml = "^0.10.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -42,7 +43,8 @@ build-backend = "poetry.core.masonry.api"
 test = "pytest -m \"not integration\""
 test-integration = "pytest -m integration"
 test-coverage = "pytest --cov-report term-missing:skip-covered --cov=us_data tests/"
-typing = "pyright . --createstub callee punq tqdm us"
+typing = "python3 run_pyright.py"
+lint-fix = "black . --exclude typings"
 lint = "black . --check --exclude typings"
 sort-imports = "isort ."
 clean = "rm rf ./**/__pycache__"

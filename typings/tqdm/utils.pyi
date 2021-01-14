@@ -9,105 +9,72 @@ import sys
 General helpers required for `tqdm.std`.
 """
 CUR_OS = sys.platform
-IS_WIN = any(CUR_OS.startswith(i) for i in ['win32', 'cygwin'])
-IS_NIX = any(CUR_OS.startswith(i) for i in ['aix', 'linux', 'darwin'])
+IS_WIN = any(CUR_OS.startswith(i) for i in ["win32", "cygwin"])
+IS_NIX = any(CUR_OS.startswith(i) for i in ["aix", "linux", "darwin"])
 RE_ANSI = re.compile(r"\x1b\[[;\d]*[A-Za-z]")
+
 class FormatReplace(object):
     """
     >>> a = FormatReplace('something')
     >>> "{:5d}".format(a)
     'something'
     """
-    def __init__(self, replace=...) -> None:
-        ...
-    
-    def __format__(self, _):
-        ...
-    
 
+    def __init__(self, replace=...) -> None: ...
+    def __format__(self, _): ...
 
 class Comparable(object):
     """Assumes child has self._comparable attr/@property"""
-    def __lt__(self, other) -> bool:
-        ...
-    
-    def __le__(self, other) -> bool:
-        ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-    def __ne__(self, other) -> bool:
-        ...
-    
-    def __gt__(self, other) -> bool:
-        ...
-    
-    def __ge__(self, other) -> bool:
-        ...
-    
 
+    def __lt__(self, other) -> bool: ...
+    def __le__(self, other) -> bool: ...
+    def __eq__(self, other) -> bool: ...
+    def __ne__(self, other) -> bool: ...
+    def __gt__(self, other) -> bool: ...
+    def __ge__(self, other) -> bool: ...
 
 class ObjectWrapper(object):
-    def __getattr__(self, name):
-        ...
-    
-    def __setattr__(self, name, value):
-        ...
-    
+    def __getattr__(self, name): ...
+    def __setattr__(self, name, value): ...
     def wrapper_getattr(self, name):
         """Actual `self.getattr` rather than self._wrapped.getattr"""
         ...
-    
     def wrapper_setattr(self, name, value):
         """Actual `self.setattr` rather than self._wrapped.setattr"""
         ...
-    
     def __init__(self, wrapped) -> None:
         """
         Thin wrapper around a given object
         """
         ...
-    
-
 
 class SimpleTextIOWrapper(ObjectWrapper):
     """
     Change only `.write()` of the wrapped object by encoding the passed
     value and passing the result to the wrapped object's `.write()` method.
     """
-    def __init__(self, wrapped, encoding) -> None:
-        ...
-    
+
+    def __init__(self, wrapped, encoding) -> None: ...
     def write(self, s):
         """
         Encode `s` and pass to the wrapped object's `.write()` method.
         """
         ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-
+    def __eq__(self, other) -> bool: ...
 
 class DisableOnWriteError(ObjectWrapper):
     """
     Disable the given `tqdm_instance` upon `write()` or `flush()` errors.
     """
+
     @staticmethod
     def disable_on_exception(tqdm_instance, func):
         """
         Quietly set `tqdm_instance.miniters=inf` if `func` raises `errno=5`.
         """
         ...
-    
-    def __init__(self, wrapped, tqdm_instance) -> None:
-        ...
-    
-    def __eq__(self, other) -> bool:
-        ...
-    
-
+    def __init__(self, wrapped, tqdm_instance) -> None: ...
+    def __eq__(self, other) -> bool: ...
 
 class CallbackIOWrapper(ObjectWrapper):
     def __init__(self, callback, stream, method=...) -> None:
@@ -116,8 +83,6 @@ class CallbackIOWrapper(ObjectWrapper):
         lengths to the given `callback`
         """
         ...
-    
-
 
 def disp_len(data):
     """
@@ -131,4 +96,3 @@ def disp_trim(data, length):
     Trim a string which may contain ANSI control characters.
     """
     ...
-

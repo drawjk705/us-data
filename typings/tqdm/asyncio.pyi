@@ -13,31 +13,23 @@ Usage:
 >>> async for i in trange(10):
 ...     ...
 """
-__author__ = { "github.com/": ["casperdcl"] }
+__author__ = {"github.com/": ["casperdcl"]}
+
 class tqdm_asyncio(std_tqdm):
     """
     Asynchronous-friendly version of tqdm (Python 3.5+).
     """
-    def __init__(self, iterable=..., *args, **kwargs) -> None:
-        ...
-    
-    def __aiter__(self):
-        ...
-    
-    async def __anext__(self):
-        ...
-    
-    def send(self, *args, **kwargs):
-        ...
-    
+
+    def __init__(self, iterable=..., *args, **kwargs) -> None: ...
+    def __aiter__(self): ...
+    async def __anext__(self): ...
+    def send(self, *args, **kwargs): ...
     @classmethod
     def as_completed(cls, fs, *, loop=..., timeout=..., total=..., **tqdm_kwargs):
         """
         Wrapper for `asyncio.as_completed`.
         """
         ...
-    
-
 
 def tarange(*args, **kwargs):
     """

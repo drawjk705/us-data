@@ -18,7 +18,7 @@ Usage:
 >>> for i in trange(10):
 ...     ...
 """
-if sys.version_info[: 2] < (3, 5):
+if sys.version_info[:2] < (3, 5):
     tqdm = notebook_tqdm
     trange = notebook_trange
 else:
@@ -27,4 +27,3 @@ else:
         A shortcut for `tqdm.auto.tqdm(range(*args), **kwargs)`.
         """
         ...
-    

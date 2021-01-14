@@ -13,24 +13,17 @@ Usage:
 >>> for i in trange(10):
 ...     ...
 """
-__author__ = { "github.com/": ["casperdcl", "lrq3000"] }
+__author__ = {"github.com/": ["casperdcl", "lrq3000"]}
+
 class tqdm_gui(std_tqdm):
     """
     Experimental GUI version of tqdm!
     """
-    def __init__(self, *args, **kwargs) -> None:
-        ...
-    
-    def close(self):
-        ...
-    
-    def clear(self, *_, **__):
-        ...
-    
-    def display(self):
-        ...
-    
 
+    def __init__(self, *args, **kwargs) -> None: ...
+    def close(self): ...
+    def clear(self, *_, **__): ...
+    def display(self): ...
 
 def tgrange(*args, **kwargs):
     """

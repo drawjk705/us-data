@@ -14,13 +14,12 @@ Thin wrappers around common functions.
 
 Subpackages contain potentially unstable extensions.
 """
-__author__ = { "github.com/": ["casperdcl"] }
+__author__ = {"github.com/": ["casperdcl"]}
+
 class DummyTqdmFile(ObjectWrapper):
     """Dummy file-like that will write to tqdm"""
-    def write(self, x, nolock=...):
-        ...
-    
 
+    def write(self, x, nolock=...): ...
 
 def builtin_iterable(func):
     """Wraps `func()` output in a `list()` in py2"""
@@ -57,4 +56,3 @@ def tmap(function, *sequences, **tqdm_kwargs):
     tqdm_class  : [default: tqdm.auto.tqdm].
     """
     ...
-

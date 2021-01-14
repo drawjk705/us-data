@@ -9,9 +9,8 @@ import re
 Module version for monitoring CLI pipes (`... | python -m tqdm | ...`).
 """
 log = logging.getLogger(__name__)
-def cast(val, typ):
-    ...
 
+def cast(val, typ): ...
 def posix_pipe(fin, fout, delim=..., buf_size=..., callback=..., callback_len=...):
     """
     Params
@@ -24,9 +23,9 @@ def posix_pipe(fin, fout, delim=..., buf_size=..., callback=..., callback_len=..
     """
     ...
 
-RE_OPTS = re.compile(r'\n {8}(\S+)\s{2,}:\s*([^,]+)')
-RE_SHLEX = re.compile(r'\s*(?<!\S)--?([^\s=]+)(\s+|=|$)')
-UNSUPPORTED_OPTS = ('iterable', 'gui', 'out', 'file')
+RE_OPTS = re.compile(r"\n {8}(\S+)\s{2,}:\s*([^,]+)")
+RE_SHLEX = re.compile(r"\s*(?<!\S)--?([^\s=]+)(\s+|=|$)")
+UNSUPPORTED_OPTS = ("iterable", "gui", "out", "file")
 CLI_EXTRA_DOC = r"""
         Extra CLI Options
         -----------------
@@ -60,6 +59,7 @@ CLI_EXTRA_DOC = r"""
         log  : str, optional
             CRITICAL|FATAL|ERROR|WARN(ING)|[default: 'INFO']|DEBUG|NOTSET.
 """
+
 def main(fp=..., argv=...):
     """
     Parameters (internal use only)
@@ -68,4 +68,3 @@ def main(fp=..., argv=...):
     argv  : list (default: sys.argv[1:])
     """
     ...
-

@@ -16,37 +16,29 @@ Usage:
 ...     ...
 """
 __author__ = "https://github.com/tqdm/tqdm#contributions"
-class TqdmTypeError(TypeError):
-    ...
 
-
-class TqdmKeyError(KeyError):
-    ...
-
+class TqdmTypeError(TypeError): ...
+class TqdmKeyError(KeyError): ...
 
 class TqdmWarning(Warning):
     """base class for all tqdm warnings.
 
     Used for non-external-code-breaking errors, such as garbled printing.
     """
-    def __init__(self, msg, fp_write=..., *a, **k) -> None:
-        ...
-    
 
+    def __init__(self, msg, fp_write=..., *a, **k) -> None: ...
 
 class TqdmExperimentalWarning(TqdmWarning, FutureWarning):
     """beta feature, unstable API and behaviour"""
+
     ...
 
-
-class TqdmDeprecationWarning(TqdmWarning, DeprecationWarning):
-    ...
-
+class TqdmDeprecationWarning(TqdmWarning, DeprecationWarning): ...
 
 class TqdmMonitorWarning(TqdmWarning, RuntimeWarning):
     """tqdm monitor errors which do not affect external functionality"""
-    ...
 
+    ...
 
 def TRLock(*args, **kwargs):
     """threading RLock"""
@@ -61,31 +53,17 @@ class TqdmDefaultWriteLock(object):
     On Windows, you need to supply the lock from the parent to the children as
     an argument to joblib or the parallelism lib you use.
     """
-    th_lock = ...
-    def __init__(self) -> None:
-        ...
-    
-    def acquire(self, *a, **k):
-        ...
-    
-    def release(self):
-        ...
-    
-    def __enter__(self):
-        ...
-    
-    def __exit__(self, *exc):
-        ...
-    
-    @classmethod
-    def create_mp_lock(cls):
-        ...
-    
-    @classmethod
-    def create_th_lock(cls):
-        ...
-    
 
+    th_lock = ...
+    def __init__(self) -> None: ...
+    def acquire(self, *a, **k): ...
+    def release(self): ...
+    def __enter__(self): ...
+    def __exit__(self, *exc): ...
+    @classmethod
+    def create_mp_lock(cls): ...
+    @classmethod
+    def create_th_lock(cls): ...
 
 class Bar(object):
     """
@@ -100,27 +78,19 @@ class Bar(object):
       + `u`: unicode (`charset=self.UTF` override)
       + `b`: blank (`charset="  "` override)
     """
+
     ASCII = ...
     UTF = ...
     BLANK = ...
     COLOUR_RESET = ...
     COLOUR_RGB = ...
     COLOURS = ...
-    def __init__(self, frac, default_len=..., charset=..., colour=...) -> None:
-        ...
-    
+    def __init__(self, frac, default_len=..., charset=..., colour=...) -> None: ...
     @property
-    def colour(self):
-        ...
-    
+    def colour(self): ...
     @colour.setter
-    def colour(self, value):
-        ...
-    
-    def __format__(self, format_spec):
-        ...
-    
-
+    def colour(self, value): ...
+    def __format__(self, format_spec): ...
 
 class EMA(object):
     """
@@ -134,9 +104,8 @@ class EMA(object):
         Increase to give more weight to recent values.
         Ranges from 0 (yields old value) to 1 (yields new value).
     """
-    def __init__(self, smoothing=...) -> None:
-        ...
-    
+
+    def __init__(self, smoothing=...) -> None: ...
     def __call__(self, x=...):
         """
         Parameters
@@ -145,8 +114,6 @@ class EMA(object):
             New value to include in EMA.
         """
         ...
-    
-
 
 class tqdm(Comparable):
     """
@@ -154,6 +121,7 @@ class tqdm(Comparable):
     like the original iterable, but prints a dynamically updating
     progressbar every time a value is requested.
     """
+
     monitor_interval = ...
     monitor = ...
     _instances = ...
@@ -178,7 +146,6 @@ class tqdm(Comparable):
             Number with Order of Magnitude SI unit postfix.
         """
         ...
-    
     @staticmethod
     def format_interval(t):
         """
@@ -195,7 +162,6 @@ class tqdm(Comparable):
             [H:]MM:SS
         """
         ...
-    
     @staticmethod
     def format_num(n):
         """
@@ -212,7 +178,6 @@ class tqdm(Comparable):
             Formatted number.
         """
         ...
-    
     @staticmethod
     def status_printer(file):
         """
@@ -221,9 +186,24 @@ class tqdm(Comparable):
         updating may not work (it will print a new line at each refresh).
         """
         ...
-    
     @staticmethod
-    def format_meter(n, total, elapsed, ncols=..., prefix=..., ascii=..., unit=..., unit_scale=..., rate=..., bar_format=..., postfix=..., unit_divisor=..., initial=..., colour=..., **extra_kwargs):
+    def format_meter(
+        n,
+        total,
+        elapsed,
+        ncols=...,
+        prefix=...,
+        ascii=...,
+        unit=...,
+        unit_scale=...,
+        rate=...,
+        bar_format=...,
+        postfix=...,
+        unit_divisor=...,
+        initial=...,
+        colour=...,
+        **extra_kwargs
+    ):
         """
         Return a string-based progress bar given some parameters
 
@@ -289,15 +269,11 @@ class tqdm(Comparable):
         out  : Formatted meter and stats, ready to display.
         """
         ...
-    
-    def __new__(cls, *_, **__):
-        ...
-    
+    def __new__(cls, *_, **__): ...
     @classmethod
     def write(cls, s, file=..., end=..., nolock=...):
         """Print a message via tqdm (without overlap with bars)."""
         ...
-    
     @classmethod
     @contextmanager
     def external_write_mode(cls, file=..., nolock=...):
@@ -306,17 +282,14 @@ class tqdm(Comparable):
         Useful when writing to standard output stream
         """
         ...
-    
     @classmethod
     def set_lock(cls, lock):
         """Set the global lock."""
         ...
-    
     @classmethod
     def get_lock(cls):
         """Get the global lock. Construct it if it does not exist."""
         ...
-    
     @classmethod
     def pandas(cls, **tqdm_kwargs):
         """
@@ -353,8 +326,35 @@ class tqdm(Comparable):
         progress-indicator-during-pandas-operations-python>
         """
         ...
-    
-    def __init__(self, iterable=..., desc=..., total=..., leave=..., file=..., ncols=..., mininterval=..., maxinterval=..., miniters=..., ascii=..., disable=..., unit=..., unit_scale=..., dynamic_ncols=..., smoothing=..., bar_format=..., initial=..., position=..., postfix=..., unit_divisor=..., write_bytes=..., lock_args=..., nrows=..., colour=..., gui=..., **kwargs) -> None:
+    def __init__(
+        self,
+        iterable=...,
+        desc=...,
+        total=...,
+        leave=...,
+        file=...,
+        ncols=...,
+        mininterval=...,
+        maxinterval=...,
+        miniters=...,
+        ascii=...,
+        disable=...,
+        unit=...,
+        unit_scale=...,
+        dynamic_ncols=...,
+        smoothing=...,
+        bar_format=...,
+        initial=...,
+        position=...,
+        postfix=...,
+        unit_divisor=...,
+        write_bytes=...,
+        lock_args=...,
+        nrows=...,
+        colour=...,
+        gui=...,
+        **kwargs
+    ) -> None:
         """
         Parameters
         ----------
@@ -471,35 +471,17 @@ class tqdm(Comparable):
         out  : decorated iterator.
         """
         ...
-    
-    def __bool__(self):
-        ...
-    
-    def __nonzero__(self):
-        ...
-    
-    def __len__(self):
-        ...
-    
-    def __enter__(self):
-        ...
-    
-    def __exit__(self, exc_type, exc_value, traceback):
-        ...
-    
-    def __del__(self):
-        ...
-    
-    def __repr__(self):
-        ...
-    
-    def __hash__(self) -> int:
-        ...
-    
+    def __bool__(self): ...
+    def __nonzero__(self): ...
+    def __len__(self): ...
+    def __enter__(self): ...
+    def __exit__(self, exc_type, exc_value, traceback): ...
+    def __del__(self): ...
+    def __repr__(self): ...
+    def __hash__(self) -> int: ...
     def __iter__(self):
         """Backward-compatibility to use: for x in tqdm(iterable)"""
         ...
-    
     def update(self, n=...):
         """
         Manually update the progress bar, useful for streams
@@ -527,15 +509,12 @@ class tqdm(Comparable):
             True if a `display()` was triggered.
         """
         ...
-    
     def close(self):
         """Cleanup and (if leave=False) close the progressbar."""
         ...
-    
     def clear(self, nolock=...):
         """Clear current bar display."""
         ...
-    
     def refresh(self, nolock=..., lock_args=...):
         """
         Force refresh the display of this bar.
@@ -550,11 +529,9 @@ class tqdm(Comparable):
             If specified, will only `display()` if `acquire()` returns `True`.
         """
         ...
-    
     def unpause(self):
         """Restart tqdm timer from last print time."""
         ...
-    
     def reset(self, total=...):
         """
         Resets to 0 iterations for repeated use.
@@ -566,7 +543,6 @@ class tqdm(Comparable):
         total  : int or float, optional. Total to use for the new bar.
         """
         ...
-    
     def set_description(self, desc=..., refresh=...):
         """
         Set/modify description of the progress bar.
@@ -578,11 +554,9 @@ class tqdm(Comparable):
             Forces refresh [default: True].
         """
         ...
-    
     def set_description_str(self, desc=..., refresh=...):
         """Set/modify description without ': ' appended."""
         ...
-    
     def set_postfix(self, ordered_dict=..., refresh=..., **kwargs):
         """
         Set/modify postfix (additional stats)
@@ -596,21 +570,16 @@ class tqdm(Comparable):
         kwargs  : dict, optional
         """
         ...
-    
     def set_postfix_str(self, s=..., refresh=...):
         """
         Postfix without dictionary expansion, similar to prefix handling.
         """
         ...
-    
-    def moveto(self, n):
-        ...
-    
+    def moveto(self, n): ...
     @property
     def format_dict(self):
         """Public API for read-only member access."""
         ...
-    
     def display(self, msg=..., pos=...):
         """
         Use `self.sp` to display `msg` in the specified `pos`.
@@ -625,7 +594,6 @@ class tqdm(Comparable):
           (default: `abs(self.pos)`).
         """
         ...
-    
     @classmethod
     @contextmanager
     def wrapattr(cls, stream, method, total=..., bytes=..., **tqdm_kwargs):
@@ -641,8 +609,6 @@ class tqdm(Comparable):
         ...             break
         """
         ...
-    
-
 
 def trange(*args, **kwargs):
     """
@@ -650,4 +616,3 @@ def trange(*args, **kwargs):
     On Python3+ range is used instead of xrange.
     """
     ...
-

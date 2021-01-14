@@ -29,4 +29,3 @@ def tnrange(*args, **kwargs):
     On Python3+, `range` is used instead of `xrange`.
     """
     ...
-

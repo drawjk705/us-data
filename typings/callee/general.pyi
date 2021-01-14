@@ -10,18 +10,16 @@ General matchers.
 These don't belong to any broader category, and include matchers for common
 Python objects, like functions or classes.
 """
+
 class Any(BaseMatcher):
     """Matches any object."""
-    def match(self, value):
-        ...
-    
-    def __repr__(self):
-        ...
-    
 
+    def match(self, value): ...
+    def __repr__(self): ...
 
 class Matching(BaseMatcher):
     """Matches an object that satisfies given predicate."""
+
     MAX_DESC_LENGTH = ...
     def __init__(self, predicate, desc=...) -> None:
         """
@@ -32,17 +30,13 @@ class Matching(BaseMatcher):
                      on failed assertion.
         """
         ...
-    
-    def match(self, value):
-        ...
-    
+    def match(self, value): ...
     def __repr__(self):
         """Return a representation of the matcher."""
         ...
-    
-
 
 ArgThat = Matching
+
 class Captor(BaseMatcher):
     """Argument captor.
 
@@ -60,6 +54,7 @@ class Captor(BaseMatcher):
 
     .. versionadded:: 0.2
     """
+
     __slots__ = ...
     def __init__(self, matcher=...) -> None:
         """
@@ -67,22 +62,14 @@ class Captor(BaseMatcher):
                         before it's captured
         """
         ...
-    
     def has_value(self):
         """Returns whether the :class:`Captor` has captured a value."""
         ...
-    
     @property
     def arg(self):
         """The captured argument value."""
         ...
-    
-    def match(self, value):
-        ...
-    
+    def match(self, value): ...
     def __repr__(self):
         """Return a representation of the captor."""
         ...
-    
-
-

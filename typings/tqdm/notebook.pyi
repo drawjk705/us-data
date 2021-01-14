@@ -16,40 +16,31 @@ Usage:
 if True:
     IPY = 0
     IPYW = 0
-__author__ = { "github.com/": ["lrq3000", "casperdcl", "alexanderkuk"] }
+__author__ = {"github.com/": ["lrq3000", "casperdcl", "alexanderkuk"]}
+
 class TqdmHBox(HBox):
     """`ipywidgets.HBox` with a pretty representation"""
-    def __repr__(self, pretty=...):
-        ...
-    
 
+    def __repr__(self, pretty=...): ...
 
 class tqdm_notebook(std_tqdm):
     """
     Experimental IPython/Jupyter Notebook widget using tqdm!
     """
+
     @staticmethod
     def status_printer(_, total=..., desc=..., ncols=...):
         """
         Manage the printing of an IPython/Jupyter Notebook progress bar widget.
         """
         ...
-    
     @staticmethod
-    def format_meter(n, total, *args, **kwargs):
-        ...
-    
-    def display(self, msg=..., pos=..., close=..., bar_style=...):
-        ...
-    
+    def format_meter(n, total, *args, **kwargs): ...
+    def display(self, msg=..., pos=..., close=..., bar_style=...): ...
     @property
-    def colour(self):
-        ...
-    
+    def colour(self): ...
     @colour.setter
-    def colour(self, bar_color):
-        ...
-    
+    def colour(self, bar_color): ...
     def __init__(self, *args, **kwargs) -> None:
         """
         Supports the usual `tqdm.tqdm` parameters as well as those listed below.
@@ -60,19 +51,10 @@ class tqdm_notebook(std_tqdm):
             [default: True].
         """
         ...
-    
-    def __iter__(self, *args, **kwargs):
-        ...
-    
-    def update(self, *args, **kwargs):
-        ...
-    
-    def close(self, *args, **kwargs):
-        ...
-    
-    def clear(self, *_, **__):
-        ...
-    
+    def __iter__(self, *args, **kwargs): ...
+    def update(self, *args, **kwargs): ...
+    def close(self, *args, **kwargs): ...
+    def clear(self, *_, **__): ...
     def reset(self, total=...):
         """
         Resets to 0 iterations for repeated use.
@@ -84,8 +66,6 @@ class tqdm_notebook(std_tqdm):
         total  : int or float, optional. Total to use for the new bar.
         """
         ...
-    
-
 
 def tnrange(*args, **kwargs):
     """
