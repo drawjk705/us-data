@@ -58,7 +58,7 @@ jobs:
                   source ./.venv/bin/activate
                   poe typing
                   poe lint
-                  poe sort-imports -c -v
+                  poe sort-imports -c
 
     test:
         runs-on: ubuntu-latest
