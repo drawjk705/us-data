@@ -1,0 +1,14 @@
+on:
+    create:
+        tags:
+            - v*
+
+jobs:
+    bump-version:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: testing
+          run: echo $REF
+          env:
+              REF: ${{ github.ref }}
