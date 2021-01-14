@@ -47,6 +47,10 @@ lint = "black . --check --exclude typings"
 sort-imports = "isort ."
 clean = "rm rf ./**/__pycache__"
 
+[tool.isort]
+profile = "black"
+src_paths = ["tests", "us_data"]
+
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"

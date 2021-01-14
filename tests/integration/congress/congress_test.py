@@ -2,9 +2,9 @@ import os
 from typing import Any, Collection, Set, cast
 
 import pytest
-from pytest_mock.plugin import MockerFixture
 import requests
 from pytest import MonkeyPatch
+from pytest_mock.plugin import MockerFixture
 
 from tests.integration.congress.mockApi import MOCK_CONGRESS_API
 from tests.serviceTestFixtures import ServiceTestFixture
