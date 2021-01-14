@@ -148,13 +148,21 @@ jobs:
                   poetry version patch
                   cat pyproject.toml
 
-            # - name: Get version number
-            #   id: version_number
-            #   run: |
-            #       VERSION=$(poetry version)
-            #       VERSION=${VERSION#"us-data "}
-            #       echo "version=$VERSION" >> $GITHUB_ENV
-            #       echo "::set-output name=version::$VERSION"
+            - name: Get version number
+              id: version_number
+              run: |
+                  VERSION=$(poetry version)
+                  VERSION=${VERSION#"us-data "}
+                  echo "version=$VERSION" >> $GITHUB_ENV
+                  echo "::set-output name=version::$VERSION"
+
+            - name: checkout new branch
+              uses: actions/checkout@v2
+              with:
+                ref: 'refs/tags/${{ steps.version_number.output }}'
+
+              run: |
+                cat pyproject.toml
 
             # # - name: Build and publish
             # #   run: |
