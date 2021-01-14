@@ -146,33 +146,36 @@ jobs:
               # if: ${{ !(startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:' ) && !(startsWith(github.event.head_commit.message, 'breaking:')))}}
               run: |
                   poetry version patch
+                  cat pyproject.toml
 
-            - name: Get version number
-              run: |
-                  VERSION=$(poetry version)
-                  VERSION=${VERSION#"us-data "}
-                  echo "version=$VERSION" >> $GITHUB_ENV
-
-            # - name: Build and publish
+            # - name: Get version number
+            #   id: version_number
             #   run: |
-            #       poetry build
-            #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
-            #       poetry publish -r testpypi
+            #       VERSION=$(poetry version)
+            #       VERSION=${VERSION#"us-data "}
+            #       echo "version=$VERSION" >> $GITHUB_ENV
+            #       echo "::set-output name=version::$VERSION"
+
+            # # - name: Build and publish
+            # #   run: |
+            # #       poetry build
+            # #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+            # #       poetry publish -r testpypi
+            # #   env:
+            # #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+
+            # - name: Create release
+            #   id: create_release
+            #   uses: actions/create-release@latest
             #   env:
-            #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
+            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            #   with:
+            #       tag_name: v${{ env.version }}
+            #       release_name: v${{ env.version }}
+            #       draft: false
+            #       prerelease: false
 
-            - name: Create release
-              id: create_release
-              uses: actions/create-release@latest
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: v${{ env.version }}
-                  release_name: v${{ env.version }}
-                  draft: false
-                  prerelease: false
-
-            - name: echo test
-              run: echo $REF
-              env:
-                REF: ${{ github.ref }}              
+            # - name: echo test
+            #   run: echo $REF
+            #   env:
+            #     REF: ${{ github.ref }}              
