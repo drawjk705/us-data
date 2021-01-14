@@ -63,7 +63,7 @@ jobs:
 
                   echo $PYPI_TEST_TOKEN
 
-                  poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+                  poetry config pypi-token.pypi $PYPI_TEST_TOKEN
                   echo set up token for testpypi
 
                   poetry publish -r testpypi
