@@ -20,7 +20,6 @@ jobs:
         uses: EndBug/add-and-commit@v6
         with:
           message: this is a test
-          tag: 'test tag --force'
 
 
     # lint:
