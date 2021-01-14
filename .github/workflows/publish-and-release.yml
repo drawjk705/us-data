@@ -1,4 +1,4 @@
-name: publish and release
+name: deploy
 on:
     push:
         branches:

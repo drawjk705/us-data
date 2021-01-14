@@ -1,5 +1,8 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
+![ci](https://github.com/drawjk705/us-data/workflows/ci/badge.svg)
+![deploy](https://github.com/drawjk705/us-data/workflows/publish%20and%20release/badge.svg)
+
 # US-Data
 
 Want to work with US Census data? Look no further.
