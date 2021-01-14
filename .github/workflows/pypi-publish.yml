@@ -8,14 +8,14 @@ on:
 jobs:
     publish:
         runs-on: ubuntu-latest
-        with:
-            python-version: 3.9
         steps:
             - name: check out repo
               uses: actions/checkout@v2
 
             - name: set up python
               uses: actions/setup-python@v2
+              with:
+                  python-version: 3.9
 
             - name: Install Poetry Action
               uses: snok/install-poetry@v1.1.1
