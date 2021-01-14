@@ -55,7 +55,7 @@ jobs:
                   export VERSION=${VERSION#"us-stats "}
                   echo $VERSION
 
-                  echo "version=$(VERSION)" >> $GITHUB_ENV
+                  echo "version=$VERSION" >> $GITHUB_ENV
 
               #   poetry build
               #   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
