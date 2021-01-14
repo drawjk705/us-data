@@ -165,3 +165,21 @@ jobs:
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
+
+            # release:
+            #     needs: [publish]
+            #     runs-on: ubuntu-latest
+            #     steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+
+            - name: Create release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ env.version }}
+                  release_name: Release ${{ env.version }}
+                  draft: false
+                  prerelease: false
