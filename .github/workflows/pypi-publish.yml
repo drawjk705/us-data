@@ -57,6 +57,14 @@ jobs:
                   PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
               run: |
                   poetry version
+
                   poetry config repositories.testpypi https://test.pypi.org/legacy/
+                  echo set up testpypi repository
+
+                  echo $PYPI_TEST_TOKEN
+
                   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+                  echo set up token for testpypi
+
                   poetry publish -r testpypi
+                  echo published!
