@@ -53,8 +53,6 @@ jobs:
                   poetry version minor
 
             - name: publish
-              env:
-                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
               run: |
                   poetry version
 
@@ -63,8 +61,10 @@ jobs:
 
                   echo $PYPI_TEST_TOKEN
 
-                  poetry config http-basic.testpypi $PYPI_TEST_TOKEN
+                  poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
                   echo set up token for testpypi
 
                   poetry publish -r testpypi
                   echo published!
+              env:
+                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
