@@ -58,7 +58,7 @@ jobs:
 
                   poetry build
 
-                  poetry config repositories.testpypi https://test.pypi.org/simple/
+                  poetry config repositories.testpypi https://test.pypi.org/
                   echo set up testpypi repository
 
                   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
