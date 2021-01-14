@@ -49,24 +49,18 @@ jobs:
               run: |
                   poetry version minor
 
-            # - name: build and publish
-            #   run: |
-            #       poetry version
+            - name: build and publish
+              run: |
+                  export VERSION=$(poetry version)
+                  export VERSION=${VERSION#"us-stats "}
+                  echo "::set-env name=VERSION::$VERSION"
 
-            #       poetry build
-            #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
-            #       poetry publish -r testpypi
-            #   env:
-            #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
-
-            - name: Bump version and push tag
-              id: tag_version
-              uses: mathieudutour/github-tag-action@v5.1
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+              #   poetry build
+              #   poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
+              #   poetry publish -r testpypi
+              env:
+                  PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
 
             - name: echo it
               run: |
-                  echo $TAG
-              env:
-                  TAG: ${{ steps.tag_version.outputs.new_tag }}
+                  echo $VERSION
