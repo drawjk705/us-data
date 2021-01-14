@@ -149,17 +149,15 @@ jobs:
                   cat pyproject.toml
 
             - name: Get version number
-              id: version_number
               run: |
                   VERSION=$(poetry version)
                   VERSION=${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
-                  echo "::set-output name=version::$VERSION"
 
             - name: checkout new branch
               uses: actions/checkout@v2
               with:
-                ref: 'refs/tags/${{ steps.version_number.output }}'
+                ref: refs/tags/${{ env.version }}
 
             - name: cat again
               run: |
