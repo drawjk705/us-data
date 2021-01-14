@@ -12,7 +12,7 @@ jobs:
             fail-fast: false
 
         steps:
-            - name: Check out repo
+            - name: Checkout repo
               uses: actions/checkout@v2
 
             - name: Set up Python
@@ -99,7 +99,7 @@ jobs:
                   poe test-coverage -vv
                   coverage report
 
-    publish:
+    tag_and_publish:
         needs: [lint, test]
         runs-on: ubuntu-latest
         steps:
@@ -152,26 +152,36 @@ jobs:
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
-            # # - name: Build and publish
-            # #   run: |
-            # #       poetry build
-            # #       poetry config pypi-token.testpypi $PYPI_TEST_TOKEN
-            # #       poetry publish -r testpypi
-            # #   env:
-            # #       PYPI_TEST_TOKEN: ${{ secrets.PYPI_TEST_TOKEN }}
-
             - name: Commit to master
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
-            # release:
-            #     needs: [publish]
-            #     runs-on: ubuntu-latest
-            #     steps:
+            - name: Store version
+              uses: nick-invision/persist-action-data@v1
+              with:
+                  data: ${{ env.version }}
+                  variable: TAGGED_VERSION
+
+            - name: Poetry publish
+              run: |
+                  poetry build
+                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
+                  poetry publish -r testpypi
+
+    github_release:
+        needs: [tag]
+        runs-on: ubuntu-latest
+        steps:
             - name: Checkout repo
               uses: actions/checkout@v2
+
+            - name: Get version
+              id: version_num
+              uses: nick-invision/persist-action-data@v1
+              with:
+                  retrieve_variables: TAGGED_VERSION
 
             - name: Create release
               id: create_release
@@ -179,7 +189,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ env.version }}
-                  release_name: Release ${{ env.version }}
+                  tag_name: ${{ steps.version_num.outputs.TAGGED_VERSION }}
+                  release_name: Release ${{ steps.version_num.outputs.TAGGED_VERSION }}
                   draft: false
                   prerelease: false
