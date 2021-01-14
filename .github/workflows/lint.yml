@@ -54,7 +54,6 @@ jobs:
 
             - name: install pyright dependencies
               run: sudo npm install -g pyright
-              if: steps.cached-npm-dependencies.outputs.cache-hit != 'true'
 
             - name: lint
               run: |
