@@ -163,7 +163,6 @@ jobs:
             - name: commit to master
               uses: EndBug/add-and-commit@v6
               with:
-                  push: origin main --force
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
