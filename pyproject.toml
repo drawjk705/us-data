@@ -3,10 +3,7 @@ name = "us-data"
 version = "1.0.0"
 description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
-classifiers = [
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Data :: US Census",
-]
+classifiers = ["Topic :: Software Development :: Libraries :: Python Modules"]
 
 
 [tool.poetry.dependencies]
