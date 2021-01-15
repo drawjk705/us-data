@@ -9,27 +9,36 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: check for major
+              id: major
               if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
               run: |
-                  echo "isMajor=1" >> $GITHUB_ENV
+                  echo "::set-output name=exists::1"
 
             - name: check for minor
+              id: minor
               if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
               run: |
-                  echo "isMinor=1" >> $GITHUB_ENV
+                  echo "::set-output name=exists::1"
 
             - name: check for patch
+              id: patch
               if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
               run: |
-                  echo "isPatch=1" >> $GITHUB_ENV
+                  echo "::set-output name=exists::1"
 
             - name: check for other
+              id: other
               if: ${{ contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
-                  echo "isOther=1" >> $GITHUB_ENV
+                  echo "::set-output name=exists::1"
 
             - name: ensure exclusivity
               run: |
+                  echo $IS_MAJOR
+                  echo $IS_MINOR
+                  echo $IS_PATCH
+                  echo $IS_OTHER
+
                   SUM=$(($IS_MAJOR + $IS_MINOR + $IS_PATCH + $IS_OTHER))
 
                   echo $SUM
@@ -41,7 +50,7 @@ jobs:
                     exit 1
                   fi
               env:
-                  IS_MAJOR: ${{ env.isMajor }}
-                  IS_MINOR: ${{ env.isMinor }}
-                  IS_PATCH: ${{ env.isPatch }}
-                  IS_OTHER: ${{ env.isOther }}
+                  IS_MAJOR: ${{ steps.major.outputs.exists }}
+                  IS_MINOR: ${{ steps.minor.outputs.exists }}
+                  IS_PATCH: ${{ steps.patch.outputs.exists }}
+                  IS_OTHER: ${{ steps.other.outputs.exists }}
