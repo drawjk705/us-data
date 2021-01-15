@@ -160,12 +160,17 @@ jobs:
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
+            - name: make changelog
+              uses: vemel/update-changelog@0.0.1
+              id: changelog
+              with:
+                  version: ${{ env.version }}
+
             - name: commit to master
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
-                  author_email: drawjk705@gmail.com
 
             - name: store version
               uses: nick-invision/persist-action-data@v1
