@@ -5,9 +5,9 @@ import pytest
 from hypothesis import assume
 from hypothesis.core import given
 
-from us_data.census.api.models import GeographyClauseSet, GeographyItem
-from us_data.census.api.serialization import ApiSerializationService
-from us_data.census.variables.models import Group, GroupCode, GroupVariable
+from us_data.census._api.models import GeographyClauseSet, GeographyItem
+from us_data.census._api.serialization import ApiSerializationService
+from us_data.census._variables.models import Group, GroupCode, GroupVariable
 
 
 @pytest.fixture

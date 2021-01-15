@@ -10,10 +10,10 @@ from pytest_mock import MockFixture
 
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import shuffledCases
-from us_data.census.api.models import GeographyClauseSet, GeographyItem
-from us_data.census.dataTransformation.service import CensusDataTransformer
-from us_data.census.geographies.models import GeoDomain
-from us_data.census.variables.models import (
+from us_data.census._api.models import GeographyClauseSet, GeographyItem
+from us_data.census._dataTransformation.service import CensusDataTransformer
+from us_data.census._geographies.models import GeoDomain
+from us_data.census._variables.models import (
     Group,
     GroupCode,
     GroupVariable,

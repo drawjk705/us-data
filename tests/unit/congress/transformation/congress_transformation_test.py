@@ -1,8 +1,8 @@
 from typing import List, cast
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from us_data.congress.api.models import Congressman, Representative, Senator
-from us_data.congress.transformation.service import CongressDataTransformationService
+from us_data.congress._api.models import Congressman, Representative, Senator
+from us_data.congress._transformation.service import CongressDataTransformationService
 
 representatives = [
     Representative(

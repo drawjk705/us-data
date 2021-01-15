@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from us_data.congress.members.service import CongressMemberRepository
+from us_data.congress._members.service import CongressMemberRepository
 
 
 class TestCongressMembersRepository(ServiceTestFixture[CongressMemberRepository]):

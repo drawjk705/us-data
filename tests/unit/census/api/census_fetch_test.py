@@ -6,12 +6,15 @@ from callee import StartsWith, String
 
 from tests.serviceTestFixtures import ApiServiceTestFixture
 from tests.utils import MockRes
-from us_data.census.api.fetch import CensusApiFetchService
-from us_data.census.api.interface import ICensusApiSerializationService
-from us_data.census.config import Config
-from us_data.census.exceptions import CensusDoesNotExistException, InvalidQueryException
-from us_data.census.geographies.models import GeoDomain
-from us_data.census.variables.models import VariableCode
+from us_data.census._api.fetch import CensusApiFetchService
+from us_data.census._api.interface import ICensusApiSerializationService
+from us_data.census._config import Config
+from us_data.census._exceptions import (
+    CensusDoesNotExistException,
+    InvalidQueryException,
+)
+from us_data.census._geographies.models import GeoDomain
+from us_data.census._variables.models import VariableCode
 
 mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
 
@@ -91,7 +94,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_stats_callsFetchInBatches(self):
-        self.mocker.patch("us_data.census.api.fetch.MAX_QUERY_SIZE", 3)
+        self.mocker.patch("us_data.census._api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [
             VariableCode("1"),
@@ -128,7 +131,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         )
 
     def test_stats_yieldsBatches(self):
-        self.mocker.patch("us_data.census.api.fetch.MAX_QUERY_SIZE", 3)
+        self.mocker.patch("us_data.census._api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [
             VariableCode("1"),

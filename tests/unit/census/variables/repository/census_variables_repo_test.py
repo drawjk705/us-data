@@ -6,13 +6,13 @@ import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import DataFrameColumnMatcher, shuffledCases
-from us_data.census.variables.models import (
+from us_data.census._variables.models import (
     Group,
     GroupCode,
     GroupVariable,
     VariableCode,
 )
-from us_data.census.variables.repository.service import VariableRepository
+from us_data.census._variables.repository.service import VariableRepository
 
 # pyright: reportPrivateUsage = false
 

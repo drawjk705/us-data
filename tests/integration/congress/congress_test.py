@@ -9,8 +9,8 @@ from pytest_mock.plugin import MockerFixture
 from tests.integration.congress.mockApi import MOCK_CONGRESS_API
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import MockRes
-from us_data.congress.exceptions import NoCongressApiKeyException
-from us_data.congress.factory import getCongress
+from us_data.congress._exceptions import NoCongressApiKeyException
+from us_data.congress._factory import getCongress
 
 
 @pytest.fixture(scope="function", autouse=True)
