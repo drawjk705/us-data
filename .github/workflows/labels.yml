@@ -34,19 +34,18 @@ jobs:
 
             - name: ensure exclusivity
               run: |
-                  echo $IS_MAJOR
-                  echo $IS_MINOR
-                  echo $IS_PATCH
-                  echo $IS_OTHER
+                  if [ -z ${IS_MAJOR} ] && [ -z ${IS_MINOR} ] && [ -z ${IS_PATCH} ] && [ -z ${IS_OTHER} ];
+                  then
+                    echo There are no labels; need one from the following: ['major', 'minor', 'patch', 'other']
+                    exit 1
+                  fi
 
                   SUM=$(($IS_MAJOR + $IS_MINOR + $IS_PATCH + $IS_OTHER))
-
-                  echo $SUM
 
                   HAS_ONLY_ONE_LABEL=$(($SUM == 1))
 
                   if [ $HAS_ONLY_ONE_LABEL = 0 ]; then
-                    echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
+                    echo Has multiple labels
                     exit 1
                   fi
               env:
