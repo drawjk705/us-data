@@ -137,7 +137,7 @@ jobs:
                   echo "isMajor=1" >> $GITHUB_ENV
 
             - name: maybe bump patch
-              if: ${{ startsWith(github.event.head_commit.message, 'fix:') || startsWith(github.event.head_commit.message, 'patch:') }}
+              if: ${{ startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'patch') }}
               run: |
                   poetry version patch
                   echo "isPatch=1" >> $GITHUB_ENV
