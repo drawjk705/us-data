@@ -36,7 +36,10 @@ jobs:
                   echo "isOther=1" >> $GITHUB_ENV
 
             - name: ensure exclusivity
-              if: ${{ env.isMajor + env.isMinor + env.isPatch + env.isOther != 0 }}
               run: |
-                  echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
-                  exit 1
+                  DOES_NOT_HAVE_ONE_LABEL = $((($isMajor + $isMinor + $isPatch + $isOther) != 1))
+
+                  if $DOES_NOT_HAVE_ONE_LABEL; then
+                    echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
+                    exit 1
+                  fi
