@@ -34,7 +34,7 @@ jobs:
 
             - name: ensure exclusivity
               run: |
-                  if [ -z ${IS_MAJOR} ] && [ -z ${IS_MINOR} ] && [ -z ${IS_PATCH} ] && [ -z ${IS_OTHER} ];
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_OTHER" ];
                   then
                     echo There are no labels; need one from the following: ['major', 'minor', 'patch', 'other']
                     exit 1
