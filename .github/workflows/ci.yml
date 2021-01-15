@@ -1,12 +1,7 @@
 name: CI
 
 on:
-    push:
-        branches-ignore:
-            - main
     pull_request:
-        branches-ignore:
-            - main
 
 jobs:
     lint:
@@ -141,3 +136,50 @@ jobs:
 
             - name: try build
               run: poetry build
+
+    enforce-title:
+        runs-on: ubuntu-latest
+        steps:
+            - name: echo title
+              run: |
+                  echo "title is '$TITLE'"
+              env:
+                  TITLE: ${{ github.event.pull_request.title }}
+                  JSON: ${{ toJson(github.event) }}
+
+            - name: check for major
+              id: major
+              if: "startsWith(github.event.pull_request.title, 'breaking: ')"
+              run: |
+                  echo "::set-output name=exists::1"
+
+            - name: check for minor
+              id: minor
+              if: "startsWith(github.event.pull_request.title, 'feat: ')"
+              run: |
+                  echo "::set-output name=exists::1"
+
+            - name: check for patch
+              id: patch
+              if: "startsWith(github.event.pull_request.title, 'fix: ')"
+              run: |
+                  echo "::set-output name=exists::1"
+
+            - name: check for chore
+              id: chore
+              if: "startsWith(github.event.pull_request.title, 'chore: ')"
+              run: |
+                  echo "::set-output name=exists::1"
+
+            - name: enforce
+              run: |
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ];
+                  then
+                    echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ']"
+                    exit 1
+                  fi
+              env:
+                  IS_MAJOR: ${{ steps.major.outputs.exists }}
+                  IS_MINOR: ${{ steps.minor.outputs.exists }}
+                  IS_PATCH: ${{ steps.patch.outputs.exists }}
+                  IS_CHORE: ${{ steps.chore.outputs.exists }}
