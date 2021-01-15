@@ -140,6 +140,12 @@ jobs:
     enforce-title:
         runs-on: ubuntu-latest
         steps:
+            - name: echo title
+              run: |
+                  echo "title is '$TITLE'"
+              env:
+                  TITLE: ${{ github.event.pull_request.title }}
+
             - name: check for major
               id: major
               if: ${{ startsWith(github.event.pull_request.title, 'breaking":" ') }}
