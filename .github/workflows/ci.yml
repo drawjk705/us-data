@@ -150,25 +150,25 @@ jobs:
 
             - name: check for major
               id: major
-              if: ${{ startsWith(github.event.pull_request.title, 'breaking":" ') }}
+              if: "startsWith(github.event.pull_request.title, 'breaking: ')"
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for minor
               id: minor
-              if: ${{ startsWith(github.event.pull_request.title, 'feat":" ') }}
+              if: "startsWith(github.event.pull_request.title, 'feat: ')"
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for patch
               id: patch
-              if: ${{ startsWith(github.event.pull_request.title, 'fix":" ') }}
+              if: "startsWith(github.event.pull_request.title, 'fix: ')"
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for chore
               id: chore
-              if: ${{ startsWith(github.event.pull_request.title, 'chore":" ') }}
+              if: "startsWith(github.event.pull_request.title, 'chore: ')"
               run: |
                   echo "::set-output name=exists::1"
 
