@@ -1,6 +1,6 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
-
-![release](https://github.com/drawjk705/us-data/workflows/release/badge.svg)
+![Release](https://github.com/drawjk705/us-data/workflows/Release/badge.svg)
+![CI](https://github.com/drawjk705/us-data/workflows/CI/badge.svg)
 
 # US-Data
 
