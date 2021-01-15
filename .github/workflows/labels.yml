@@ -15,4 +15,4 @@ jobs:
                   echo Need a label ['major', 'minor', 'patch', 'other']
                   exit 1
               env:
-                  LABEL: ${{ toJson(github.event) }}
+                  LABEL: ${{ toJson(github.event.pull_request.labels.*.name) }}
