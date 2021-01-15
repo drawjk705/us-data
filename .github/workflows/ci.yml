@@ -137,51 +137,42 @@ jobs:
             - name: try build
               run: poetry build
 
-    enforce-label:
+    enforce-title:
         runs-on: ubuntu-latest
         steps:
             - name: check for major
               id: major
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
+              if: ${{ startsWith(github.event.pull_request.title, 'breaking":" ') }}
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for minor
               id: minor
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
+              if: ${{ startsWith(github.event.pull_request.title, 'feat":" ') }}
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for patch
               id: patch
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
+              if: ${{ startsWith(github.event.pull_request.title, 'fix":" ') }}
               run: |
                   echo "::set-output name=exists::1"
 
-            - name: check for other
-              id: other
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'other') }}
+            - name: check for chore
+              id: chore
+              if: ${{ startsWith(github.event.pull_request.title, 'chore":" ') }}
               run: |
                   echo "::set-output name=exists::1"
 
-            - name: ensure exclusivity
+            - name: enforce
               run: |
-                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_OTHER" ];
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ];
                   then
-                    echo "There are no labels; need one from the following: ['major', 'minor', 'patch', 'other']"
-                    exit 1
-                  fi
-
-                  SUM=$(($IS_MAJOR + $IS_MINOR + $IS_PATCH + $IS_OTHER))
-
-                  HAS_ONLY_ONE_LABEL=$(($SUM == 1))
-
-                  if [ $HAS_ONLY_ONE_LABEL = 0 ]; then
-                    echo Has multiple labels
+                    echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ']"
                     exit 1
                   fi
               env:
                   IS_MAJOR: ${{ steps.major.outputs.exists }}
                   IS_MINOR: ${{ steps.minor.outputs.exists }}
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
-                  IS_OTHER: ${{ steps.other.outputs.exists }}
+                  IS_CHORE: ${{ steps.chore.outputs.exists }}
