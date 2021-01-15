@@ -1,0 +1,39 @@
+name: PR Labels
+
+on:
+    pull_request:
+    label:
+
+jobs:
+    enforce-label:
+        runs-on: ubuntu-latest
+        steps:
+            - name: check for major
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
+              run: |
+                  echo "isMajor=1" >> $GITHUB_ENV
+
+            - name: check for minor
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
+              run: |
+                  echo "isMinor=1" >> $GITHUB_ENV
+
+            - name: check for patch
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
+              run: |
+                  echo "isPatch=1" >> $GITHUB_ENV
+
+            - name: check for other
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'other') }}
+              run: |
+                  echo "isOther=1" >> $GITHUB_ENV
+
+            - name: ensure exclusivity
+              run: |
+                  echo $(($isMajor + $isMinor + $isPatch + $isOther))
+                  HAS_ONLY_ONE_LABEL=$((($isMajor + $isMinor + $isPatch + $isOther) == 1))
+
+                  if [ $HAS_ONLY_ONE_LABEL = 0 ]; then
+                    echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
+                    exit 1
+                  fi
