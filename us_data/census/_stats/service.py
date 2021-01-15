@@ -4,6 +4,9 @@ from typing import Any, Dict, List, Set, Tuple
 
 import pandas as pd
 
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
+from us_data._utils.unique import getUnique
 from us_data.census._api.interface import ICensusApiFetchService
 from us_data.census._config import Config
 from us_data.census._dataTransformation.interface import ICensusDataTransformer
@@ -13,9 +16,6 @@ from us_data.census._geographies.models import GeoDomain
 from us_data.census._stats.interface import ICensusStatisticsService
 from us_data.census._variables.models import VariableCode
 from us_data.census._variables.repository.interface import IVariableRepository
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
-from us_data._utils.unique import getUnique
 
 
 class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):

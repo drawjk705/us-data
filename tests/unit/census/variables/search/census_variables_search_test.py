@@ -1,8 +1,8 @@
 import pandas
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from us_data.census.variables.models import GroupCode
-from us_data.census.variables.search.service import VariableSearchService
+from us_data.census._variables.models import GroupCode
+from us_data.census._variables.search.service import VariableSearchService
 
 # pyright: reportPrivateUsage=false
 

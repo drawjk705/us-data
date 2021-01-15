@@ -4,14 +4,14 @@ from typing import Tuple
 
 import pandas as pd
 
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
+from us_data._utils.unique import getUnique
 from us_data.census._api.interface import ICensusApiFetchService
 from us_data.census._dataTransformation.interface import ICensusDataTransformer
 from us_data.census._geographies.interface import IGeographyRepository
 from us_data.census._geographies.models import GeoDomain, SupportedGeoSet
 from us_data.census._persistence.interface import ICache
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
-from us_data._utils.unique import getUnique
 
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"
 

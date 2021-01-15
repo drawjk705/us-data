@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import Any, Dict, List
 
+from us_data._utils.timer import timer
 from us_data.census._api.interface import ICensusApiSerializationService
 from us_data.census._api.models import (
     GeographyClauseSet,
@@ -8,7 +9,6 @@ from us_data.census._api.models import (
     GeographyResponseItem,
 )
 from us_data.census._variables.models import Group, GroupVariable
-from us_data._utils.timer import timer
 
 
 class ApiSerializationService(ICensusApiSerializationService):

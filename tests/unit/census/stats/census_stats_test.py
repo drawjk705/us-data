@@ -5,10 +5,10 @@ import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import shuffledCases
-from us_data.census.exceptions import EmptyRepositoryException
-from us_data.census.geographies.models import GeoDomain
-from us_data.census.stats.service import CensusStatisticsService
-from us_data.census.variables.models import GroupCode, GroupVariable, VariableCode
+from us_data.census._exceptions import EmptyRepositoryException
+from us_data.census._geographies.models import GeoDomain
+from us_data.census._stats.service import CensusStatisticsService
+from us_data.census._variables.models import GroupCode, GroupVariable, VariableCode
 
 # pyright: reportPrivateUsage=false
 

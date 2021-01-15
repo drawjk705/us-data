@@ -4,14 +4,14 @@ from typing import List, cast
 
 import pandas as pd
 
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
 from us_data.congress._api.interface import ICongressApiFetchService
 from us_data.congress._api.models import Congressman
 from us_data.congress._members.interface import ICongressMemberRepository
 from us_data.congress._transformation.interface import (
     ICongressDataTransformationService,
 )
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
 
 
 class CongressMemberRepository(ICongressMemberRepository):

@@ -7,6 +7,8 @@ import dotenv
 import pandas
 import punq
 
+from us_data._utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from us_data._utils.log.factory import ILoggerFactory, LoggerFactory
 from us_data.census._api.fetch import CensusApiFetchService
 from us_data.census._api.interface import (
     ICensusApiFetchService,
@@ -28,8 +30,6 @@ from us_data.census._variables.repository.interface import IVariableRepository
 from us_data.census._variables.repository.service import VariableRepository
 from us_data.census._variables.search.interface import IVariableSearchService
 from us_data.census._variables.search.service import VariableSearchService
-from us_data._utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
-from us_data._utils.log.factory import ILoggerFactory, LoggerFactory
 
 # these are singletons
 serializer = ApiSerializationService()

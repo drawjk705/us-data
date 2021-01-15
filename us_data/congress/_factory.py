@@ -6,6 +6,8 @@ from typing import cast
 import dotenv
 import punq
 
+from us_data._utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from us_data._utils.log.factory import ILoggerFactory, LoggerFactory
 from us_data.congress._api.fetch import CongressApiFetchService
 from us_data.congress._api.interface import ICongressApiFetchService
 from us_data.congress._client.congress import Congress
@@ -17,8 +19,6 @@ from us_data.congress._transformation.interface import (
     ICongressDataTransformationService,
 )
 from us_data.congress._transformation.service import CongressDataTransformationService
-from us_data._utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
-from us_data._utils.log.factory import ILoggerFactory, LoggerFactory
 
 transformer = CongressDataTransformationService()
 loggerFactory = LoggerFactory()

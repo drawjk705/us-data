@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 
 from pytest_mock import MockerFixture
 
-from us_data.utils.chunk import chunk
-from us_data.utils.timer import timer
-from us_data.utils.unique import getUnique
+from us_data._utils.chunk import chunk
+from us_data._utils.timer import timer
+from us_data._utils.unique import getUnique
 
 
 def test_chunk_givenChunkLessThanSize():

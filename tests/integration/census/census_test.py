@@ -12,20 +12,20 @@ from pytest_mock import MockerFixture
 
 from tests.integration.census.mockApiResponses import MOCK_API
 from tests.utils import MockRes
-from us_data.census.exceptions import (
+from us_data.census._exceptions import (
     CensusDoesNotExistException,
     NoCensusApiKeyException,
 )
-from us_data.census.factory import getCensus
-from us_data.census.geographies.models import GeoDomain
-from us_data.census.utils.cleanVariableName import cleanVariableName
-from us_data.census.variables.models import (
+from us_data.census._factory import getCensus
+from us_data.census._geographies.models import GeoDomain
+from us_data.census._utils.cleanVariableName import cleanVariableName
+from us_data.census._variables.models import (
     Group,
     GroupCode,
     GroupVariable,
     VariableCode,
 )
-from us_data.census.variables.repository.models import GroupSet, VariableSet
+from us_data.census._variables.repository.models import GroupSet, VariableSet
 
 # pyright: reportUnknownMemberType=false
 

@@ -1,6 +1,6 @@
 import pytest
 
-from us_data.census.utils.cleanVariableName import cleanVariableName
+from us_data.census._utils.cleanVariableName import cleanVariableName
 
 
 @pytest.mark.parametrize(

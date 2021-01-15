@@ -7,15 +7,15 @@ from typing import Tuple, cast
 import pandas as pd
 from tqdm.notebook import tqdm
 
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
+from us_data._utils.unique import getUnique
 from us_data.census._api.interface import ICensusApiFetchService
 from us_data.census._dataTransformation.interface import ICensusDataTransformer
 from us_data.census._persistence.interface import ICache
 from us_data.census._variables.models import Group, GroupCode, GroupVariable
 from us_data.census._variables.repository.interface import IVariableRepository
 from us_data.census._variables.repository.models import GroupSet, VariableSet
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
-from us_data._utils.unique import getUnique
 
 GROUPS_FILE = "groups.csv"
 SUPPORTED_GEOS_FILE = "supportedGeographies.csv"

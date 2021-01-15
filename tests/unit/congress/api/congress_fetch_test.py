@@ -2,9 +2,9 @@ from typing import Any, Dict
 
 from tests.serviceTestFixtures import ApiServiceTestFixture
 from tests.utils import MockRes
-from us_data.congress.api.fetch import CongressApiFetchService
-from us_data.congress.api.models import Congressman, Representative, Senator
-from us_data.congress.config import CongressConfig
+from us_data.congress._api.fetch import CongressApiFetchService
+from us_data.congress._api.models import Congressman, Representative, Senator
+from us_data.congress._config import CongressConfig
 
 apiKey = "apiKey"
 config = CongressConfig(116, apiKey)

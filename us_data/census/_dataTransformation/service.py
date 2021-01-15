@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
+from us_data._utils.timer import timer
 from us_data.census._api.models import GeographyItem
 from us_data.census._dataTransformation.interface import ICensusDataTransformer
 from us_data.census._geographies.models import GeoDomain
 from us_data.census._variables.models import Group, GroupVariable, VariableCode
-from us_data._utils.timer import timer
 
 
 class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):

@@ -2,11 +2,11 @@ from logging import Logger
 
 import pandas as pd
 
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
 from us_data.census._variables.models import GroupCode
 from us_data.census._variables.repository.interface import IVariableRepository
 from us_data.census._variables.search.interface import IVariableSearchService
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
 
 
 class VariableSearchService(IVariableSearchService[pd.DataFrame]):

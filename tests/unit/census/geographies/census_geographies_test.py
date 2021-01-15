@@ -5,7 +5,7 @@ import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import shuffledCases
-from us_data.census.geographies.service import GeographyRepository
+from us_data.census._geographies.service import GeographyRepository
 
 apiRetval = "banana"
 

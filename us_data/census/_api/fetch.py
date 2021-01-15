@@ -5,6 +5,9 @@ from typing import Any, Dict, Generator, List
 import requests
 from requests.utils import requote_uri
 
+from us_data._utils.chunk import chunk
+from us_data._utils.log.factory import ILoggerFactory
+from us_data._utils.timer import timer
 from us_data.census._api.interface import (
     ICensusApiFetchService,
     ICensusApiSerializationService,
@@ -17,9 +20,6 @@ from us_data.census._exceptions import (
 )
 from us_data.census._geographies.models import GeoDomain
 from us_data.census._variables.models import Group, GroupVariable, VariableCode
-from us_data._utils.chunk import chunk
-from us_data._utils.log.factory import ILoggerFactory
-from us_data._utils.timer import timer
 
 # we can query only 50 variables at a time, max
 MAX_QUERY_SIZE = 50

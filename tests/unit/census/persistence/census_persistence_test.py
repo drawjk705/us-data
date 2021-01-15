@@ -8,8 +8,8 @@ from pytest_mock.plugin import MockerFixture
 
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import shuffledCases
-from us_data.census.config import Config
-from us_data.census.persistence.onDisk import OnDiskCache
+from us_data.census._config import Config
+from us_data.census._persistence.onDisk import OnDiskCache
 
 
 def makeCache(config: Config) -> OnDiskCache:
