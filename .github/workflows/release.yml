@@ -132,47 +132,50 @@ jobs:
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
             - name: maybe bump major
-              if: startsWith(github.event.head_commit.message, 'breaking')
+              if: github.event.label.name == 'major'
               run: |
                   poetry version major
-                  echo "isMajor=1" >> $GITHUB_ENV
-
-            - name: maybe bump patch
-              if: ${{ startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'patch') }}
-              run: |
-                  poetry version patch
-                  echo "isPatch=1" >> $GITHUB_ENV
 
             - name: maybe bump minor
-              if: ${{ !env.isMajor && !env.isPatch }}
+              if: github.event.label.name == 'minor'
               run: |
                   poetry version minor
 
+            - name: maybe bump patch
+              if: github.event.label.name == 'patch'
+              run: |
+                  poetry version patch
+
             - name: poetry publish
+              if: github.event.label != 'other'
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
                   poetry publish
 
             - name: get version number
+              if: github.event.label != 'other'
               run: |
                   VERSION=$(poetry version)
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
             - name: make changelog
+              if: github.event.label != 'other'
               uses: vemel/update-changelog@0.0.1
               id: changelog
               with:
                   version: ${{ env.version }}
 
             - name: commit to master
+              if: github.event.label != 'other'
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
             - name: store version
+              if: github.event.label != 'other'
               uses: nick-invision/persist-action-data@v1
               with:
                   data: ${{ env.version }}
@@ -180,7 +183,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'skip') }}
+        if: ${{ !startsWith(github.event.head_commit.message, 'skip') && github.event.label != 'other' }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
