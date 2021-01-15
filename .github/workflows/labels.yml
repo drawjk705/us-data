@@ -3,6 +3,7 @@ name: PR Labels
 on:
     pull_request:
     label:
+        types: [created, edited, deleted]
 
 jobs:
     enforce-label:
