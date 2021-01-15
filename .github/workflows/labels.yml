@@ -11,6 +11,8 @@ jobs:
             - name: require label
               if: ${{ !contains(github.event.label.name, 'major') || !contains(github.event.label.name, 'minor') || !contains(github.event.label.name, 'patch') || !contains(github.event.label.name, 'other')}}
               run: |
-                  echo ${{ github.event.label.name }}
+                  echo $LABEL
                   echo Need a label ['major', 'minor', 'patch', 'other']
                   exit 1
+              env:
+                  LABEL: github.event.label.name
