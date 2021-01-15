@@ -102,7 +102,7 @@ jobs:
 
     tag_and_publish:
         needs: [lint, test]
-        if: ${{ !startsWith(github.event.head_commit.message, 'chore":" ') }}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
@@ -132,18 +132,18 @@ jobs:
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
             - name: maybe bump major
-              if: startsWith(github.event.head_commit.message, 'breaking":" ')
+              if: startsWith(github.event.head_commit.message, 'breaking')
               run: |
                   poetry version major
                   echo "isMajor=1" >> $GITHUB_ENV
 
             - name: maybe bump minor
-              if: startsWith(github.event.head_commit.message, 'feat":" ')
+              if: startsWith(github.event.head_commit.message, 'feat')
               run: |
                   poetry version minor
 
             - name: maybe bump patch
-              if: startsWith(github.event.head_commit.message, 'fix":" ')
+              if: startsWith(github.event.head_commit.message, 'fix')
               run: |
                   poetry version patch
                   echo "isPatch=1" >> $GITHUB_ENV
@@ -175,7 +175,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'chore":" ') }}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
