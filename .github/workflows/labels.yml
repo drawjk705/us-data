@@ -31,11 +31,9 @@ jobs:
             - name: ensure exclusivity
               run: |
                   echo $(($isMajor + $isMinor + $isPatch + $isOther))
-                  DOES_NOT_HAVE_ONE_LABEL=$((($isMajor + $isMinor + $isPatch + $isOther) != 1))
+                  HAS_ONLY_ONE_LABEL=$((($isMajor + $isMinor + $isPatch + $isOther) == 1))
 
-                  if [ $DOES_NOT_HAVE_ONE_LABEL = 1 ]; then
+                  if [ $HAS_ONLY_ONE_LABEL = 0 ]; then
                     echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
                     exit 1
-                  else
-                    echo Nice
                   fi
