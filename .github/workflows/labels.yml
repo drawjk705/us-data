@@ -2,6 +2,8 @@ name: PR Labels
 
 on:
     pull_request:
+        branches:
+            - '**'
     label:
         types: [created, edited, deleted]
 
