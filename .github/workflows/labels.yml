@@ -15,4 +15,4 @@ jobs:
                   echo Need a label ['major', 'minor', 'patch', 'other']
                   exit 1
               env:
-                  LABEL: github.event.label.name
+                  LABEL: ${{ github.event.label.name }}
