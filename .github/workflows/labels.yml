@@ -33,7 +33,7 @@ jobs:
                   echo $(($isMajor + $isMinor + $isPatch + $isOther))
                   DOES_NOT_HAVE_ONE_LABEL = $((($isMajor + $isMinor + $isPatch + $isOther) != 1))
 
-                  if $DOES_NOT_HAVE_ONE_LABEL; then
+                  if [ $DOES_NOT_HAVE_ONE_LABEL ] ; then
                     echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
                     exit 1
                   fi
