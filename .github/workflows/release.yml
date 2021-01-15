@@ -147,12 +147,12 @@ jobs:
               run: |
                   poetry version minor
 
-            - name: poetry publish
-              run: |
-                  poetry build
-                  poetry config repositories.testpypi https://test.pypi.org/legacy/
-                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
-                  poetry publish -r testpypi
+            # - name: poetry publish
+            #   run: |
+            #       poetry build
+            #       poetry config repositories.testpypi https://test.pypi.org/legacy/
+            #       poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
+            #       poetry publish -r testpypi
 
             - name: get version number
               run: |
@@ -165,6 +165,7 @@ jobs:
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
+                  author_email: drawjk705@gmail.com
 
             - name: store version
               uses: nick-invision/persist-action-data@v1
