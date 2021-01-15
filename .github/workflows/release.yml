@@ -132,50 +132,50 @@ jobs:
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
             - name: maybe bump major
-              if: github.event.label.name == 'major'
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
               run: |
                   poetry version major
 
             - name: maybe bump minor
-              if: github.event.label.name == 'minor'
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
               run: |
                   poetry version minor
 
             - name: maybe bump patch
-              if: github.event.label.name == 'patch'
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
               run: |
                   poetry version patch
 
             - name: poetry publish
-              if: github.event.label.name != 'other'
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
                   poetry publish
 
             - name: get version number
-              if: github.event.label.name != 'other'
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
                   VERSION=$(poetry version)
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
             - name: make changelog
-              if: github.event.label.name != 'other'
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: vemel/update-changelog@0.0.1
               id: changelog
               with:
                   version: ${{ env.version }}
 
             - name: commit to master
-              if: github.event.label.name != 'other'
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
             - name: store version
-              if: github.event.label.name != 'other'
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: nick-invision/persist-action-data@v1
               with:
                   data: ${{ env.version }}

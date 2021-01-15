@@ -9,22 +9,22 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: check for major
-              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'major') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
               run: |
                   echo "isMajor=1" >> $GITHUB_ENV
 
             - name: check for minor
-              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'minor') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
               run: |
                   echo "isMinor=1" >> $GITHUB_ENV
 
             - name: check for patch
-              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'patch') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
               run: |
                   echo "isPatch=1" >> $GITHUB_ENV
 
             - name: check for other
-              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'other') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
                   echo "isOther=1" >> $GITHUB_ENV
 
@@ -33,7 +33,9 @@ jobs:
                   echo $(($isMajor + $isMinor + $isPatch + $isOther))
                   DOES_NOT_HAVE_ONE_LABEL = $((($isMajor + $isMinor + $isPatch + $isOther) != 1))
 
-                  if [ $DOES_NOT_HAVE_ONE_LABEL ] then
+                  if [ $DOES_NOT_HAVE_ONE_LABEL = 1 ]; then
                     echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
                     exit 1
+                  else
+                    echo Nice
                   fi
