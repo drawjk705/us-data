@@ -145,6 +145,10 @@ jobs:
     enforce-label:
         runs-on: ubuntu-latest
         steps:
+            - run: echo $JSON
+              env:
+                  JSON: ${{ toJson(github.event) }}
+
             - name: check for major
               id: major
               if: ${{ contains(github.event.pull_request.labels.*.name, 'major') || contains(github.event.push.labels.*.name, 'major') }}
