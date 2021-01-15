@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "us-data"
-version = "0.3.0"
+version = "1.0.0"
 description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
 
