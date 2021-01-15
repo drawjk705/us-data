@@ -8,11 +8,35 @@ jobs:
     enforce-label:
         runs-on: ubuntu-latest
         steps:
-            - name: require label
-              # if: ${{ !contains(github.event.labels.name, 'major') || !contains(github.event.label.name, 'minor') || !contains(github.event.label.name, 'patch') || !contains(github.event.label.name, 'other')}}
+            - name: get labels
+              id: get_labels
               run: |
-                  echo $LABEL
-                  echo Need a label ['major', 'minor', 'patch', 'other']
-                  exit 1
+                  echo "::set-output name=labels::$LABELS"
               env:
-                  LABEL: ${{ toJson(github.event.pull_request.labels.*.name) }}
+                  LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+
+            - name: check for major
+              if: ${{ contains(steps.get_labels.outputs.labels, 'major') }}
+              run: |
+                  echo "isMajor=1" >> $GITHUB_ENV
+
+            - name: check for minor
+              if: ${{ contains(steps.get_labels.outputs.labels, 'minor') }}
+              run: |
+                  echo "isMinor=1" >> $GITHUB_ENV
+
+            - name: check for patch
+              if: ${{ contains(steps.get_labels.outputs.labels, 'patch') }}
+              run: |
+                  echo "isPatch=1" >> $GITHUB_ENV
+
+            - name: check for other
+              if: ${{ contains(steps.get_labels.outputs.labels, 'other') }}
+              run: |
+                  echo "isOther=1" >> $GITHUB_ENV
+
+            - name: ensure exclusivity
+              if: ${{ env.isMajor + env.isMinor + env.isPatch + env.isOther != 0 }}
+              run: |
+                  echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
+                  exit 1
