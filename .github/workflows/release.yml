@@ -4,108 +4,110 @@ on:
         branches:
             - main
 jobs:
-    lint:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                python-version: [3.8, 3.9]
-            fail-fast: false
+    # lint:
+    #     runs-on: ubuntu-latest
+    #     strategy:
+    #         matrix:
+    #             python-version: [3.8, 3.9]
+    #         fail-fast: false
 
-        steps:
-            - name: checkout repo
-              uses: actions/checkout@v2
+    #     steps:
+    #         - name: checkout repo
+    #           uses: actions/checkout@v2
 
-            - name: set up python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
+    #         - name: set up python
+    #           uses: actions/setup-python@v2
+    #           with:
+    #               python-version: ${{ matrix.python-version }}
 
-            - name: set up node
-              uses: actions/setup-node@v2
-              with:
-                  node-version: '12'
+    #         - name: set up node
+    #           uses: actions/setup-node@v2
+    #           with:
+    #               node-version: '12'
 
-            - name: install poetry
-              uses: snok/install-poetry@v1.1.1
-              with:
-                  version: 1.1.4
-                  virtualenvs-create: true
-                  virtualenvs-in-project: true
+    #         - name: install poetry
+    #           uses: snok/install-poetry@v1.1.1
+    #           with:
+    #               version: 1.1.4
+    #               virtualenvs-create: true
+    #               virtualenvs-in-project: true
 
-            - name: load cached venv
-              id: cached-poetry-dependencies
-              uses: actions/cache@v2
-              with:
-                  path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+    #         - name: load cached venv
+    #           id: cached-poetry-dependencies
+    #           uses: actions/cache@v2
+    #           with:
+    #               path: .venv
+    #               key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-            - name: install poetry dependencies
-              run: poetry install
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    #         - name: install poetry dependencies
+    #           run: poetry install
+    #           if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-            - name: load cached npm
-              id: cached-npm-dependencies
-              uses: actions/cache@v2
-              with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+    #         - name: load cached npm
+    #           id: cached-npm-dependencies
+    #           uses: actions/cache@v2
+    #           with:
+    #               path: ~/.npm
+    #               key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
 
-            - name: install pyright dependencies
-              run: sudo npm install -g pyright
+    #         - name: install pyright dependencies
+    #           run: sudo npm install -g pyright
 
-            - name: lint
-              run: |
-                  source ./.venv/bin/activate
-                  poe typing
-                  poe lint
-                  poe sort-imports -c
+    #         - name: lint
+    #           run: |
+    #               source ./.venv/bin/activate
+    #               poe typing
+    #               poe lint
+    #               poe sort-imports -c
 
-    test:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                python-version: [3.8, 3.9]
-            fail-fast: false
+    # test:
+    #     runs-on: ubuntu-latest
+    #     strategy:
+    #         matrix:
+    #             python-version: [3.8, 3.9]
+    #         fail-fast: false
 
-        steps:
-            - name: check out repo
-              uses: actions/checkout@v2
+    #     steps:
+    #         - name: check out repo
+    #           uses: actions/checkout@v2
 
-            - name: set up python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
+    #         - name: set up python
+    #           uses: actions/setup-python@v2
+    #           with:
+    #               python-version: ${{ matrix.python-version }}
 
-            - name: install poetry action
-              uses: snok/install-poetry@v1.1.1
-              with:
-                  version: 1.1.4
-                  virtualenvs-create: true
-                  virtualenvs-in-project: true
+    #         - name: install poetry action
+    #           uses: snok/install-poetry@v1.1.1
+    #           with:
+    #               version: 1.1.4
+    #               virtualenvs-create: true
+    #               virtualenvs-in-project: true
 
-            - name: load cached venv
-              id: cached-poetry-dependencies
-              uses: actions/cache@v2
-              with:
-                  path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+    #         - name: load cached venv
+    #           id: cached-poetry-dependencies
+    #           uses: actions/cache@v2
+    #           with:
+    #               path: .venv
+    #               key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-            - name: install poetry dependencies
-              run: poetry install
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    #         - name: install poetry dependencies
+    #           run: poetry install
+    #           if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-            - name: test it
-              run: |
-                  source ./.venv/bin/activate
-                  poe test-coverage -vv
-                  coverage report
+    #         - name: test it
+    #           run: |
+    #               source ./.venv/bin/activate
+    #               poe test-coverage -vv
+    #               coverage report
 
     tag_and_publish:
-        needs: [lint, test]
+        # needs: [lint, test]
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
               uses: actions/checkout@v2
+              with:
+                  persist-credentials: false
 
             - name: set up python
               uses: actions/setup-python@v2
