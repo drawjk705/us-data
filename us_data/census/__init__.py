@@ -1,3 +1,5 @@
-from us_data.census.factory import getCensus  # type: ignore
-from us_data.census.geographies.models import GeoDomain  # type: ignore
-from us_data.census.helpers import listAvailableDataSets  # type: ignore
+# pyright: reportUnusedImport=false
+
+from us_data.census._factory import getCensus
+from us_data.census._geographies.models import GeoDomain
+from us_data.census._helpers import listAvailableDataSets

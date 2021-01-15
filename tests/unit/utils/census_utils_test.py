@@ -42,10 +42,10 @@ def test_timer_logsAndReturnsValues(mocker: MockerFixture):
     def fn() -> int:
         return 1
 
-    mockLogging = mocker.patch("us_data.utils.timer.logging")
+    mockLogging = mocker.patch("us_data._utils.timer.logging")
     mockLogger = MagicMock()
     cast(MagicMock, cast(logging, mockLogging).getLogger).return_value = mockLogger
-    mockPerfCounter = mocker.patch("us_data.utils.timer.time")
+    mockPerfCounter = mocker.patch("us_data._utils.timer.time")
     mockPerfCounter.perf_counter.side_effect = [1, 2]  # type: ignore
 
     retval = fn()

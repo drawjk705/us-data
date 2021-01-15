@@ -698,7 +698,7 @@ class TestCensus:
     ):
         census = getCensus(2019, replaceColumnHeaders=shouldRenameColumns)
 
-        mocker.patch("us_data.census.api.fetch.MAX_QUERY_SIZE", 2)
+        mocker.patch("us_data.census._api.fetch.MAX_QUERY_SIZE", 2)
 
         variables = [
             VariableCode(code)

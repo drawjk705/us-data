@@ -18,7 +18,7 @@ def makeCache(config: Config) -> OnDiskCache:
 
 @pytest.fixture
 def pathMock(mocker: MockerFixture) -> MagicMock:
-    mock = mocker.patch("us_data.census.persistence.onDisk.Path")
+    mock = mocker.patch("us_data.census._persistence.onDisk.Path")
     mocker.patch.object(mock(), "joinpath", return_value=mock())
 
     return mock
@@ -26,7 +26,7 @@ def pathMock(mocker: MockerFixture) -> MagicMock:
 
 @pytest.fixture
 def shutilMock(mocker: MockerFixture) -> Mock:
-    return mocker.patch("us_data.census.persistence.onDisk.shutil")
+    return mocker.patch("us_data.census._persistence.onDisk.shutil")
 
 
 class DummyClass:
