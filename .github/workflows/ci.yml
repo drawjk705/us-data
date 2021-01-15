@@ -142,7 +142,6 @@ jobs:
         steps:
             - name: echo title
               run: |
-                  echo $JSON
                   echo "title is '$TITLE'"
               env:
                   TITLE: ${{ github.event.pull_request.title }}
