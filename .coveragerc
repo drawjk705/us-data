@@ -8,5 +8,5 @@ omit =
     *interface.py
     *__init__.py
     *models.py
-    *census/helpers.py
+    *census/_helpers.py
     *log/*
