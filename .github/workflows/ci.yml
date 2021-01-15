@@ -147,25 +147,25 @@ jobs:
         steps:
             - name: check for major
               id: major
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') || contains(github.event.push.labels.*.name, 'major') }}
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for minor
               id: minor
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') || contains(github.event.push.labels.*.name, 'minor') }}
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for patch
               id: patch
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') || contains(github.event.push.labels.*.name, 'patch') }}
               run: |
                   echo "::set-output name=exists::1"
 
             - name: check for other
               id: other
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'other') }}
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'other') || contains(github.event.push.labels.*.name, 'other') }}
               run: |
                   echo "::set-output name=exists::1"
 
