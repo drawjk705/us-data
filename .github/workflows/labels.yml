@@ -9,5 +9,5 @@ jobs:
         steps:
             - uses: yogevbd/enforce-label-action@2.1.0
               with:
-                  REQUIRED_LABELS_ANY: 'major,minor,patch'
-                  REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['major','minor','patch']"
+                  REQUIRED_LABELS_ANY: 'major,minor,patch,other'
+                  REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['major','minor','patch','other']"
