@@ -102,7 +102,7 @@ jobs:
 
     tag_and_publish:
         needs: [lint, test]
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore":" ') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
@@ -132,19 +132,21 @@ jobs:
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
             - name: maybe bump major
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
+              if: startsWith(github.event.head_commit.message, 'breaking":" ')
               run: |
                   poetry version major
+                  echo "isMajor=1" >> $GITHUB_ENV
 
             - name: maybe bump minor
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
+              if: startsWith(github.event.head_commit.message, 'feat":" ')
               run: |
                   poetry version minor
 
             - name: maybe bump patch
-              if: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
+              if: startsWith(github.event.head_commit.message, 'fix":" ')
               run: |
                   poetry version patch
+                  echo "isPatch=1" >> $GITHUB_ENV
 
             - name: poetry publish
               run: |
@@ -158,17 +160,12 @@ jobs:
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
-            - name: make changelog
-              uses: vemel/update-changelog@0.0.1
-              id: changelog
-              with:
-                  version: ${{ env.version }}
-
             - name: commit to master
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
+                  author_email: drawjk705@gmail.com
 
             - name: store version
               uses: nick-invision/persist-action-data@v1
@@ -178,7 +175,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore":" ') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
