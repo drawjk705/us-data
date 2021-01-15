@@ -9,10 +9,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: require label
-              if: ${{ !contains(github.event.label.name, 'major') || !contains(github.event.label.name, 'minor') || !contains(github.event.label.name, 'patch') || !contains(github.event.label.name, 'other')}}
+              # if: ${{ !contains(github.event.labels.name, 'major') || !contains(github.event.label.name, 'minor') || !contains(github.event.label.name, 'patch') || !contains(github.event.label.name, 'other')}}
               run: |
                   echo $LABEL
                   echo Need a label ['major', 'minor', 'patch', 'other']
                   exit 1
               env:
-                  LABEL: ${{ toJson(github.event) }}
+                  LABEL: ${{ toJson(github.event.labels.*.name) }}
