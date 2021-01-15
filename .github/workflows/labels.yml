@@ -8,34 +8,23 @@ jobs:
     enforce-label:
         runs-on: ubuntu-latest
         steps:
-            - name: get labels
-              id: get_labels
-              run: |
-                  echo "::set-output name=labels::$LABELS"
-              env:
-                  LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
-
-            - run: echo $L
-              env:
-                  L: ${{steps.get_labels.outputs.labels}}
-
             - name: check for major
-              if: ${{ contains(steps.get_labels.outputs.labels, 'major') }}
+              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'major') }}
               run: |
                   echo "isMajor=1" >> $GITHUB_ENV
 
             - name: check for minor
-              if: ${{ contains(steps.get_labels.outputs.labels, 'minor') }}
+              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'minor') }}
               run: |
                   echo "isMinor=1" >> $GITHUB_ENV
 
             - name: check for patch
-              if: ${{ contains(steps.get_labels.outputs.labels, 'patch') }}
+              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'patch') }}
               run: |
                   echo "isPatch=1" >> $GITHUB_ENV
 
             - name: check for other
-              if: ${{ contains(steps.get_labels.outputs.labels, 'other') }}
+              if: ${{ contains(toJson(github.event.pull_request.labels.*.name), 'other') }}
               run: |
                   echo "isOther=1" >> $GITHUB_ENV
 
