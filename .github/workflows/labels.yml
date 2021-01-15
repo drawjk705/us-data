@@ -30,6 +30,7 @@ jobs:
 
             - name: ensure exclusivity
               run: |
+                  echo $(($isMajor + $isMinor + $isPatch + $isOther))
                   DOES_NOT_HAVE_ONE_LABEL = $((($isMajor + $isMinor + $isPatch + $isOther) != 1))
 
                   if $DOES_NOT_HAVE_ONE_LABEL; then
