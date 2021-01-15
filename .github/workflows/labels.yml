@@ -15,6 +15,10 @@ jobs:
               env:
                   LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
 
+            - run: echo $L
+              env:
+                  L: ${{steps.get_labels.outputs.labels}}
+
             - name: check for major
               if: ${{ contains(steps.get_labels.outputs.labels, 'major') }}
               run: |
