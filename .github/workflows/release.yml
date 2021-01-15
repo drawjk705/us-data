@@ -107,7 +107,7 @@ jobs:
             - name: checkout repo
               uses: actions/checkout@v2
               with:
-                  persist-credentials: false
+                  token: ${{ secrets.KEY }}
 
             - name: set up python
               uses: actions/setup-python@v2
