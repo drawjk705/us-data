@@ -102,7 +102,7 @@ jobs:
 
     tag_and_publish:
         needs: [lint, test]
-        if: ${{ !startsWith(github.event.head_commit.message, 'skip') }}
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
@@ -147,35 +147,30 @@ jobs:
                   poetry version patch
 
             - name: poetry publish
-              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
                   poetry publish
 
             - name: get version number
-              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               run: |
                   VERSION=$(poetry version)
                   VERSION=v${VERSION#"us-data "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
             - name: make changelog
-              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: vemel/update-changelog@0.0.1
               id: changelog
               with:
                   version: ${{ env.version }}
 
             - name: commit to master
-              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
             - name: store version
-              if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
               uses: nick-invision/persist-action-data@v1
               with:
                   data: ${{ env.version }}
@@ -183,7 +178,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'skip') && github.event.label.name != 'other' }}
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'other') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo

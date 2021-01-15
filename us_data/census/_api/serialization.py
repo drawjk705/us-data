@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, OrderedDict as TOrderedDict
 
 from us_data._utils.timer import timer
 from us_data.census._api.interface import ICensusApiSerializationService
@@ -25,7 +25,7 @@ class ApiSerializationService(ICensusApiSerializationService):
     def parseSupportedGeographies(
         self,
         supportedGeosResponse: Any,
-    ) -> OrderedDict[str, GeographyItem]:
+    ) -> TOrderedDict[str, GeographyItem]:
 
         fips = [
             GeographyResponseItem.fromJson(fip) for fip in supportedGeosResponse["fips"]

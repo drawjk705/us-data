@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from collections import OrderedDict
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, Generator, List, OrderedDict
 
 from us_data.census._api.models import GeographyItem
 from us_data.census._geographies.models import GeoDomain
