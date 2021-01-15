@@ -30,10 +30,18 @@ jobs:
 
             - name: ensure exclusivity
               run: |
-                  echo $(($isMajor + $isMinor + $isPatch + $isOther))
-                  HAS_ONLY_ONE_LABEL=$((($isMajor + $isMinor + $isPatch + $isOther) == 1))
+                  SUM=$(($IS_MAJOR + $IS_MINOR + $IS_PATCH + $IS_OTHER))
+
+                  echo $SUM
+
+                  HAS_ONLY_ONE_LABEL=$(($SUM == 1))
 
                   if [ $HAS_ONLY_ONE_LABEL = 0 ]; then
                     echo "Need one label from the following: ['major', 'minor', 'patch', 'other']"
                     exit 1
                   fi
+              env:
+                  IS_MAJOR: ${{ env.isMajor }}
+                  IS_MINOR: ${{ env.isMinor }}
+                  IS_PATCH: ${{ env.isPatch }}
+                  IS_OTHER: ${{ env.isOther }}
