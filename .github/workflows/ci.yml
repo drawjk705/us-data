@@ -141,3 +141,9 @@ jobs:
 
             - name: try build
               run: poetry build
+
+    expt:
+        if: ${{ contains(github.event, "pull_request")}}
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo testing
