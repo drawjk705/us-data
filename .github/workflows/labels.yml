@@ -2,6 +2,7 @@ name: PR Labels
 
 on:
     pull_request:
+    label:
 
 jobs:
     enforce-label:
