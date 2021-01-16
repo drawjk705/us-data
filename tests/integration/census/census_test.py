@@ -16,7 +16,6 @@ from us_data.census._exceptions import (
     CensusDoesNotExistException,
     NoCensusApiKeyException,
 )
-from us_data.census._factory import getCensus
 from us_data.census._geographies.models import GeoDomain
 from us_data.census._utils.cleanVariableName import cleanVariableName
 from us_data.census._variables.models import (
@@ -26,6 +25,7 @@ from us_data.census._variables.models import (
     VariableCode,
 )
 from us_data.census._variables.repository.models import GroupSet, VariableSet
+from us_data.census.census import Census
 
 # pyright: reportUnknownMemberType=false
 
@@ -262,26 +262,26 @@ class TestCensus:
             CensusDoesNotExistException,
             match="Data does not exist for dataset=acs; survey=acs1; year=2020",
         ):
-            _ = getCensus(2020)
+            _ = Census(2020)
 
     def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
         mocker.patch.object(os, "getenv", return_value=None)
         with pytest.raises(
             NoCensusApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
         ):
-            _ = getCensus(2019)
+            _ = Census(2019)
 
     def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
         self, tempDir: Path
     ):
-        _ = getCensus(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=False)
+        _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=False)
 
         assert not tempDir.joinpath("cache").exists()
 
     def test_census_givenCensusDoesNotLoadFromExistingCache_purgesExistingCache(
         self, tempDir: Path, givenCacheWithGroup: None
     ):
-        _ = getCensus(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=True)
+        _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=True)
 
         assert tempDir.joinpath("cache").exists()
         assert len(list(tempDir.joinpath("cache/2019/acs/acs1").iterdir())) == 0
@@ -289,9 +289,7 @@ class TestCensus:
     def test_census_createsCacheAndLoadsItOnQuery(
         self, tempDir: Path, apiCalls: Set[str], givenCacheWithGroup: None
     ):
-        census = getCensus(
-            2019, shouldLoadFromExistingCache=True, shouldCacheOnDisk=True
-        )
+        census = Census(2019, shouldLoadFromExistingCache=True, shouldCacheOnDisk=True)
 
         census.getGroups()
 
@@ -301,7 +299,7 @@ class TestCensus:
         assert tempDir.joinpath("cache").exists()
 
     def test_census_getGeographyCodes(self, tempDir: Path):
-        census = getCensus(2019)
+        census = Census(2019)
 
         codes = census.getGeographyCodes(
             GeoDomain("congressional district"),
@@ -349,7 +347,7 @@ class TestCensus:
         assert codes.to_dict("records") == expected
 
     def test_census_groupsAndVariables(self):
-        census = getCensus(2019, shouldCacheOnDisk=True)
+        census = Census(2019, shouldCacheOnDisk=True)
         verifyResource("groups.csv", exists=False)
 
         _ = census.getGroups()
@@ -377,7 +375,7 @@ class TestCensus:
         assert len(census.variables) == 12
 
     def test_census_getAllVariables(self):
-        census = getCensus(2019, shouldCacheOnDisk=True)
+        census = Census(2019, shouldCacheOnDisk=True)
         allVars = census.getAllVariables()
 
         assert len(allVars.to_dict("records")) == 12
@@ -392,7 +390,7 @@ class TestCensus:
             )
 
     def test_census_groups_populatesGroupNames(self):
-        census = getCensus(2019)
+        census = Census(2019)
 
         _ = census.getGroups()
 
@@ -403,7 +401,7 @@ class TestCensus:
         }
 
     def test_census_variables_populatesVariableNames(self):
-        census = getCensus(2019)
+        census = Census(2019)
 
         census.getAllVariables()
 
@@ -531,7 +529,7 @@ class TestCensus:
         }
 
     def test_census_supportedGeographies(self):
-        census = getCensus(2019, shouldCacheOnDisk=True)
+        census = Census(2019, shouldCacheOnDisk=True)
 
         verifyResource("supportedGeographies.csv", exists=False)
 
@@ -550,7 +548,7 @@ class TestCensus:
         verifyResource("supportedGeographies.csv")
 
     def test_census_searchGroups(self):
-        census = getCensus(2019)
+        census = Census(2019)
         regex = r"sex by age by .* difficulty"
 
         res = census.searchGroups(regex)
@@ -569,7 +567,7 @@ class TestCensus:
         assert res.to_dict("records") == expectedRes
 
     def test_census_searchVariablesWithinGroups(self, apiCalls: Set[str]):
-        census = getCensus(2019)
+        census = Census(2019)
         regex = r"estimate"
 
         res = census.searchVariables(regex, GroupCode("B18104"), GroupCode("B18105"))
@@ -620,7 +618,7 @@ class TestCensus:
         assert res.to_dict("records") == expectedRes
 
     def test_census_searchAllVariables(self, apiCalls: Set[str]):
-        census = getCensus(2019)
+        census = Census(2019)
         regex = r"estimate"
 
         res = census.searchVariables(regex)
@@ -696,7 +694,7 @@ class TestCensus:
     def test_census_stats_batchedApiCalls(
         self, apiCalls: Set[str], mocker: MockerFixture, shouldRenameColumns: bool
     ):
-        census = getCensus(2019, replaceColumnHeaders=shouldRenameColumns)
+        census = Census(2019, replaceColumnHeaders=shouldRenameColumns)
 
         mocker.patch("us_data.census._api.fetch.MAX_QUERY_SIZE", 2)
 
@@ -730,7 +728,7 @@ class TestCensus:
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        census = getCensus(
+        census = Census(
             2019,
             replaceColumnHeaders=True,
         )
@@ -804,7 +802,7 @@ class TestCensus:
         forDomain = GeoDomain("congressional district")
         inDomains = [GeoDomain("state", "01")]
 
-        census = getCensus(
+        census = Census(
             2019,
             shouldLoadFromExistingCache=True,
             shouldCacheOnDisk=True,
@@ -869,7 +867,7 @@ class TestCensus:
         givenCacheWithVariables: None,
     ):
 
-        census = getCensus(
+        census = Census(
             2019,
             shouldLoadFromExistingCache=shouldLoadFromCache,
             shouldCacheOnDisk=True,
@@ -910,3 +908,8 @@ class TestCensus:
         else:
             assert len(repoVars) == 0
             assert len(repoGroups) == 0
+
+    def test_repr(self):
+        c = Census(2019)
+
+        assert str(c) == "<Census year=2019 dataset=acs survey=acs1>"

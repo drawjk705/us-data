@@ -31,15 +31,12 @@ class _DatasetsRes:
         )
 
 
-@cache
 def listAvailableDataSets() -> pd.DataFrame:
-    """
-    The name says it all
+    return __listAvailableDataSets()
 
-    Returns:
-        [pd.DataFrame]: DataFrame with all available datasets,
-        along with their years & descriptions
-    """
+
+@cache
+def __listAvailableDataSets() -> pd.DataFrame:
     res: Dict[str, Any] = requests.get(URL).json()  # type: ignore
     datasetDicts: List[Dict[str, str]] = []
 

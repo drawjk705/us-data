@@ -10,7 +10,7 @@ from tests.integration.congress.mockApi import MOCK_CONGRESS_API
 from tests.serviceTestFixtures import ServiceTestFixture
 from tests.utils import MockRes
 from us_data.congress._exceptions import NoCongressApiKeyException
-from us_data.congress._factory import getCongress
+from us_data.congress.congress import Congress
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -40,17 +40,17 @@ class DummyClass:
 
 @pytest.mark.integration
 class TestCongress(ServiceTestFixture[DummyClass]):
-    def test_getCongress_givenNoApiKey_throws(self):
+    def test_Congress_givenNoApiKey_throws(self):
         self.mocker.patch.object(os, "getenv", return_value=None)
 
         with pytest.raises(
             NoCongressApiKeyException,
             match="Could not find `PROPUBLICA_CONG_KEY in .env",
         ):
-            _ = getCongress(116)
+            _ = Congress(116)
 
     def test_getSenators(self):
-        congress = getCongress(116)
+        congress = Congress(116)
 
         senators = congress.getSenators()
 
@@ -94,7 +94,7 @@ class TestCongress(ServiceTestFixture[DummyClass]):
         ]
 
     def test_getRepresentatives(self):
-        congress = getCongress(116)
+        congress = Congress(116)
 
         senators = congress.getRepresentatives()
 
@@ -138,3 +138,8 @@ class TestCongress(ServiceTestFixture[DummyClass]):
                 "votes_total": 954,
             },
         ]
+
+    def test_repr(self):
+        cong = Congress(116)
+
+        assert str(cong) == "<Congress number=116>"

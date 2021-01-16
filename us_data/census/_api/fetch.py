@@ -38,11 +38,8 @@ class CensusApiFetchService(ICensusApiFetchService):
         parser: ICensusApiSerializationService,
         loggingFactory: ILoggerFactory,
     ) -> None:
-        datasetTypeValue = config.datasetType
-        surveyTypeValue = config.surveyType
-
         self._url = API_URL_FORMAT.format(
-            config.year, datasetTypeValue, surveyTypeValue
+            config.year, config.datasetType, config.surveyType
         )
         self._parser = parser
         self._config = config

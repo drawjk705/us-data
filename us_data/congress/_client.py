@@ -3,7 +3,7 @@ import pandas as pd
 from us_data.congress._members.interface import ICongressMemberRepository
 
 
-class Congress:
+class CongressClient:
     """
     client for getting congress info
     """
