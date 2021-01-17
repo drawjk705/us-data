@@ -237,6 +237,6 @@ jobs:
               if: ${{ env.should_tag == 1 }}
               uses: peter-evans/repository-dispatch@v1
               with:
-                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
+                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                   event-type: release-trigger
                   client-payload: '{ "bump_type": "${{ env.bump_type }}" }'
