@@ -55,3 +55,7 @@ clean = "rm rf ./**/__pycache__"
 profile = "black"
 src_paths = ["the_census", "tests"]
 skip_glob = '**/typings/**'
+
+
+[tool.autohooks]
+mode = "poetry"
