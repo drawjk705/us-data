@@ -165,7 +165,7 @@ jobs:
             - name: get version number
               run: |
                   VERSION=$(poetry version)
-                  VERSION=v${VERSION#"the_census "}
+                  VERSION=v${VERSION#"the-census "}
                   echo "version=$VERSION" >> $GITHUB_ENV
 
             - name: commit to master
