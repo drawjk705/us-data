@@ -171,8 +171,7 @@ census.searchVariables(r"my regex")
 And, you can limit that search to variables of a particular group or groups:
 
 ```python
-census.searchVariables(r"my regex",
-                        census.groups.SexByAge)
+census.searchVariables(r"my regex", census.groups.SexByAge)
 ```
 
 #### Variables autocomplete
