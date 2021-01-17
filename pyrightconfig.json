@@ -1,6 +1,7 @@
 {
     "include": ["the_census"],
     "ignore": ["typings"],
+    "stubPath": "./typings",
 
     "venvPath": "./.venv/",
 

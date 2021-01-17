@@ -2,6 +2,9 @@ name: CI
 
 on:
     pull_request:
+    push:
+        branches:
+            - master
 
 jobs:
     lint:
@@ -138,6 +141,7 @@ jobs:
               run: poetry build
 
     enforce-title:
+        if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest
         steps:
             - name: echo title
@@ -145,7 +149,6 @@ jobs:
                   echo "title is '$TITLE'"
               env:
                   TITLE: ${{ github.event.pull_request.title }}
-                  JSON: ${{ toJson(github.event) }}
 
             - name: check for major
               id: major
@@ -190,3 +193,51 @@ jobs:
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
+
+    dispatch-event:
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !startsWith(github.event.head_commit.message, 'chore') }}
+        needs: [test, lint, build]
+        runs-on: ubuntu-latest
+        steps:
+            - name: check for major
+              id: major
+              if: "startsWith(github.event.head_commit.message, 'breaking: ')"
+              run: |
+                  echo "bump_type=major" >> $GITHUB_ENV
+
+            - name: check for minor
+              id: minor
+              if: "startsWith(github.event.head_commit.message, 'feat: ')"
+              run: |
+                  echo "bump_type=minor" >> $GITHUB_ENV
+
+            - name: check for patch
+              id: patch
+              if: "startsWith(github.event.head_commit.message, 'fix: ')"
+              run: |
+                  echo "bump_type=patch" >> $GITHUB_ENV
+
+            - name: check for prerelease
+              id: prerelease
+              if: "startsWith(github.event.head_commit.message, 'prerelease: ')"
+              run: |
+                  echo "bump_type=prerelease" >> $GITHUB_ENV
+
+            - name: make sure bump type isn't empty
+              id: check-if-empty
+              run: |
+                  if [ -z "$bump_type" ];
+                  then
+                      echo "should_tag=0" >> $GITHUB_ENV
+                  else
+                      echo "should_tag=1" >> $GITHUB_ENV
+                  fi
+
+            - name: dispatch to release workflow
+              if: ${{ env.should_tag == 1 }}
+              uses: ph-fritsche/action-dispatch@v1
+              with:
+                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                  type: workflow
+                  ident: release.yml
+                  payload: '{ "bump_type": "${{ env.bump_type }}" }'
