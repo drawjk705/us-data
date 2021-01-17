@@ -240,4 +240,4 @@ jobs:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                   workflow: Release
                   inputs: >
-                      '{ "message": "{ "bump_type": "${{ env.bump_type }}" }" }'
+                      { "message": "{ "bump_type": "${{ env.bump_type }}" }" }
