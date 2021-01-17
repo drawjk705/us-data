@@ -43,10 +43,10 @@ class GeographyResponseItem:
     @classmethod
     def fromJson(cls, jsonRes: Dict[str, str]):
         return cls(
-            jsonRes.get("name") or "",
-            jsonRes.get("geoLevelDisplay") or "",
-            jsonRes.get("referenceDate") or "",
-            cast(List[str], jsonRes.get("requires")) or [],
-            cast(List[str], jsonRes.get("wildcard")) or [],
-            jsonRes.get("optionalWithWCFor") or "",
+            jsonRes.get("name", ""),
+            jsonRes.get("geoLevelDisplay", ""),
+            jsonRes.get("referenceDate", ""),
+            cast(List[str], jsonRes.get("requires", [])),
+            cast(List[str], jsonRes.get("wildcard", [])),
+            jsonRes.get("optionalWithWCFor", ""),
         )
