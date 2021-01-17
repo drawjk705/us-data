@@ -34,8 +34,8 @@ jupyter_nbextensions_configurator = "^0.4.1"
 ipython = "^7.19.0"
 jupyterlab = "^3.0.1"
 ipywidgets = "^7.6.2"
-matplotlib = "^3.3.3"
 isort = "^5.7.0"
+pre-commit = "^2.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
