@@ -2,6 +2,9 @@ name: CI
 
 on:
     pull_request:
+    push:
+        branches:
+            - jk-test
 
 jobs:
     lint:
@@ -101,6 +104,7 @@ jobs:
                   coverage report
 
     build:
+        if: "contains(github.event, 'pull_request')"
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -138,6 +142,7 @@ jobs:
               run: poetry build
 
     enforce-title:
+        if: "contains(github.event, 'pull_request')"
         runs-on: ubuntu-latest
         steps:
             - name: echo title
