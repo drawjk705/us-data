@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "the_census"
-version = "1.02"
+version = "1.0.2"
 description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
 classifiers = ["Topic :: Software Development :: Libraries :: Python Modules"]
@@ -22,7 +22,7 @@ pytest = "^6.2.1"
 black = { version = "^20.8b1", allow-prereleases = true }
 pytest-mock = "^3.5.0"
 callee = "^0.3.1"
-hypothesis = "^6.0.2"
+hypothesis = "^5.49.0"
 pytest-sugar = "^0.9.4"
 pytest-clarity = "^0.3.0-alpha.0"
 pytest-cov = "^2.10.1"

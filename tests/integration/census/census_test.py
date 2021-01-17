@@ -900,6 +900,55 @@ class TestCensus:
             assert len(repoVars) == 0
             assert len(repoGroups) == 0
 
+    def test_listAvailableDatasets(self):
+        datasets = Census.listAvailabeDatasets()
+
+        assert datasets.to_dict("records") == [
+            {
+                "datasetType": "ecneoyinv",
+                "description": "This dataset presents statistics for Wholesale Trade:  "
+                "Inventories by Valuation Method for the U.S.",
+                "name": "Economic Census: Economic Census of the United States: Wholesale "
+                "Trade: Inventories by Valuation Method for the U.S.",
+                "surveyType": "",
+                "year": 2017,
+            },
+            {
+                "datasetType": "dec",
+                "description": "Summary File 4 is repeated or iterated for the total "
+                "population and 335 additional population groups: 132 race "
+                "groups,78 American Indian and Alaska Native tribe categories, "
+                "39 Hispanic or Latino groups, and 86 ancestry groups.Tables "
+                "for any population group excluded from SF 2 because the "
+                "group's total population in a specific geographic area did "
+                "not meet the SF 2 threshold of 100 people are excluded from "
+                "SF 4. Tables in SF 4 shown for any of the above population "
+                "groups will only be shown if there are at least 50 unweighted "
+                "sample cases in a specific geographic area. The same 50 "
+                "unweighted sample cases also applied to ancestry iterations. "
+                "In an iterated file such as SF 4, the universes households, "
+                "families, and occupied housing units are classified by the "
+                "race or ethnic group of the householder. The universe "
+                "subfamilies is classified by the race or ethnic group of the "
+                "reference person for the subfamily. In a husband/wife "
+                "subfamily, the reference person is the husband; in a "
+                "parent/child subfamily, the reference person is always the "
+                "parent. The universes population in households, population in "
+                "families, and population in subfamilies are classified by the "
+                "race or ethnic group of the inidviduals within the household, "
+                "family, or subfamily without regard to the race or ethnicity "
+                "of the householder. Notes follow selected tables to make the "
+                "classification of the universe clear. In any population table "
+                "where there is no note, the universe classification is always "
+                "based on the race or ethnicity of the person. In all housing "
+                "tables, the universe classification is based on the race or "
+                "ethnicity of the householder.",
+                "name": "Decennial Census: Summary File 4",
+                "surveyType": "sf4",
+                "year": 2000,
+            },
+        ]
+
     def test_repr(self):
         c = Census(2019)
 
