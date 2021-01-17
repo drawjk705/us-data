@@ -196,6 +196,7 @@ jobs:
 
     dispatch-event:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !startsWith(github.event.head_commit.message, 'chore') }}
+        needs: [test, lint, build]
         runs-on: ubuntu-latest
         steps:
             - name: check for major
