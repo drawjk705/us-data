@@ -7,19 +7,28 @@ repos:
           - id: check-yaml
           - id: check-added-large-files
           - id: check-merge-conflict
-          - id: name-tests-test
 
     - repo: https://github.com/psf/black
       rev: 20.8b1
       hooks:
           - id: black
+            files: '(?!.*/typings/)'
 
     - repo: https://github.com/PyCQA/isort
       rev: 5.7.0
       hooks:
           - id: isort
+            files: '(?!.*/typings/)'
 
-    - repo: https://github.com/pre-commit/pygrep-hooks
-      rev: v1.7.0
+    - repo: meta
       hooks:
-          - id: python-use-type-annotations
+          - id: check-hooks-apply
+
+    - repo: local
+      hooks:
+          - id: commit-message-prefix
+            name: validate commit message prefix
+            language: pygrep
+            entry: '^(breaking|feat|fix|chore|prerelease)'
+            args: [--multiline]
+            stages: [commit-msg]
