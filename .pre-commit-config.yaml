@@ -32,8 +32,8 @@ repos:
 
           - id: commit-message-prefix
             name: validate commit message prefix
-            language: python
-            entry: ./precommit-hooks/verify-commit-msg.py
+            language: pygrep
+            entry: '\A(fix)'
             stages: [commit-msg]
 
     # - repo: local
