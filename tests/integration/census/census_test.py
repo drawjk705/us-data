@@ -12,12 +12,11 @@ from pytest_mock import MockerFixture
 
 from tests.integration.census.mockApiResponses import MOCK_API
 from tests.utils import MockRes
+from the_census import Census, GeoDomain
 from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
-from the_census._geographies.models import GeoDomain
 from the_census._utils.cleanVariableName import cleanVariableName
 from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
 from the_census._variables.repository.models import GroupSet, VariableSet
-from the_census.census import Census
 
 # pyright: reportUnknownMemberType=false
 
