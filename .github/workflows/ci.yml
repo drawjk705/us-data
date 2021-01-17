@@ -171,17 +171,17 @@ jobs:
               run: |
                   echo "::set-output name=exists::1"
 
-            - name: check for test
-              id: test
-              if: "startsWith(github.event.pull_request.title, 'test: ')"
+            - name: check for prerelease
+              id: prerelease
+              if: "startsWith(github.event.pull_request.title, 'prerelease: ')"
               run: |
                   echo "::set-output name=exists::1"
 
             - name: enforce
               run: |
-                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_TEST" ];
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_PRERELEASE" ];
                   then
-                    echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ', 'test: ']"
+                    echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ', prerelease: ']"
                     exit 1
                   fi
               env:
@@ -189,4 +189,4 @@ jobs:
                   IS_MINOR: ${{ steps.minor.outputs.exists }}
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
-                  IS_TEST: ${{ steps.test.outputs.exists }}
+                  IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
