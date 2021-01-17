@@ -1,6 +1,10 @@
 name: Release
 on:
     workflow_dispatch:
+        inputs:
+            bump_type:
+                description: type of bump -- [major, minor, patch, prerelease]
+                required: true
 
 jobs:
     tag_and_publish:
@@ -44,7 +48,7 @@ jobs:
                   echo $BUMP_TYPE
                   poetry version $BUMP_TYPE
               env:
-                  BUMP_TYPE: ${{ github.event.client_payload.bump_type }}
+                  BUMP_TYPE: ${{ github.event.inputs.bump_type }}
 
             - name: poetry publish to pypi
               run: |
