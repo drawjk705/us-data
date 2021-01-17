@@ -155,12 +155,14 @@ jobs:
                   echo isPrerelease >> $GITHUB_ENV
 
             - name: poetry publish to pypi
+              if: "!startsWith(github.event.head.commit.message, 'chore')"
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
                   poetry publish
 
             - name: poetry publish to pypi-test
+              if: "!startsWith(github.event.head.commit.message, 'chore')"
               run: |
                   poetry build
                   poetry config repositories.testpypi https://test.pypi.org/legacy/
