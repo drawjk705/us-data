@@ -1,1 +1,0 @@
-Poe => pytest -m integration -vv -x
