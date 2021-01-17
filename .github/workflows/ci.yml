@@ -239,4 +239,4 @@ jobs:
               with:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                   workflow: release-the-census
-                  inputs: '{ "bump_type": ${{ env.bump_type }} }'
+                  inputs: '{ "bump_type": "${{ env.bump_type }}" }'
