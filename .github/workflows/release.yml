@@ -143,13 +143,18 @@ jobs:
                   poetry version minor
 
             - name: maybe bump patch
-              if: startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'test')
+              if: startsWith(github.event.head_commit.message, 'fix')
               run: |
                   poetry version patch
                   echo "isPatch=1" >> $GITHUB_ENV
 
+            - name: maybe bump prerelease
+              if: startsWith(github.event.head.commit.message, 'prerelease')
+              run: |
+                  poetry version prerelease
+                  echo isPrerelease >> $GITHUB_ENV
+
             - name: poetry publish to pypi
-              if: ${{ !startsWith(github.event.head_commit.message, 'test') }}
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
@@ -183,7 +188,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'chore') && !startsWith(github.event.head_commit.message, 'test')}}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
@@ -204,4 +209,4 @@ jobs:
                   tag_name: ${{ steps.version_num.outputs.TAGGED_VERSION }}
                   release_name: Release ${{ steps.version_num.outputs.TAGGED_VERSION }}
                   draft: false
-                  prerelease: false
+                  prerelease: startsWith(github.event.head.commit.message, 'prerelease')
