@@ -141,7 +141,7 @@ jobs:
               run: poetry build
 
     enforce-title:
-        if: "contains(github.event, 'pull_request')"
+        if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest
         steps:
             - name: echo title
@@ -195,94 +195,68 @@ jobs:
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
+    # we tag only if it's a push to main, and the commit isn't a chore
     tag:
-        # if: contains(github.event, 'push')
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !github.event.head_commit.message.startsWith('chore') }}
+        needs: [lint, test, build]
         runs-on: ubuntu-latest
 
         steps:
-            - run: echo $CONTEXT
-              env:
-                  CONTEXT: ${{ toJson(github) }}
-        # steps:
-        #     - name: checkout repo
-        #       uses: actions/checkout@v2
+            - name: checkout repo
+              uses: actions/checkout@v2
 
-        #     - name: set up python
-        #       uses: actions/setup-python@v2
-        #       with:
-        #           python-version: 3.9
+            - name: set up python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.9
 
-        #     - name: install poetry
-        #       uses: snok/install-poetry@v1.1.1
-        #       with:
-        #           version: 1.1.4
-        #           virtualenvs-create: true
-        #           virtualenvs-in-project: true
+            - name: install poetry
+              uses: snok/install-poetry@v1.1.1
+              with:
+                  version: 1.1.4
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
 
-        #     - name: load cached venv
-        #       id: cached-poetry-dependencies
-        #       uses: actions/cache@v2
-        #       with:
-        #           path: .venv
-        #           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
+            - name: load cached venv
+              id: cached-poetry-dependencies
+              uses: actions/cache@v2
+              with:
+                  path: .venv
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
 
-        #     - name: install poetry dependencies
-        #       run: poetry install
-        #       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+            - name: install poetry dependencies
+              run: poetry install
+              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-        #     - name: maybe bump major
-        #       if: startsWith(github.event.head_commit.message, 'breaking')
-        #       run: |
-        #           poetry version major
-        #           echo "isMajor=1" >> $GITHUB_ENV
+            - name: maybe bump major
+              if: startsWith(github.event.head_commit.message, 'breaking')
+              run: |
+                  poetry version major
 
-        #     - name: maybe bump minor
-        #       if: startsWith(github.event.head_commit.message, 'feat')
-        #       run: |
-        #           poetry version minor
+            - name: maybe bump minor
+              if: startsWith(github.event.head_commit.message, 'feat')
+              run: |
+                  poetry version minor
 
-        #     - name: maybe bump patch
-        #       if: startsWith(github.event.head_commit.message, 'fix')
-        #       run: |
-        #           poetry version patch
-        #           echo "isPatch=1" >> $GITHUB_ENV
+            - name: maybe bump patch
+              if: startsWith(github.event.head_commit.message, 'fix')
+              run: |
+                  poetry version patch
 
-        #     - name: maybe bump prerelease
-        #       if: startsWith(github.event.head.commit.message, 'prerelease')
-        #       run: |
-        #           poetry version prerelease
-        #           echo isPrerelease >> $GITHUB_ENV
+            - name: maybe bump prerelease
+              if: startsWith(github.event.head.commit.message, 'prerelease')
+              run: |
+                  poetry version prerelease
 
-        #     - name: poetry publish to pypi
-        #       if: "!startsWith(github.event.head.commit.message, 'chore')"
-        #       run: |
-        #           poetry build
-        #           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-        #           poetry publish
+            - name: commit to main
+              uses: EndBug/add-and-commit@v6
+              with:
+                  message: bump ${{ env.version }}
+                  tag: ${{ env.version }}
+                  author_email: drawjk705@gmail.com
 
-        #     - name: poetry publish to pypi-test
-        #       if: "!startsWith(github.event.head.commit.message, 'chore')"
-        #       run: |
-        #           poetry build
-        #           poetry config repositories.testpypi https://test.pypi.org/legacy/
-        #           poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
-        #           poetry publish -r testpypi
-
-        #     - name: get version number
-        #       run: |
-        #           VERSION=$(poetry version)
-        #           VERSION=v${VERSION#"the-census "}
-        #           echo "version=$VERSION" >> $GITHUB_ENV
-
-        #     - name: commit to master
-        #       uses: EndBug/add-and-commit@v6
-        #       with:
-        #           message: bump ${{ env.version }}
-        #           tag: ${{ env.version }}
-        #           author_email: drawjk705@gmail.com
-
-        #     - name: store version
-        #       uses: nick-invision/persist-action-data@v1
-        #       with:
-        #           data: ${{ env.version }}
-        #           variable: TAGGED_VERSION
+            - name: store version # so other jobs can access it
+              uses: nick-invision/persist-action-data@v1
+              with:
+                  data: ${{ env.version }}
+                  variable: TAGGED_VERSION
