@@ -149,7 +149,6 @@ jobs:
                   echo "title is '$TITLE'"
               env:
                   TITLE: ${{ github.event.pull_request.title }}
-                  JSON: ${{ toJson(github.event) }}
 
             - name: check for major
               id: major
@@ -232,31 +231,42 @@ jobs:
               if: startsWith(github.event.head_commit.message, 'breaking')
               run: |
                   poetry version major
+                  echo "isMajor=1" >> $GITHUB_ENV
 
             - name: maybe bump minor
               if: startsWith(github.event.head_commit.message, 'feat')
               run: |
                   poetry version minor
+                  echo "isMinor=1" >> $GITHUB_ENV
 
             - name: maybe bump patch
               if: startsWith(github.event.head_commit.message, 'fix')
               run: |
                   poetry version patch
+                  echo "isPatch=1" >> $GITHUB_ENV
 
             - name: maybe bump prerelease
               if: startsWith(github.event.head.commit.message, 'prerelease')
               run: |
                   poetry version prerelease
+                  echo "isPrerelease=1" >> $GITHUB_ENV
 
-            - name: commit to main
+            - name: figure out if it's nothing # this is a safeguard
+              run: |
+                  if [ -z "$isMajor" ] && [ -z "$isMinor" ] && [ -z "$isPatch" ] && [ -z "$isPrerelease" ];
+                    then
+                      echo "doNotTag=1" >> $GITHUB_ENV
+                    fi
+
+            - name: get version
+              run: |
+                  VERSION=$(poetry version --short)
+                  echo "version=$VERSION" >> $GITHUB_ENV
+
+            - name: commit to main with tag # this will give us the tag, and the bumped version of pyproject.toml
+              if: ${{ !env.doNotTag }}
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
                   author_email: drawjk705@gmail.com
-
-            - name: store version # so other jobs can access it
-              uses: nick-invision/persist-action-data@v1
-              with:
-                  data: ${{ env.version }}
-                  variable: TAGGED_VERSION
