@@ -6,7 +6,7 @@ PYRIGHT_CMD = "pyright ."
 MISSING_TYPESTUB_PATTERN = r'.*error: Stub file not found for "(.*)".*'
 
 
-def run_pyright() -> None:
+def generate_typestubs() -> None:
     """
     Find all missing typestubs, generate them,
     then run pyright
@@ -30,4 +30,4 @@ def run_pyright() -> None:
 
 
 if __name__ == "__main__":
-    run_pyright()
+    generate_typestubs()
