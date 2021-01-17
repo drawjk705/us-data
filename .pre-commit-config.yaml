@@ -24,11 +24,16 @@ repos:
 
     - repo: local
       hooks:
+          - id: pyright
+            name: pyright type validation
+            entry: pyright
+            language: system
+            types: [python]
+
           - id: commit-message-prefix
             name: validate commit message prefix
-            language: pygrep
-            entry: '\A(fix)'
-            args: [--multiline]
+            language: python
+            entry: ./precommit-hooks/verify-commit-msg.py
             stages: [commit-msg]
 
     # - repo: local
