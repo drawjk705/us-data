@@ -3,7 +3,7 @@
 ![Release](https://github.com/drawjk705/us-data/workflows/Release/badge.svg)
 ![CI](https://github.com/drawjk705/us-data/workflows/CI/badge.svg)
 
-# US-Data
+# The Census
 
 Want to work with US Census data? Look no further.
 
@@ -53,14 +53,14 @@ This is the signature of `Census`:
 ```python
 class Census
     def __init__(self,
-                year: int,
-                datasetType: str = "acs",
-                surveyType: str = "acs1",
-                cacheDir: str = CACHE_DIR,        # cache
-                shouldLoadFromExistingCache: bool = False,
-                shouldCacheOnDisk: bool = False,
-                replaceColumnHeaders: bool = True,
-                logFile: str = DEFAULT_LOGFILE):  # the_census.log
+                 year: int,
+                 datasetType: str = "acs",
+                 surveyType: str = "acs1",
+                 cacheDir: str = CACHE_DIR,        # cache
+                 shouldLoadFromExistingCache: bool = False,
+                 shouldCacheOnDisk: bool = False,
+                 replaceColumnHeaders: bool = True,
+                 logFile: str = DEFAULT_LOGFILE):  # the_census.log
     pass
 ```
 

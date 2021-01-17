@@ -3,7 +3,7 @@ import sys
 
 from the_census._utils.log.filters import ModuleFilter
 
-DEFAULT_LOGFILE = "congress.log"
+DEFAULT_LOGFILE = "census.log"
 
 
 def configureLogger(logFile: str) -> None:
