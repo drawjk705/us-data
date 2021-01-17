@@ -57,18 +57,18 @@ jobs:
               id: cached-typestubs
               uses: actions/cache@v2
               with:
-                  path: typings
+                  path: ./typings
                   key: typings-${{ runner.os }}-${{ secrets.CACHE_VERSION }}
 
             - name: make typestubs
               run: |
+                  mkdir typings
                   python3 generate_typestubs.py
               if: steps.cached-typestubs.outputs.cache-hit != 'true'
 
             - name: ls
               run: |
                   sudo apt-get install tree
-                  tree .
 
             - name: lint
               run: |
