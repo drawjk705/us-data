@@ -33,7 +33,7 @@ repos:
           - id: commit-message-prefix
             name: validate commit message prefix
             language: pygrep
-            entry: '\A(fix)'
+            entry: '\A(?!fix)'
             stages: [commit-msg]
 
     # - repo: local
