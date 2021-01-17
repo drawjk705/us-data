@@ -10,13 +10,12 @@ homepage = "https://github.com/drawjk705/us-stats/"
 repository = "https://github.com/drawjk705/us-stats/"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pandas = "^1.2.0"
 requests = "^2.25.1"
 punq = "^0.4.1"
 tqdm = "^4.55.1"
 python-dotenv = "^0.15.0"
-us = "^2.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
