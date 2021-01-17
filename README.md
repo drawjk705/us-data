@@ -60,8 +60,8 @@ class Census
                  shouldLoadFromExistingCache: bool = False,
                  shouldCacheOnDisk: bool = False,
                  replaceColumnHeaders: bool = True,
-                 logFile: str = DEFAULT_LOGFILE):  # the_census.log
-    pass
+                 logFile: str = DEFAULT_LOGFILE):  # census.log
+        pass
 ```
 
 -   `year`: the year of the dataset
