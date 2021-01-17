@@ -14,7 +14,7 @@ Want to work with US Census data? Look no further.
 If you you're not sure what Census dataset you're interested in, the following code will take care of you:
 
 ```python
-from us_data import Census
+from the_census import Census
 
 Census.listAvailableDataSets()
 ```
@@ -38,7 +38,7 @@ CENSUS_API_KEY=<your key>
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
 ```python
->>> from us_data import Census
+>>> from the_census import Census
 >>> Census(year=2019, datasetType="acs", surveyType="acs1")
 
 <Census year=2019 dataset=acs survey=acs1>
@@ -60,7 +60,7 @@ class Census
                 shouldLoadFromExistingCache: bool = False,
                 shouldCacheOnDisk: bool = False,
                 replaceColumnHeaders: bool = True,
-                logFile: str = DEFAULT_LOGFILE):  # us_data.log
+                logFile: str = DEFAULT_LOGFILE):  # the_census.log
     pass
 ```
 
@@ -101,7 +101,7 @@ So, if you're interested in all school districts in Colorado, here's what you'd 
 1. Get FIPS codes for all states:
 
 ```python
-from us_data.census import GeoDomain
+from the_census import GeoDomain
 
 census.getGeographyCodes(GeoDomain("state", "*"))
 ```
@@ -190,7 +190,7 @@ census.variables.EstimateTotal_B01001  # code for this variable
 Once you have the variables you want to query, along with the geography you're interested in, you can now make statistics queries from your dataset:
 
 ```python
-from us_data.census import GeoDomain
+from the_census import GeoDomain
 
 variables = census.getVariablesForGroup(census.groups.SexByAge)
 
@@ -222,7 +222,7 @@ PROPUBLICA_CONG_KEY=<your key>
 If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
 
 ```python
-from us_data.congress import getCongress
+from the_census.congress import getCongress
 
 cong = getCongress(116)
 ```

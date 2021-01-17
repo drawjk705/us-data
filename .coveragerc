@@ -1,6 +1,6 @@
 [paths]
 source =
-    us_data/
+    the_census/
 
 [run]
 omit =

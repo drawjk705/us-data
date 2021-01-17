@@ -12,20 +12,12 @@ from pytest_mock import MockerFixture
 
 from tests.integration.census.mockApiResponses import MOCK_API
 from tests.utils import MockRes
-from us_data.census._exceptions import (
-    CensusDoesNotExistException,
-    NoCensusApiKeyException,
-)
-from us_data.census._geographies.models import GeoDomain
-from us_data.census._utils.cleanVariableName import cleanVariableName
-from us_data.census._variables.models import (
-    Group,
-    GroupCode,
-    GroupVariable,
-    VariableCode,
-)
-from us_data.census._variables.repository.models import GroupSet, VariableSet
-from us_data.census.census import Census
+from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
+from the_census._geographies.models import GeoDomain
+from the_census._utils.cleanVariableName import cleanVariableName
+from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
+from the_census._variables.repository.models import GroupSet, VariableSet
+from the_census.census import Census
 
 # pyright: reportUnknownMemberType=false
 
@@ -696,7 +688,7 @@ class TestCensus:
     ):
         census = Census(2019, replaceColumnHeaders=shouldRenameColumns)
 
-        mocker.patch("us_data.census._api.fetch.MAX_QUERY_SIZE", 2)
+        mocker.patch("the_census._api.fetch.MAX_QUERY_SIZE", 2)
 
         variables = [
             VariableCode(code)
