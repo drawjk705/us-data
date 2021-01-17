@@ -104,7 +104,6 @@ jobs:
                   coverage report
 
     build:
-        if: "contains(github.event, 'pull_request')"
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -195,3 +194,93 @@ jobs:
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
+
+    tag:
+        if: contains(github.event, 'push')
+        runs-on: ubuntu-latest
+
+        steps:
+            - run: echo hello there
+        # steps:
+        #     - name: checkout repo
+        #       uses: actions/checkout@v2
+
+        #     - name: set up python
+        #       uses: actions/setup-python@v2
+        #       with:
+        #           python-version: 3.9
+
+        #     - name: install poetry
+        #       uses: snok/install-poetry@v1.1.1
+        #       with:
+        #           version: 1.1.4
+        #           virtualenvs-create: true
+        #           virtualenvs-in-project: true
+
+        #     - name: load cached venv
+        #       id: cached-poetry-dependencies
+        #       uses: actions/cache@v2
+        #       with:
+        #           path: .venv
+        #           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
+
+        #     - name: install poetry dependencies
+        #       run: poetry install
+        #       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
+        #     - name: maybe bump major
+        #       if: startsWith(github.event.head_commit.message, 'breaking')
+        #       run: |
+        #           poetry version major
+        #           echo "isMajor=1" >> $GITHUB_ENV
+
+        #     - name: maybe bump minor
+        #       if: startsWith(github.event.head_commit.message, 'feat')
+        #       run: |
+        #           poetry version minor
+
+        #     - name: maybe bump patch
+        #       if: startsWith(github.event.head_commit.message, 'fix')
+        #       run: |
+        #           poetry version patch
+        #           echo "isPatch=1" >> $GITHUB_ENV
+
+        #     - name: maybe bump prerelease
+        #       if: startsWith(github.event.head.commit.message, 'prerelease')
+        #       run: |
+        #           poetry version prerelease
+        #           echo isPrerelease >> $GITHUB_ENV
+
+        #     - name: poetry publish to pypi
+        #       if: "!startsWith(github.event.head.commit.message, 'chore')"
+        #       run: |
+        #           poetry build
+        #           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+        #           poetry publish
+
+        #     - name: poetry publish to pypi-test
+        #       if: "!startsWith(github.event.head.commit.message, 'chore')"
+        #       run: |
+        #           poetry build
+        #           poetry config repositories.testpypi https://test.pypi.org/legacy/
+        #           poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
+        #           poetry publish -r testpypi
+
+        #     - name: get version number
+        #       run: |
+        #           VERSION=$(poetry version)
+        #           VERSION=v${VERSION#"the-census "}
+        #           echo "version=$VERSION" >> $GITHUB_ENV
+
+        #     - name: commit to master
+        #       uses: EndBug/add-and-commit@v6
+        #       with:
+        #           message: bump ${{ env.version }}
+        #           tag: ${{ env.version }}
+        #           author_email: drawjk705@gmail.com
+
+        #     - name: store version
+        #       uses: nick-invision/persist-action-data@v1
+        #       with:
+        #           data: ${{ env.version }}
+        #           variable: TAGGED_VERSION
