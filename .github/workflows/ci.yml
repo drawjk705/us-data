@@ -261,7 +261,7 @@ jobs:
             - name: get version
               run: |
                   VERSION=$(poetry version --short)
-                  echo "version=$VERSION" >> $GITHUB_ENV
+                  echo "version=v$VERSION" >> $GITHUB_ENV
 
             - name: commit to main with tag # this will give us the tag, and the bumped version of pyproject.toml
               if: ${{ !env.doNotTag }}
