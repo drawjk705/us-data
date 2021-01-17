@@ -29,6 +29,6 @@ repos:
           - id: commit-message-prefix
             name: validate commit message prefix
             language: pygrep
-            entry: '^(breaking|feat|fix|chore|prerelease)'
+            entry: '^(breaking|feat|fix|chore|prerelease): '
             args: [--multiline]
             stages: [commit-msg]
