@@ -203,25 +203,25 @@ jobs:
               id: major
               if: "startsWith(github.event.head_commit.message, 'breaking: ')"
               run: |
-                  echo "bump_type='major'" >> $GITHUB_ENV
+                  echo "bump_type=major" >> $GITHUB_ENV
 
             - name: check for minor
               id: minor
               if: "startsWith(github.event.head_commit.message, 'feat: ')"
               run: |
-                  echo "bump_type='minor'" >> $GITHUB_ENV
+                  echo "bump_type=minor" >> $GITHUB_ENV
 
             - name: check for patch
               id: patch
               if: "startsWith(github.event.head_commit.message, 'fix: ')"
               run: |
-                  echo "bump_type='patch'" >> $GITHUB_ENV
+                  echo "bump_type=patch" >> $GITHUB_ENV
 
             - name: check for prerelease
               id: prerelease
               if: "startsWith(github.event.head_commit.message, 'prerelease: ')"
               run: |
-                  echo "bump_type='prerelease'" >> $GITHUB_ENV
+                  echo "bump_type=prerelease" >> $GITHUB_ENV
 
             - name: make sure bump type isn't empty
               id: check-if-empty
@@ -235,8 +235,8 @@ jobs:
 
             - name: dispatch to release workflow
               if: ${{ env.should_tag == 1 }}
-              uses: peter-evans/repository-dispatch@v1
+              uses: benc-uk/workflow-dispatch@v1
               with:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-                  event-type: release-trigger
-                  client-payload: '{ "bump_type": "${{ env.bump_type }}" }'
+                  workflow: release-trigger
+                  inputs: '{ "bump_type": ${{ env.bump_type }} }'

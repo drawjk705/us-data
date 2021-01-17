@@ -1,13 +1,16 @@
 name: Release
 on:
     repository_dispatch:
-        types:
-            - release-trigger
 
 jobs:
     tag_and_publish:
         runs-on: ubuntu-latest
         steps:
+            - name: echo it
+              run: echo $JSON
+              env:
+                  JSON: ${{ toJson(github) }}
+
             - name: checkout repo
               uses: actions/checkout@v2
 
