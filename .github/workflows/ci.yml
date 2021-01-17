@@ -67,6 +67,7 @@ jobs:
 
             - name: lint
               run: |
+                  ls
                   source ./.venv/bin/activate
                   poe typing
                   poe lint
