@@ -35,6 +35,7 @@ ipython = "^7.19.0"
 jupyterlab = "^3.0.1"
 ipywidgets = "^7.6.2"
 isort = "^5.7.0"
+autohooks = "2.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
