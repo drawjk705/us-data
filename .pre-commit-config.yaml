@@ -22,11 +22,11 @@ repos:
       hooks:
           - id: check-hooks-apply
 
-    - repo: local
-      hooks:
-          - id: commit-message-prefix
-            name: validate commit message prefix
-            language: pygrep
-            entry: '^(breaking|feat|fix|chore|prerelease): '
-            args: [--multiline]
-            stages: [commit-msg]
+    # - repo: local
+    #   hooks:
+    #       - id: commit-message-prefix
+    #         name: validate commit message prefix
+    #         language: pygrep
+    #         entry: '^(breaking|feat|fix|chore|prerelease): '
+    #         args: [--multiline]
+    #         stages: [commit-msg]
