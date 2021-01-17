@@ -23,7 +23,7 @@ class Group:
     def fromJson(cls, jsonDict: Dict[str, str]):
         code = jsonDict["name"]
         description = jsonDict["description"]
-        variables = jsonDict.get("variables") or ""
+        variables = jsonDict.get("variables", "")
 
         return cls(
             GroupCode(code), description, variables, cleanVariableName(description)
