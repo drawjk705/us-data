@@ -37,7 +37,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
 
             - name: install poetry dependencies
               run: poetry install
@@ -48,7 +48,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   path: ~/.npm
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}-${{ secrets.CACHE_VERSION }}
 
             - name: install pyright dependencies
               run: sudo npm install -g pyright
@@ -88,7 +88,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
 
             - name: install poetry dependencies
               run: poetry install
@@ -125,7 +125,7 @@ jobs:
               uses: actions/cache@v2
               with:
                   path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
 
             - name: install poetry dependencies
               run: poetry install
