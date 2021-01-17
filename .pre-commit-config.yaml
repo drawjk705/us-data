@@ -27,7 +27,7 @@ repos:
           - id: commit-message-prefix
             name: validate commit message prefix
             language: pygrep
-            entry: 'fix: '
+            entry: '\A(fix)'
             args: [--multiline]
             stages: [commit-msg]
 
