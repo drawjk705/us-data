@@ -2,4 +2,4 @@
 
 
 def verify_commit_message(**kwargs: str):
-    print(kwargs)
+    print(f"hello {kwargs} hello")
