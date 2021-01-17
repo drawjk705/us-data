@@ -1,11 +1,11 @@
 name: Release
-
 on:
-    create:
-        tags:
+    repository_dispatch:
+        types:
+            - release-trigger
 
 jobs:
-    publish:
+    tag_and_publish:
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
@@ -34,53 +34,65 @@ jobs:
               run: poetry install
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-    #         - name: poetry publish to pypi
-    #           if: "!startsWith(github.event.head.commit.message, 'chore')"
-    #           run: |
-    #               poetry build
-    #               poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-    #               poetry publish
+            - name: bump version
+              run: |
+                  echo $BUMP_TYPE
+                  poetry version $BUMP_TYPE
+              env:
+                  BUMP_TYPE: ${{ github.event.client_payload.bump_type }}
 
-    #         - name: poetry publish to pypi-test
-    #           if: "!startsWith(github.event.head.commit.message, 'chore')"
-    #           run: |
-    #               poetry build
-    #               poetry config repositories.testpypi https://test.pypi.org/legacy/
-    #               poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
-    #               poetry publish -r testpypi
+            - name: poetry publish to pypi
+              run: |
+                  poetry build
+                  poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+                  poetry publish
 
-    #         - name: get version number
-    #           run: |
-    #               VERSION=$(poetry version)
-    #               VERSION=v${VERSION#"the-census "}
-    #               echo "version=$VERSION" >> $GITHUB_ENV
+            - name: poetry publish to pypi-test
+              run: |
+                  poetry build
+                  poetry config repositories.testpypi https://test.pypi.org/legacy/
+                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
+                  poetry publish -r testpypi
 
-    #         - name: store version
-    #           uses: nick-invision/persist-action-data@v1
-    #           with:
-    #               data: ${{ env.version }}
-    #               variable: TAGGED_VERSION
+            - name: get version number
+              run: |
+                  VERSION=$(poetry version --short)
+                  echo "version=v$VERSION" >> $GITHUB_ENV
 
-    # github_release:
-    #     needs: [publish]
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: checkout repo
-    #           uses: actions/checkout@v2
+            - name: commit to master
+              uses: EndBug/add-and-commit@v6
+              with:
+                  message: bump ${{ env.version }}
+                  tag: ${{ env.version }}
+                  author_email: drawjk705@gmail.com
 
-    #         - name: get version
-    #           id: version_num
-    #           uses: nick-invision/persist-action-data@v1
-    #           with:
-    #               retrieve_variables: TAGGED_VERSION
+            - name: store version
+              uses: nick-invision/persist-action-data@v1
+              with:
+                  data: ${{ env.version }}
+                  variable: TAGGED_VERSION
 
-    #         - name: create release
-    #           id: create_release
-    #           uses: actions/create-release@v1
-    #           env:
-    #               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #           with:
-    #               tag_name: ${{ steps.version_num.outputs.TAGGED_VERSION }}
-    #               release_name: Release ${{ steps.version_num.outputs.TAGGED_VERSION }}
-    #               draft: false
-    #               prerelease: startsWith(github.event.head.commit.message, 'prerelease')
+    github_release:
+        needs: [tag_and_publish]
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v2
+
+            - name: get version
+              id: version_num
+              uses: nick-invision/persist-action-data@v1
+              with:
+                  retrieve_variables: TAGGED_VERSION
+
+            - name: create release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ steps.version_num.outputs.TAGGED_VERSION }}
+                  release_name: Release ${{ steps.version_num.outputs.TAGGED_VERSION }}
+                  draft: false
+                  prerelease: startsWith(github.event.head.commit.message, 'prerelease')

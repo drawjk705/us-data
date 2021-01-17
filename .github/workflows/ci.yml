@@ -194,79 +194,48 @@ jobs:
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
-    # we tag only if it's a push to main, and the commit isn't a chore
-    tag:
+    dispatch-event:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !startsWith(github.event.head_commit.message, 'chore') }}
-        needs: [lint, test, build]
         runs-on: ubuntu-latest
-
         steps:
-            - name: checkout repo
-              uses: actions/checkout@v2
+            - name: check for major
+              id: major
+              if: "startsWith(github.event.head_commit.message, 'breaking: ')"
+              run: |
+                  echo "bump_type='major'" >> $GITHUB_ENV
 
-            - name: set up python
-              uses: actions/setup-python@v2
+            - name: check for minor
+              id: minor
+              if: "startsWith(github.event.head_commit.message, 'feat: ')"
+              run: |
+                  echo "bump_type='minor'" >> $GITHUB_ENV
+
+            - name: check for patch
+              id: patch
+              if: "startsWith(github.event.head_commit.message, 'fix: ')"
+              run: |
+                  echo "bump_type='patch'" >> $GITHUB_ENV
+
+            - name: check for prerelease
+              id: prerelease
+              if: "startsWith(github.event.head_commit.message, 'prerelease: ')"
+              run: |
+                  echo "bump_type='prerelease'" >> $GITHUB_ENV
+
+            - name: make sure bump type isn't empty
+              id: check-if-empty
+              run: |
+                  if [ -z "$bump_type" ];
+                  then
+                      echo "should_tag=0" >> $GITHUB_ENV
+                  else
+                      echo "should_tag=1" >> $GITHUB_ENV
+                  fi
+
+            - name: dispatch to release workflow
+              if: ${{ env.should_tag == 1 }}
+              uses: peter-evans/repository-dispatch@v1
               with:
-                  python-version: 3.9
-
-            - name: install poetry
-              uses: snok/install-poetry@v1.1.1
-              with:
-                  version: 1.1.4
-                  virtualenvs-create: true
-                  virtualenvs-in-project: true
-
-            - name: load cached venv
-              id: cached-poetry-dependencies
-              uses: actions/cache@v2
-              with:
-                  path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
-
-            - name: install poetry dependencies
-              run: poetry install
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-
-            - name: maybe bump major
-              if: startsWith(github.event.head_commit.message, 'breaking')
-              run: |
-                  poetry version major
-                  echo "isMajor=1" >> $GITHUB_ENV
-
-            - name: maybe bump minor
-              if: startsWith(github.event.head_commit.message, 'feat')
-              run: |
-                  poetry version minor
-                  echo "isMinor=1" >> $GITHUB_ENV
-
-            - name: maybe bump patch
-              if: startsWith(github.event.head_commit.message, 'fix')
-              run: |
-                  poetry version patch
-                  echo "isPatch=1" >> $GITHUB_ENV
-
-            - name: maybe bump prerelease
-              if: startsWith(github.event.head.commit.message, 'prerelease')
-              run: |
-                  poetry version prerelease
-                  echo "isPrerelease=1" >> $GITHUB_ENV
-
-            - name: figure out if it's nothing # this is a safeguard
-              run: |
-                  if [ -z "$isMajor" ] && [ -z "$isMinor" ] && [ -z "$isPatch" ] && [ -z "$isPrerelease" ];
-                    then
-                      echo "doNotTag=1" >> $GITHUB_ENV
-                    fi
-
-            - name: get version
-              run: |
-                  VERSION=$(poetry version --short)
-                  echo "version=v$VERSION" >> $GITHUB_ENV
-
-            - name: commit to main with tag # this will give us the tag, and the bumped version of pyproject.toml
-              if: ${{ !env.doNotTag }}
-              uses: EndBug/add-and-commit@v6
-              with:
-                  message: bump ${{ env.version }}
-                  tag: ${{ env.version }}
-                  author_email: drawjk705@gmail.com
+                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
+                  event-type: release-trigger
+                  client-payload: '{ "bump_type": "${{ env.bump_type }}" }'
