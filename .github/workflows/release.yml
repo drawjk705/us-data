@@ -10,13 +10,6 @@ jobs:
     tag_and_publish:
         runs-on: ubuntu-latest
         steps:
-            - name: echo it
-              run: |
-                  echo $JSON
-                  exit 1
-              env:
-                  JSON: ${{ toJson(github) }}
-
             - name: checkout repo
               uses: actions/checkout@v2
 
