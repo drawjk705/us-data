@@ -65,9 +65,13 @@ jobs:
                   python3 generate_typestubs.py
               if: steps.cached-typestubs.outputs.cache-hit != 'true'
 
+            - name: ls
+              run: |
+                  sudo apt-get install tree
+                  tree .
+
             - name: lint
               run: |
-                  ls
                   source ./.venv/bin/activate
                   poe typing
                   poe lint
