@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 
 from pytest_mock import MockerFixture
 
-from us_data._utils.chunk import chunk
-from us_data._utils.timer import timer
-from us_data._utils.unique import getUnique
+from the_census._utils.chunk import chunk
+from the_census._utils.timer import timer
+from the_census._utils.unique import getUnique
 
 
 def test_chunk_givenChunkLessThanSize():
@@ -42,10 +42,10 @@ def test_timer_logsAndReturnsValues(mocker: MockerFixture):
     def fn() -> int:
         return 1
 
-    mockLogging = mocker.patch("us_data._utils.timer.logging")
+    mockLogging = mocker.patch("the_census._utils.timer.logging")
     mockLogger = MagicMock()
     cast(MagicMock, cast(logging, mockLogging).getLogger).return_value = mockLogger
-    mockPerfCounter = mocker.patch("us_data._utils.timer.time")
+    mockPerfCounter = mocker.patch("the_census._utils.timer.time")
     mockPerfCounter.perf_counter.side_effect = [1, 2]  # type: ignore
 
     retval = fn()

@@ -3,7 +3,7 @@
 ![Release](https://github.com/drawjk705/us-data/workflows/Release/badge.svg)
 ![CI](https://github.com/drawjk705/us-data/workflows/CI/badge.svg)
 
-# US-Data
+# The Census
 
 Want to work with US Census data? Look no further.
 
@@ -14,9 +14,9 @@ Want to work with US Census data? Look no further.
 If you you're not sure what Census dataset you're interested in, the following code will take care of you:
 
 ```python
-from us_data.census import listAvailableDataSets()
+from the_census import Census
 
-listAvailableDataSets()
+Census.listAvailableDataSets()
 ```
 
 This will present you with a pandas DataFrame listing all available datasets from the US Census API. (This includes only aggregate datasets, as they other types [of which there are very few] don't play nice with the client).
@@ -31,33 +31,36 @@ export CENSUS_API_KEY=<your key>
 
 or in a `.env` file:
 
-```
+```bash
 CENSUS_API_KEY=<your key>
 ```
 
 Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
 
 ```python
-from us_data.census import getCensus
+>>> from the_census import Census
+>>> Census(year=2019, datasetType="acs", surveyType="acs1")
 
-dataset = getCensus(year=2019, datasetType="acs", surveyType="acs1")
+<Census year=2019 dataset=acs survey=acs1>
 ```
 
 The `dataset` object will now let you query any census data for the the ACS 1-year estimates of 2019. We'll now dive into how to query this dataset with the tool. However, if you aren't familiar with dataset "architecture", check out [this](#dataset-architecture) section.
 
-### Arguments to `getCensus`
+### Arguments to `Census`
 
-This is the signature of `getCensus`:
+This is the signature of `Census`:
 
 ```python
-def getCensus(year: int,
-              datasetType: str = "acs",
-              surveyType: str = "acs1",
-              cacheDir: str = CACHE_DIR,        # cache
-              shouldLoadFromExistingCache: bool = False,
-              shouldCacheOnDisk: bool = False,
-              replaceColumnHeaders: bool = True,
-              logFile: str = DEFAULT_LOGFILE):  # us_data.log
+class Census
+    def __init__(self,
+                 year: int,
+                 datasetType: str = "acs",
+                 surveyType: str = "acs1",
+                 cacheDir: str = CACHE_DIR,        # cache
+                 shouldLoadFromExistingCache: bool = False,
+                 shouldCacheOnDisk: bool = False,
+                 replaceColumnHeaders: bool = True,
+                 logFile: str = DEFAULT_LOGFILE):  # the_census.log
     pass
 ```
 
@@ -75,7 +78,7 @@ def getCensus(year: int,
 
 ###### A note on caching
 
-While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `dataset.getGroups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
+While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `census.getGroups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
 
 ## Making queries
 
@@ -84,7 +87,7 @@ While on-disk caching is optional, this tool, by design, performs in-memory cach
 Getting the [supported geographies](#supported-geographies) for a dataset as as simple as this:
 
 ```python
-dataset.getSupportedGeographies()
+census.getSupportedGeographies()
 ```
 
 This will output a DataFrame will all possible supported geographies (e.g., if I can query all school districts across all states).
@@ -98,16 +101,16 @@ So, if you're interested in all school districts in Colorado, here's what you'd 
 1. Get FIPS codes for all states:
 
 ```python
-from us_data.census import GeoDomain
+from the_census import GeoDomain
 
-dataset.getGeographyCodes(GeoDomain("state", "*"))
+census.getGeographyCodes(GeoDomain("state", "*"))
 ```
 
 2. Get FIPS codes for all school districts within Colorado (FIPS code `08`):
 
 ```python
-dataset.getGeographyCodes(GeoDomain("school district", "*"),
-                          GeoDomain("state", "08"))
+census.getGeographyCodes(GeoDomain("school district", "*"),
+                         GeoDomain("state", "08"))
 ```
 
 Note that geography code queries must follow supported geography guidelines.
@@ -117,27 +120,27 @@ Note that geography code queries must follow supported geography guidelines.
 Want to figure out what groups are available for your dataset? No problem. This will do the trick for ya:
 
 ```python
-dataset.getGroups()
+census.getGroups()
 ```
 
-...and you'll get a DataFrame with all groups for your dataset.
+...and you'll get a DataFrame with all groups for your census.
 
 #### Searching groups
 
-`dataset.getGroups()` will return a lot of data that might be difficult to slog through. In that case, run this:
+`census.getGroups()` will return a lot of data that might be difficult to slog through. In that case, run this:
 
 ```python
-dataset.searchGroups(regex=r"my regex")
+census.searchGroups(regex=r"my regex")
 ```
 
 and you'll get a filtered DataFrame with matches to your regex.
 
 #### Groups autocomplete
 
-If you're working in a Jupyter notebook and have autocomplete enabled, running `dataset.groups.`, followed by a tab, will trigger an autocomplete menu for possible groups by their name (as opposed to their code, which doesn't have any inherent meaning in and of itself).
+If you're working in a Jupyter notebook and have autocomplete enabled, running `census.groups.`, followed by a tab, will trigger an autocomplete menu for possible groups by their name (as opposed to their code, which doesn't have any inherent meaning in and of itself).
 
 ```python
-dataset.groups.SexByAge   # code for this group
+census.groups.SexByAge   # code for this group
 ```
 
 ### Variables
@@ -145,14 +148,14 @@ dataset.groups.SexByAge   # code for this group
 You can either get a DataFrame of variables based on a set of groups:
 
 ```python
-dataset.getVariablesByGroup(dataset.groups.SexByAge,
-                            dataset.groups.MedianAgeBySex)
+census.getVariablesByGroup(census.groups.SexByAge,
+                           census.groups.MedianAgeBySex)
 ```
 
 Or, you can get a DataFrame with all variables for a given dataset:
 
 ```python
-dataset.getAllVariables()
+census.getAllVariables()
 ```
 
 This second operation, can, however, take a lot of time.
@@ -162,14 +165,14 @@ This second operation, can, however, take a lot of time.
 Similar to groups, you can search variables by regex:
 
 ```python
-dataset.searchVariables(r"my regex")
+census.searchVariables(r"my regex")
 ```
 
 And, you can limit that search to variables of a particular group or groups:
 
 ```python
-dataset.searchVariables(r"my regex",
-                        dataset.groups.SexByAge)
+census.searchVariables(r"my regex",
+                        census.groups.SexByAge)
 ```
 
 #### Variables autocomplete
@@ -177,7 +180,7 @@ dataset.searchVariables(r"my regex",
 Variables also support autocomplete for their codes, as with groups.
 
 ```python
-dataset.variables.EstimateTotal_B01001  # code for this variable
+census.variables.EstimateTotal_B01001  # code for this variable
 ```
 
 (These names must be suffixed with the group code, since, while variable codes are unique across groups, their names are not unique across groups.)
@@ -187,13 +190,13 @@ dataset.variables.EstimateTotal_B01001  # code for this variable
 Once you have the variables you want to query, along with the geography you're interested in, you can now make statistics queries from your dataset:
 
 ```python
-from us_data.census import GeoDomain
+from the_census import GeoDomain
 
-variables = dataset.getVariablesForGroup(dataset.groups.SexByAge)
+variables = census.getVariablesForGroup(census.groups.SexByAge)
 
-dataset.getStats(variables["code"].tolist(),
-                 GeoDomain("school district", "*"),
-                 GeoDomain("state", "08"))
+census.getStats(variables["code"].tolist(),
+                GeoDomain("school district", "*"),
+                GeoDomain("state", "08"))
 ```
 
 ## Experimental: Political Party
@@ -219,7 +222,7 @@ PROPUBLICA_CONG_KEY=<your key>
 If you're interested in looking at the political party of the state or congressional district, the `congress` package will serve you well:
 
 ```python
-from us_data.congress import getCongress
+from the_census.congress import getCongress
 
 cong = getCongress(116)
 ```
@@ -245,7 +248,7 @@ US Census datasets have 3 primary components:
 
 ### Groups
 
-A group is a "category" of data gathered for a particular dataset. For example, the `SEX BY AGE` group would provide breakdowns of gender and age demographics in a given region in the United States.
+A group is a "category" of data gathered for a particular census. For example, the `SEX BY AGE` group would provide breakdowns of gender and age demographics in a given region in the United States.
 
 Some of these groups' names, however, are a not as clear as `SEX BY AGE`. In that case, I recommend heading over to the survey in question's [technical documentation](https://www2.census.gov/programs-surveys/) which elaborates on what certain terms mean with respect to particular groups. Unfortunately, the above link might be complicated to navigate, but if you're looking for ACS group documentation, [here's](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2019_ACSSubjectDefinitions.pdf) a handy link.
 
@@ -257,4 +260,4 @@ Variables on their own, however, do nothing. They mean something only when you q
 
 ### Supported Geographies
 
-Supported geographies dictate the kinds of queries you can make for a given dataset. For example, in the ACS-1, I might be interested in looking at stats across all school districts. The survey's supported geographies will tell me if I can actually do that; or, if I need to refine my query to look at school districts in a given state or smaller region.
+Supported geographies dictate the kinds of queries you can make for a given census. For example, in the ACS-1, I might be interested in looking at stats across all school districts. The survey's supported geographies will tell me if I can actually do that; or, if I need to refine my query to look at school districts in a given state or smaller region.

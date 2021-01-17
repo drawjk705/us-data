@@ -1,5 +1,5 @@
 {
-    "include": ["us_data"],
+    "include": ["the_census"],
     "ignore": ["typings"],
 
     "venvPath": "./.venv/",
