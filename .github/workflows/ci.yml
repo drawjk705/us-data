@@ -69,6 +69,7 @@ jobs:
             - name: ls
               run: |
                   sudo apt-get install tree
+                  tree .
 
             - name: lint
               run: |
