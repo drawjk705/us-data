@@ -13,6 +13,32 @@ jobs:
             matrix:
                 python-version: [3.9]
             fail-fast: false
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - uses: psf/black@stable
+              with:
+                  black_args: '. --check --exclude typings'
+
+    import-sort-order:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Run isort
+              uses: olance/isort-action@v1.0.0
+              with:
+                  args: '. -c'
+
+    typings:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [3.9]
+            fail-fast: false
 
         steps:
             - name: checkout repo
@@ -56,12 +82,10 @@ jobs:
             - name: install pyright dependencies
               run: sudo npm install -g pyright
 
-            - name: lint
+            - name: check typings
               run: |
                   source ./.venv/bin/activate
                   poe typing
-                  poe lint
-                  poe sort-imports -c
 
     test:
         runs-on: ubuntu-latest
