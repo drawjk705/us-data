@@ -137,13 +137,6 @@ jobs:
             - name: try build
               run: poetry build
 
-            - name: test version
-              run: |
-                  VERSION=$(poetry version)
-                  echo $VERSION
-                  VERSION=v${VERSION#"the-census "}
-                  echo $VERSION
-
     enforce-title:
         runs-on: ubuntu-latest
         steps:
