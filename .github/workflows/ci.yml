@@ -240,5 +240,5 @@ jobs:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                   workflow: Release
                   inputs:
-                      '{ "bump_type": "${{ env.bump_type }}" }'
-                      # '{ "message": "blah blah", "debug": true }'
+                      # '{ "bump_type": "${{ env.bump_type }}" }'
+                      '{ "message": "blah blah", "debug": true }'
