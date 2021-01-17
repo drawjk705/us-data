@@ -2,7 +2,9 @@ name: Release
 on:
     push:
         branches:
-            - main
+            - jk-test
+        tags:
+            - 'v**'
 jobs:
     lint:
         runs-on: ubuntu-latest
