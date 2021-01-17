@@ -197,7 +197,7 @@ jobs:
 
     # we tag only if it's a push to main, and the commit isn't a chore
     tag:
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !github.event.head_commit.message.startsWith('chore') }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/jk-test' && !startsWith(github.event.head_commit.message, 'chore')}
         needs: [lint, test, build]
         runs-on: ubuntu-latest
 
