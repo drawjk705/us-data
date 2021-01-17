@@ -240,5 +240,4 @@ jobs:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                   type: workflow
                   ident: release.yml
-                  workflow: Release
                   payload: '{ "bump_type": "${{ env.bump_type }}" }'
