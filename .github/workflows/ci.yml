@@ -196,11 +196,13 @@ jobs:
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
     tag:
-        if: contains(github.event, 'push')
+        # if: contains(github.event, 'push')
         runs-on: ubuntu-latest
 
         steps:
-            - run: echo hello there
+            - run: echo $CONTEXT
+              env:
+                  CONTEXT: toJson(github)
         # steps:
         #     - name: checkout repo
         #       uses: actions/checkout@v2
