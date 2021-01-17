@@ -238,5 +238,5 @@ jobs:
               uses: benc-uk/workflow-dispatch@v1
               with:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-                  workflow: release-trigger
+                  workflow: release-the-census
                   inputs: '{ "bump_type": ${{ env.bump_type }} }'
