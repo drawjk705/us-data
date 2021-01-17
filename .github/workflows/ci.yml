@@ -140,6 +140,7 @@ jobs:
             - name: test version
               run: |
                   VERSION=$(poetry version)
+                  echo $VERSION
                   VERSION=v${VERSION#"the-census "}
                   echo $VERSION
 
