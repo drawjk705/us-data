@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "the_census"
-version = "1.0.0"
+version = "1.0.1"
 description = "Tool to get and query US Census data"
 authors = ["Joel Krim <drawjk705@gmail.com>"]
 classifiers = ["Topic :: Software Development :: Libraries :: Python Modules"]
