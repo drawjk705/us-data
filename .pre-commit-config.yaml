@@ -22,6 +22,15 @@ repos:
       hooks:
           - id: check-hooks-apply
 
+    - repo: local
+      hooks:
+          - id: commit-message-prefix
+            name: validate commit message prefix
+            language: pygrep
+            entry: 'fix: '
+            args: [--multiline]
+            stages: [commit-msg]
+
     # - repo: local
     #   hooks:
     #       - id: commit-message-prefix
