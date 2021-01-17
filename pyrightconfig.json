@@ -1,6 +1,6 @@
 {
     "include": ["the_census"],
-    "ignore": ["typings"],
+    "ignore": ["typings", "generate_typestubs.py"],
 
     "venvPath": "./.venv/",
 
