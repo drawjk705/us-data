@@ -183,7 +183,7 @@ jobs:
 
     github_release:
         needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'chore') && !startsWith(github.event.head_commit.message, 'test')}}
+        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
