@@ -14,6 +14,11 @@ jobs:
                   ref: jk-test
                   token: ${{ secrets.TEST_ADMIN_TOKEN }}
 
+            - name: echo context
+              run: echo $CONTEXT
+              env:
+                  CONTEXT: ${{ toJson(github) }}
+
             - name: push to the branch
               run: |
                   date > test.txt
