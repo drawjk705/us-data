@@ -194,7 +194,7 @@ jobs:
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
-    dispatch-event:
+    trigger-release:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore') }}
         needs: [test, lint, build]
         runs-on: ubuntu-latest
