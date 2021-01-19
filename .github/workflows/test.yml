@@ -1,0 +1,23 @@
+name: test workflow
+
+on:
+    push:
+
+jobs:
+    try-the-push:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: check it out
+              uses: actions/checkout@v2.3.4
+              with:
+                  ref: jk-test
+
+            - name: push to the branch
+              run: |
+                  date > test.txt
+                  git config user.name drawjk705
+                  git config user.email drawjk705@gmail.com
+                  git add --all
+                  git commit -am 'chore: this is a test'
+                  git push
