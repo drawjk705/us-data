@@ -81,6 +81,8 @@ jobs:
         steps:
             - name: checkout repo
               uses: actions/checkout@v2
+              with:
+                  token: ${{ secrets.PUSH_TO_PROTECTED_TOKEN }}
 
             - name: get version
               id: version_num
