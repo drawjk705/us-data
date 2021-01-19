@@ -2,11 +2,11 @@
 authors = ["Joel Krim <drawjk705@gmail.com>"]
 classifiers = ["Topic :: Software Development :: Libraries :: Python Modules"]
 description = "Tool to get and query US Census data"
-homepage = "https://github.com/drawjk705/us-stats/"
+homepage = "https://github.com/drawjk705/the_census/"
 keywords = ["US", "census"]
 name = "the_census"
 readme = "README.md"
-repository = "https://github.com/drawjk705/us-stats/"
+repository = "https://github.com/drawjk705/the_census/"
 version = "1.0.3"
 
 [tool.poetry.dependencies]
