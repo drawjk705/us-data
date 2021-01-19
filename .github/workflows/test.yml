@@ -19,11 +19,11 @@ jobs:
               env:
                   CONTEXT: ${{ toJson(github) }}
 
-            - name: push to the branch
-              run: |
+            - run: |
                   date > test.txt
-                  git config --global user.name drawjk705
-                  git config --global user.email drawjk705@gmail.com
-                  git add --all
-                  git commit -am 'chore: this is a test'
-                  git push --force
+
+            - name: commit to the branch
+              uses: EndBug/add-and-commit@v6
+              with:
+                  message: this is a test
+                  branch: jk-test
