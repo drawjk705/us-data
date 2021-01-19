@@ -20,4 +20,4 @@ jobs:
                   git config user.email drawjk705@gmail.com
                   git add --all
                   git commit -am 'chore: this is a test'
-                  git push
+                  git push --force
