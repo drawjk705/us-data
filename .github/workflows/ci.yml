@@ -7,6 +7,13 @@ on:
             - main
 
 jobs:
+    echo-it:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo $CONTEXT
+              env:
+                  CONTEXT: ${{ toJson(github) }}
+
     lint:
         runs-on: ubuntu-latest
         strategy:
@@ -139,13 +146,6 @@ jobs:
 
             - name: try build
               run: poetry build
-
-    get-branch-name:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo $CONTEXT
-              env:
-                  CONTEXT: ${{ toJson(github) }}
 
     enforce-title:
         if: github.event_name == 'pull_request'
