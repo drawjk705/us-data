@@ -181,12 +181,6 @@ jobs:
               run: |
                   echo "::set-output name=exists::1"
 
-            - name: check for dependabot build(deps-dev)
-              id: dependabot-build-deps-dev
-              if: "startsWith(github.event.pull_request.title, 'build(deps-dev): "
-              run: |
-                  echo "::set-output name=exists=1"
-
             - name: check for prerelease
               id: prerelease
               if: "startsWith(github.event.pull_request.title, 'prerelease: ')"
@@ -195,7 +189,7 @@ jobs:
 
             - name: enforce
               run: |
-                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_PRERELEASE" && [ -z "$IS_DEPENDABOT_BUILD_DEPS_DEV" ]];
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_PRERELEASE" ];
                   then
                     echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ', prerelease: ', 'build(deps-dev): ']"
                     exit 1
@@ -206,7 +200,6 @@ jobs:
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
-                  IS_DEPENDABOT_BUILD_DEPS_DEV: ${{ steps.dependabot-build-deps-dev.exists }}
 
     trigger-release:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore') && !startsWith(github.event.head_commit.message, 'build(deps-dev)') }}
