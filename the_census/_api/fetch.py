@@ -133,5 +133,8 @@ class CensusApiFetchService(ICensusApiFetchService):
             msg = f"Could not make query for route `{route}`"
             self._logger.exception(msg)
             raise InvalidQueryException(msg)
+        if res.status_code == 204:  # no content
+            self._logger.debug("received no content for query")
+            return []
 
         return res.json()  # type: ignore
