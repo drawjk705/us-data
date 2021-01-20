@@ -209,7 +209,16 @@ jobs:
                   IS_DEPENDABOT_BUILD_DEV: ${{ steps.dependabot-build-dev.outputs.exists }}
 
     trigger-release:
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (startsWith(github.event.head_commit.message, 'breaking') || (startsWith(github.event.head_commit.message, 'feat')) || (startsWith(github.event.head_commit.message, 'fix') || (startsWith(github.event.head_commit.message, 'prerelease') }}
+        if: >-
+            ${{ github.event_name == 'push' &&
+                github.ref == 'refs/heads/main' && 
+                (
+                  startsWith(github.event.head_commit.message, 'breaking') ||
+                  startsWith(github.event.head_commit.message, 'feat') || 
+                  startsWith(github.event.head_commit.message, 'fix') ||
+                  startsWith(github.event.head_commit.message, 'prerelease')
+                )
+              }}
         needs: [test, lint, build]
         runs-on: ubuntu-latest
         steps:
