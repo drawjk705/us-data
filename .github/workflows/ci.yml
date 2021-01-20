@@ -144,7 +144,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - run: echo $CONTEXT
-              CONTEXT: ${{ toJson(github) }}
+              env:
+                  CONTEXT: ${{ toJson(github) }}
 
     enforce-title:
         if: github.event_name == 'pull_request'
@@ -186,9 +187,15 @@ jobs:
               run: |
                   echo "::set-output name=exists::1"
 
+            - name: check if dependabot build-dev
+              id: dependabot-build-dev
+              if: "github.event.pull_request.user.login == 'dependabot-preview[bot]' && startsWith(github.event.pull_request.title, 'build(deps-dev): ')"
+              run: |
+                  echo "::set-output name=exists::1"
+
             - name: enforce
               run: |
-                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_PRERELEASE" ];
+                  if [ -z "$IS_MAJOR" ] && [ -z "$IS_MINOR" ] && [ -z "$IS_PATCH" ] && [ -z "$IS_CHORE" ] && [ -z "$IS_PRERELEASE" ] && [ -z "$IS_DEPENDABOT_BUILD_DEV" ];
                   then
                     echo "PR must be prefixes with one of the following: ['breaking: ', 'feat: ', 'fix: ', 'chore: ', prerelease: ']"
                     exit 1
@@ -199,9 +206,19 @@ jobs:
                   IS_PATCH: ${{ steps.patch.outputs.exists }}
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
+                  IS_DEPENDABOT_BUILD_DEV: ${{ steps.dependabot-build-dev.outputs.exists }}
 
     trigger-release:
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore') }}
+        if: >-
+            ${{ github.event_name == 'push' &&
+                github.ref == 'refs/heads/main' && 
+                (
+                  startsWith(github.event.head_commit.message, 'breaking') ||
+                  startsWith(github.event.head_commit.message, 'feat') || 
+                  startsWith(github.event.head_commit.message, 'fix') ||
+                  startsWith(github.event.head_commit.message, 'prerelease')
+                )
+              }}
         needs: [test, lint, build]
         runs-on: ubuntu-latest
         steps:
