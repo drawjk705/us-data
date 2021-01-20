@@ -31,3 +31,9 @@ class NoCensusApiKeyException(Exception):
     """
     Thrown when no Census API key is provided
     """
+
+
+class NoContentFromApiException(Exception):
+    """
+    Thrown when the API returns a 204 status code
+    """
