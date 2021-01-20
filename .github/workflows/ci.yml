@@ -7,6 +7,13 @@ on:
             - main
 
 jobs:
+    echo-it:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo $CONTEXT
+              env:
+                  CONTEXT: ${{ github.context }}
+
     lint:
         runs-on: ubuntu-latest
         strategy:
