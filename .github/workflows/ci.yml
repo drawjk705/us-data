@@ -12,7 +12,7 @@ jobs:
         steps:
             - run: echo $CONTEXT
               env:
-                  CONTEXT: ${{ github.context }}
+                  CONTEXT: ${{ github }}
 
     lint:
         runs-on: ubuntu-latest
