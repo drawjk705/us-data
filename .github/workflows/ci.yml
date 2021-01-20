@@ -147,6 +147,12 @@ jobs:
             - name: try build
               run: poetry build
 
+    get-branch-name:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo $CONTEXT
+              CONTEXT: ${{ toJson(github) }}
+
     enforce-title:
         if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest

@@ -11,7 +11,11 @@ from the_census._api.interface import (
 )
 from the_census._api.models import GeographyItem
 from the_census._config import Config
-from the_census._exceptions import CensusDoesNotExistException, InvalidQueryException
+from the_census._exceptions import (
+    CensusDoesNotExistException,
+    InvalidQueryException,
+    NoContentFromApiException,
+)
 from the_census._geographies.models import GeoDomain
 from the_census._utils.chunk import chunk
 from the_census._utils.log.factory import ILoggerFactory
@@ -68,29 +72,29 @@ class CensusApiFetchService(ICensusApiFetchService):
 
         uriQuerystring: str = requote_uri(querystring)
 
-        return self.__fetch(route=uriQuerystring)
+        return self._fetch(route=uriQuerystring)
 
     @timer
     def groupData(self) -> Dict[str, Group]:
-        groupsRes: Dict[str, List[Dict[str, str]]] = self.__fetch(route="/groups.json")
+        groupsRes: Dict[str, List[Dict[str, str]]] = self._fetch(route="/groups.json")
 
         return self._parser.parseGroups(groupsRes)
 
     @timer
     def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
-        geogRes = self.__fetch(route="/geography.json")
+        geogRes = self._fetch(route="/geography.json")
 
         return self._parser.parseSupportedGeographies(geogRes)
 
     @timer
     def variablesForGroup(self, group: str) -> List[GroupVariable]:
-        res = self.__fetch(route=f"/groups/{group}.json")
+        res = self._fetch(route=f"/groups/{group}.json")
 
         return self._parser.parseGroupVariables(res)
 
     @timer
     def allVariables(self) -> List[GroupVariable]:
-        res = self.__fetch("/variables.json")
+        res = self._fetch("/variables.json")
 
         return self._parser.parseGroupVariables(res)
 
@@ -123,9 +127,9 @@ class CensusApiFetchService(ICensusApiFetchService):
             # data types, [e.g., int, float] further up when we're working
             # with dataFrames; there's no real good way to do it down here)
 
-            yield self.__fetch(uriRoute)
+            yield self._fetch(uriRoute)
 
-    def __fetch(self, route: str = "") -> Any:
+    def _fetch(self, route: str = "") -> Any:
         ampersandOrQuestionMark = "&" if "?" in route else "?"
         url = self._url + route + ampersandOrQuestionMark + "key=" + self._config.apiKey
         res = requests.get(url)  # type: ignore
@@ -133,5 +137,9 @@ class CensusApiFetchService(ICensusApiFetchService):
             msg = f"Could not make query for route `{route}`"
             self._logger.exception(msg)
             raise InvalidQueryException(msg)
+        if res.status_code == 204:  # no content
+            msg = f"Received no content for query for route {route}"
+            self._logger.exception(msg)
+            raise NoContentFromApiException(msg)
 
         return res.json()  # type: ignore
