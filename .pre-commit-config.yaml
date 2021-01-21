@@ -28,9 +28,3 @@ repos:
             entry: pyright
             language: system
             types: [python]
-
-          - id: commit-message-prefix
-            name: validate commit message prefix
-            language: pygrep
-            entry: '\A(?!((breaking|feat|fix|chore|prerelease): |Merge))'
-            stages: [commit-msg]
