@@ -242,6 +242,15 @@ class Census:
         """
         return listAvailableDataSets()
 
+    @staticmethod
+    def help() -> None:
+        print(
+            "For more documentation on the census, see https://www2.census.gov/programs-surveys/"
+        )
+        print(
+            "For more documentation on ACS subject defintiions, see https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2019_ACSSubjectDefinitions.pdf"
+        )
+
     #################################################
     # property variables for Jupyter notebook usage #
     #################################################

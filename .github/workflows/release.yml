@@ -44,6 +44,7 @@ jobs:
                   BUMP_TYPE: ${{ github.event.inputs.bump_type }}
 
             - name: poetry publish to pypi
+              if: ${{ secrets.TEST_ONLY == 0 }}
               run: |
                   poetry build
                   poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
