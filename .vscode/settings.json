@@ -5,6 +5,10 @@
         "dependabot",
         "deps",
         "dev",
-        "is"
+        "is",
+        "publish",
+        "pypi",
+        "test",
+        "to"
     ]
 }
