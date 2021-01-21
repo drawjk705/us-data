@@ -2,9 +2,7 @@ name: Staging
 
 on:
     create:
-    # push:
-    #     branches:
-    #         - 'refs/tags/v**'
+        tags:
 
 jobs:
     testing:
