@@ -2,8 +2,8 @@ name: Staging
 
 on:
     push:
-        tags:
-            - '**'
+        branches:
+            - 'refs/tags/v**'
 
 jobs:
     publish-to-test-pypi:
