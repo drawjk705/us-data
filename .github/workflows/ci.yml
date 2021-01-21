@@ -200,7 +200,7 @@ jobs:
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
-    create-tag:
+    create-tag-and-trigger-staging:
         environment: CI
         if: >-
             ${{ github.event_name == 'push' &&
@@ -288,8 +288,14 @@ jobs:
               env:
                   BUMP_TYPE: ${{ env.bump_type }}
 
-            - name: commit to master
+            - name: commit to main
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
+
+            - uses: ph-fritsche/action-dispatch@v1
+              with:
+                  token: ${{ secrets.STAGING_TRIGGER_TOKEN }}
+                  type: workflow
+                  ident: staging.yml
