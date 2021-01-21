@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, OrderedDict, Union
 
 import hypothesis.strategies as st
 import pytest
@@ -61,74 +61,89 @@ def test_parseVariableData(
 __supportedGeosTestCases = [
     (
         {
-            "name": "principal city (or part)",
-            "geoLevelDisplay": "312",
-            "referenceDate": "2019-01-01",
-            "requires": [
-                "metropolitan statistical area/micropolitan statistical area",
-                "state (or part)",
-            ],
+            "fips": [
+                {
+                    "name": "principal city (or part)",
+                    "geoLevelDisplay": "312",
+                    "referenceDate": "2019-01-01",
+                    "requires": [
+                        "metropolitan statistical area/micropolitan statistical area",
+                        "state (or part)",
+                    ],
+                }
+            ]
         },
-        GeographyItem.makeItem(
-            name="principal city (or part)",
-            hierarchy="312",
-            clauses=[
-                GeographyClauseSet.makeSet(
-                    forClause="principal city (or part):CODE",
-                    inClauses=[
-                        "metropolitan statistical area/micropolitan statistical area:CODE",
-                        "state (or part):CODE",
+        OrderedDict(
+            {
+                "principal city (or part)": GeographyItem.makeItem(
+                    name="principal city (or part)",
+                    hierarchy="312",
+                    clauses=[
+                        GeographyClauseSet.makeSet(
+                            forClause="principal city (or part):CODE",
+                            inClauses=[
+                                "metropolitan statistical area/micropolitan statistical area:CODE",
+                                "state (or part):CODE",
+                            ],
+                        ),
+                        GeographyClauseSet.makeSet(
+                            forClause="principal city (or part):*",
+                            inClauses=[
+                                "metropolitan statistical area/micropolitan statistical area:CODE",
+                                "state (or part):CODE",
+                            ],
+                        ),
                     ],
-                ),
-                GeographyClauseSet.makeSet(
-                    forClause="principal city (or part):*",
-                    inClauses=[
-                        "metropolitan statistical area/micropolitan statistical area:CODE",
-                        "state (or part):CODE",
-                    ],
-                ),
-            ],
+                )
+            }
         ),
     ),
     (
         {
-            "name": "congressional district",
-            "geoLevelDisplay": "500",
-            "referenceDate": "2019-01-01",
-            "requires": ["state"],
-            "wildcard": ["state"],
-            "optionalWithWCFor": "state",
+            "fips": [
+                {
+                    "name": "congressional district",
+                    "geoLevelDisplay": "500",
+                    "referenceDate": "2019-01-01",
+                    "requires": ["state"],
+                    "wildcard": ["state"],
+                    "optionalWithWCFor": "state",
+                }
+            ]
         },
-        GeographyItem.makeItem(
-            name="congressional district",
-            hierarchy="500",
-            clauses=[
-                GeographyClauseSet.makeSet(
-                    forClause="congressional district:CODE",
-                    inClauses=["state:CODE"],
+        OrderedDict(
+            {
+                "congressional district": GeographyItem.makeItem(
+                    name="congressional district",
+                    hierarchy="500",
+                    clauses=[
+                        GeographyClauseSet.makeSet(
+                            forClause="congressional district:CODE",
+                            inClauses=["state:CODE"],
+                        ),
+                        GeographyClauseSet.makeSet(
+                            forClause="congressional district:*", inClauses=[]
+                        ),
+                        GeographyClauseSet.makeSet(
+                            forClause="congressional district:*",
+                            inClauses=["state:*"],
+                        ),
+                    ],
                 ),
-                GeographyClauseSet.makeSet(
-                    forClause="congressional district:*", inClauses=[]
-                ),
-                GeographyClauseSet.makeSet(
-                    forClause="congressional district:*",
-                    inClauses=["state:*"],
-                ),
-            ],
+            }
         ),
     ),
+    ([], OrderedDict({})),
 ]
 
 
-@pytest.mark.parametrize(["apiItem", "expected"], __supportedGeosTestCases)
+@pytest.mark.parametrize(["apiResponse", "expected"], __supportedGeosTestCases)
 def test_parseSupportedGeographies(
-    service: ApiSerializationService, apiItem: Dict[Any, Any], expected: GeographyItem
+    service: ApiSerializationService,
+    apiResponse: Dict[Any, Any],
+    expected: GeographyItem,
 ):
-    apiResponse = {"default": [{"isDefault": True}], "fips": [apiItem]}
-
-    res = service.parseSupportedGeographies(apiResponse)
-
-    actual = res[apiItem["name"]]
+    actual = service.parseSupportedGeographies(apiResponse)
 
     assert actual == expected
 
@@ -166,6 +181,7 @@ def test_parseSupportedGeographies(
                 ),
             },
         ),
+        ([], {}),
     ],
 )
 def test_parseGroups(

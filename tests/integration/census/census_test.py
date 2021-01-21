@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Collection, Dict, Generator, List, Optional, Set, cast
+from typing import Any, Callable, Collection, Dict, Generator, List, Optional, Set, cast
 
 import pandas
 import pytest
@@ -896,6 +896,26 @@ class TestCensus:
         else:
             assert len(repoVars) == 0
             assert len(repoGroups) == 0
+
+    @pytest.mark.parametrize(
+        "censusCall",
+        [
+            lambda census: cast(Census, census).getSupportedGeographies(),  # type: ignore
+            lambda census: cast(Census, census).getAllVariables(),  # type: ignore
+            lambda census: cast(Census, census).getGroups(),  # type: ignore
+            lambda census: cast(Census, census).getVariablesByGroup(),  # type: ignore
+            lambda census: cast(Census, census).searchGroups(GroupCode("g-123")),  # type: ignore
+            lambda census: cast(Census, census).searchVariables("regex"),  # type: ignore
+        ],
+    )
+    def test_emptyResponses(
+        self, censusCall: Callable[[Census], pandas.DataFrame], mocker: MockerFixture
+    ):
+        mocker.patch.object(requests, "get", return_value=MockRes(204))
+
+        census = Census(2019)
+
+        assert censusCall(census).empty
 
     def test_listAvailableDatasets(self):
         datasets = Census.listAvailabeDatasets()

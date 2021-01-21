@@ -21,8 +21,8 @@ class Group:
 
     @classmethod
     def fromJson(cls, jsonDict: Dict[str, str]):
-        code = jsonDict["name"]
-        description = jsonDict["description"]
+        code = jsonDict.get("name", "")
+        description = jsonDict.get("description", "")
         variables = jsonDict.get("variables", "")
 
         return cls(
@@ -55,17 +55,17 @@ class GroupVariable:
 
     @classmethod
     def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
-        groupCode = jsonData["group"]
-        groupConcept = jsonData["concept"]
-        label = jsonData["label"]
-        limit = jsonData["limit"]
-        predicateOnly = jsonData["predicateOnly"]
-        predicateType = jsonData["predicateType"]
+        groupCode = jsonData.get("group", "")
+        groupConcept = jsonData.get("concept", "")
+        label = jsonData.get("label", "")
+        limit = jsonData.get("limit", 0)
+        predicateOnly = jsonData.get("predicateOnly", False)
+        predicateType = jsonData.get("predicateType", "string")
         cleanedName = cleanVariableName(label)
 
         return cls(
             VariableCode(code),
-            groupCode,
+            GroupCode(groupCode),
             groupConcept,
             label,
             limit,
@@ -89,9 +89,3 @@ class GroupVariable:
 
     def __hash__(self) -> int:
         return hash(self.code)
-
-    # def __repr__(self) -> str:
-    #     return self.__dict__.__repr__()
-
-    # def __str__(self) -> str:
-    #     return self.__repr__()

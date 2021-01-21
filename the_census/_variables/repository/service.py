@@ -60,6 +60,10 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
 
         if df.empty:
             res = self._api.groupData()
+
+            if len(res) == 0:
+                return pd.DataFrame()
+
             df = self._transformer.groups(res)
 
             self._cache.put(GROUPS_FILE, df)
@@ -91,6 +95,10 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                     allVars = allVars.append(df, ignore_index=True)  # type: ignore
             else:
                 res = self._api.variablesForGroup(cast(GroupCode, group))
+
+                if len(res) == 0:
+                    continue
+
                 df = self._transformer.variables(res)
 
                 self._cache.put(resource, df)
@@ -99,6 +107,9 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
                     allVars = df
                 else:
                     allVars = allVars.append(df, ignore_index=True)
+
+        if allVars.empty:
+            return pd.DataFrame()
 
         for record in allVars.to_dict("records"):
             var = GroupVariable.fromDfRecord(record)
@@ -115,6 +126,10 @@ class VariableRepository(IVariableRepository[pd.DataFrame]):
         self._logger.info("This is a costly operation, and may take time")
 
         allVariables = self._api.allVariables()
+
+        if len(allVariables) == 0:
+            return pd.DataFrame()
+
         df = self._transformer.variables(allVariables)
 
         for groupCode, variables in df.groupby(["groupCode"]):  # type: ignore

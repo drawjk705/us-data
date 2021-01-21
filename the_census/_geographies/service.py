@@ -50,6 +50,10 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
     ) -> pd.DataFrame:
         self._logger.debug(f"getting geography codes for {forDomain} in {inDomains}")
         res = self._api.geographyCodes(forDomain, list(inDomains))
+
+        if len(res) == 0:
+            return pd.DataFrame()
+
         df = self._transformer.geographyCodes(res)
 
         return df
@@ -69,6 +73,10 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
 
         if df.empty:
             res = self._api.supportedGeographies()
+
+            if len(res) == 0:
+                return pd.DataFrame()
+
             df = self._transformer.supportedGeographies(res)
 
             self._cache.put(SUPPORTED_GEOS_FILE, df)

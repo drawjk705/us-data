@@ -11,11 +11,7 @@ from the_census._api.interface import (
 )
 from the_census._api.models import GeographyItem
 from the_census._config import Config
-from the_census._exceptions import (
-    CensusDoesNotExistException,
-    InvalidQueryException,
-    NoContentFromApiException,
-)
+from the_census._exceptions import CensusDoesNotExistException, InvalidQueryException
 from the_census._geographies.models import GeoDomain
 from the_census._utils.chunk import chunk
 from the_census._utils.log.factory import ILoggerFactory
@@ -139,7 +135,8 @@ class CensusApiFetchService(ICensusApiFetchService):
             raise InvalidQueryException(msg)
         if res.status_code == 204:  # no content
             msg = f"Received no content for query for route {route}"
-            self._logger.exception(msg)
-            raise NoContentFromApiException(msg)
+            self._logger.info(msg)
+
+            return []
 
         return res.json()  # type: ignore

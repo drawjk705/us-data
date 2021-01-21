@@ -9,11 +9,7 @@ from tests.utils import MockRes
 from the_census._api.fetch import CensusApiFetchService
 from the_census._api.interface import ICensusApiSerializationService
 from the_census._config import Config
-from the_census._exceptions import (
-    CensusDoesNotExistException,
-    InvalidQueryException,
-    NoContentFromApiException,
-)
+from the_census._exceptions import CensusDoesNotExistException, InvalidQueryException
 from the_census._geographies.models import GeoDomain
 from the_census._variables.models import VariableCode
 
@@ -34,14 +30,15 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         ):
             self._service.groupData()
 
-    def test_fetch_givenStatusCode204(self):
+    def test_fetch_givenNoContent(self):
         self.requestsGetMock.return_value = MockRes(204)
 
-        with pytest.raises(
-            NoContentFromApiException,
-            match="Received no content for query for route /groups.json",
-        ):
-            self._service.groupData()
+        res = self._service._fetch("anything")
+
+        self._service._logger.info.assert_called_once_with(
+            "Received no content for query for route anything"
+        )
+        assert res == []
 
     @pytest.mark.parametrize(
         ["domain", "parentDomains", "expectedRoute"],

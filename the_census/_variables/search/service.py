@@ -27,6 +27,11 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         groups = self._variableRepository.getGroups()
 
+        if groups.empty:
+            self._logger.info("There are no groups for this dataset")
+
+            return pd.DataFrame()
+
         series: pd.Series[bool] = groups["description"].str.contains(  # type: ignore
             regex, case=False
         )
@@ -49,6 +54,10 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
             variables = self._variableRepository.getAllVariables()
         else:
             variables = self._variableRepository.getVariablesByGroup(*inGroups)
+
+        if variables.empty:
+            self._logger.info("There are no variables for this dataset")
+            return pd.DataFrame()
 
         series = variables["name"].str.contains(regex, case=False)  # type: ignore
 
