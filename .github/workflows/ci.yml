@@ -213,6 +213,7 @@ jobs:
                   github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
                 )
               }}
+
         needs: [test, lint, build]
         runs-on: ubuntu-latest
         steps:
