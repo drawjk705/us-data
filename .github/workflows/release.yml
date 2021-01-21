@@ -53,6 +53,7 @@ jobs:
                   fi
 
             - name: poetry publish to pypi-test
+              continue-on-error: true
               run: |
                   poetry build
                   poetry config repositories.testpypi https://test.pypi.org/legacy/
