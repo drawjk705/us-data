@@ -45,12 +45,14 @@ jobs:
 
             - name: poetry publish to pypi
               run: |
-                  if ${{ secrets.TEST_ONLY}}=0
+                  if [ $TEST_ONLY=0 ];
                   then
                       poetry build
                       poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
                       poetry publish
                   fi
+              env:
+                  TEST_ONLY: ${{ secrets.TEST_ONLY }}
 
             - name: poetry publish to pypi-test
               continue-on-error: true
