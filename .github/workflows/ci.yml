@@ -27,6 +27,10 @@ jobs:
               uses: actions/setup-node@v2
               with:
                   node-version: '12'
+                  
+            - name: this is a test
+              if: secrets.TEST_ONLY == 1
+              run: echo testing
 
             - name: install poetry
               uses: snok/install-poetry@v1.1.1
