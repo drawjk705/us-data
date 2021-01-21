@@ -280,6 +280,7 @@ jobs:
                   fi
 
             - name: bump version
+              if: ${{ env.should_tag == 1 }}
               run: |
                   poetry version $BUMP_TYPE
 
@@ -289,12 +290,14 @@ jobs:
                   BUMP_TYPE: ${{ env.bump_type }}
 
             - name: commit to main
+              if: ${{ env.should_tag == 1 }}
               uses: EndBug/add-and-commit@v6
               with:
                   message: bump ${{ env.version }}
                   tag: ${{ env.version }}
 
             - uses: ph-fritsche/action-dispatch@v1
+              if: ${{ env.should_tag == 1 }}
               with:
                   token: ${{ secrets.STAGING_TRIGGER_TOKEN }}
                   type: workflow
