@@ -16,7 +16,7 @@ jobs:
         steps:
             - run: echo $INPUTS
               env:
-                  INPUTS: ${{ toJson(inputs) }}
+                  INPUTS: ${{ toJson(github.event.inputs) }}
             # - name: checkout repo
             #   uses: actions/checkout@v2
             #   with:
