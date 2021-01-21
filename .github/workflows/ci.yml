@@ -7,6 +7,15 @@ on:
             - main
 
 jobs:
+    debug:
+        runs-on: ubuntu-latest
+        steps:
+            - name: echo context
+              run: |
+                  echo $CONTEXT
+              env:
+                  CONTEXT: ${{ toJson(github) }}
+
     lint:
         environment: CI
         runs-on: ubuntu-latest
