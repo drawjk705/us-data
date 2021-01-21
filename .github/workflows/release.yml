@@ -12,6 +12,7 @@ on:
 
 jobs:
     pypi-release:
+        environment: Release
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
