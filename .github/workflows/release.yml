@@ -14,47 +14,50 @@ jobs:
     pypi-release:
         runs-on: ubuntu-latest
         steps:
-            - name: checkout repo
-              uses: actions/checkout@v2
-              with:
-                  ref: refs/tags/${{ inputs.tag }}
-
-            - name: set up python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: 3.9
-
-            - name: install poetry
-              uses: snok/install-poetry@v1.1.1
-              with:
-                  version: 1.1.4
-                  virtualenvs-create: true
-                  virtualenvs-in-project: true
-
-            - name: load cached venv
-              id: cached-poetry-dependencies
-              uses: actions/cache@v2
-              with:
-                  path: .venv
-                  key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
-
-            - name: install poetry dependencies
-              run: poetry install
-              if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-
-            - name: poetry publish to pypi
-              run: |
-                  poetry build
-                  poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-                  poetry publish
-
-            - name: create release
-              id: create_release
-              uses: actions/create-release@v1
+            - run: echo $INPUTS
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: ${{ inputs.tag }}
-                  release_name: Release ${{ inputs.tag }}
-                  draft: false
-                  prerelease: ${{ inputs.is_prerelease == 'true' }}
+                  INPUTS: ${{ toJson(inputs) }}
+            # - name: checkout repo
+            #   uses: actions/checkout@v2
+            #   with:
+            #       ref: refs/tags/${{ inputs.tag }}
+
+            # - name: set up python
+            #   uses: actions/setup-python@v2
+            #   with:
+            #       python-version: 3.9
+
+            # - name: install poetry
+            #   uses: snok/install-poetry@v1.1.1
+            #   with:
+            #       version: 1.1.4
+            #       virtualenvs-create: true
+            #       virtualenvs-in-project: true
+
+            # - name: load cached venv
+            #   id: cached-poetry-dependencies
+            #   uses: actions/cache@v2
+            #   with:
+            #       path: .venv
+            #       key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ secrets.CACHE_VERSION }}
+
+            # - name: install poetry dependencies
+            #   run: poetry install
+            #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
+            # - name: poetry publish to pypi
+            #   run: |
+            #       poetry build
+            #       poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+            #       poetry publish
+
+            # - name: create release
+            #   id: create_release
+            #   uses: actions/create-release@v1
+            #   env:
+            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            #   with:
+            #       tag_name: ${{ inputs.tag }}
+            #       release_name: Release ${{ inputs.tag }}
+            #       draft: false
+            #       prerelease: ${{ inputs.is_prerelease == 'true' }}
