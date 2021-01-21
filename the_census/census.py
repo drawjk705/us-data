@@ -101,7 +101,7 @@ class Census:
         # the client
         container.register(CensusClient)
 
-        configureLogger(logFile)
+        configureLogger(logFile, datasetName=f"{datasetType}.{surveyType}")
 
         # for Jupyter
         pandas.set_option("display.max_colwidth", None)  # type: ignore

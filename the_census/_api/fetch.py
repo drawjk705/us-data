@@ -56,8 +56,6 @@ class CensusApiFetchService(ICensusApiFetchService):
 
             raise CensusDoesNotExistException(msg)
 
-        self._logger.debug("healthCheck OK")
-
     @timer
     def geographyCodes(
         self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []

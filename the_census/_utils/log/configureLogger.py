@@ -6,7 +6,7 @@ from the_census._utils.log.filters import ModuleFilter
 DEFAULT_LOGFILE = "census.log"
 
 
-def configureLogger(logFile: str) -> None:
+def configureLogger(logFile: str, datasetName: str) -> None:
     """
     sets up logger for the project
 
@@ -14,8 +14,8 @@ def configureLogger(logFile: str) -> None:
         logFile (str): the name of the file that log output will be sent to
     """
 
-    logFormat = (
-        "[%(levelname)s] %(asctime)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
+    logFormat = "[{0} %(levelname)s] %(asctime)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s".format(
+        datasetName
     )
     dateFormat = "%Y-%m-%d %H:%M:%S%z"
 
