@@ -241,11 +241,6 @@ def givenEnvVar(mocker: MockerFixture):
     mocker.patch.object(os, "getenv", return_value="banana")
 
 
-@pytest.fixture
-def tempDir() -> Path:
-    return Path()
-
-
 @pytest.mark.integration
 class TestCensus:
     def test_census_givenInvalidDataRequest(self):
@@ -263,22 +258,22 @@ class TestCensus:
             _ = Census(2019)
 
     def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
-        self, tempDir: Path
+        self,
     ):
         _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=False)
 
-        assert not tempDir.joinpath("cache").exists()
+        assert not Path("cache").exists()
 
     def test_census_givenCensusDoesNotLoadFromExistingCache_purgesExistingCache(
-        self, tempDir: Path, givenCacheWithGroup: None
+        self, givenCacheWithGroup: None
     ):
         _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=True)
 
-        assert tempDir.joinpath("cache").exists()
-        assert len(list(tempDir.joinpath("cache/2019/acs/acs1").iterdir())) == 0
+        assert Path("cache").exists()
+        assert len(list(Path("cache/2019/acs/acs1").iterdir())) == 0
 
     def test_census_createsCacheAndLoadsItOnQuery(
-        self, tempDir: Path, apiCalls: Set[str], givenCacheWithGroup: None
+        self, apiCalls: Set[str], givenCacheWithGroup: None
     ):
         census = Census(2019, shouldLoadFromExistingCache=True, shouldCacheOnDisk=True)
 
@@ -287,9 +282,11 @@ class TestCensus:
         assert "https://api.census.gov/data/2019/acs/acs1/groups.json" not in apiCalls
         assert len(apiCalls) == 1
 
-        assert tempDir.joinpath("cache").exists()
+        assert Path("cache").exists()
 
-    def test_census_getGeographyCodes(self, tempDir: Path):
+    def test_census_getGeographyCodes(
+        self,
+    ):
         census = Census(2019)
 
         codes = census.getGeographyCodes(
