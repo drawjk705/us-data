@@ -29,8 +29,14 @@ jobs:
                   node-version: '12'
                   
             - name: this is a test
-              if: secrets.TEST_ONLY == 1
-              run: echo testing
+              run: |
+                  if [ $TEST=1 ]; then
+                    echo hello
+                  else:
+                    echo bye
+                  fi
+              env:
+                  TEST: ${{ secrets.TEST_ONLY }}
 
             - name: install poetry
               uses: snok/install-poetry@v1.1.1
