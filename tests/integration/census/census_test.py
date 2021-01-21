@@ -897,12 +897,6 @@ class TestCensus:
             assert len(repoVars) == 0
             assert len(repoGroups) == 0
 
-    def test_logging(self):
-        _ = Census(2019, "acs", "acs1")
-
-        with open("census.log", "r") as f:
-            print(f.read())
-
     def test_listAvailableDatasets(self):
         datasets = Census.listAvailabeDatasets()
 
