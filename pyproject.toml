@@ -7,7 +7,7 @@ keywords = ["US", "census"]
 name = "the_census"
 readme = "README.md"
 repository = "https://github.com/drawjk705/us-stats/"
-version = "1.2.9"
+version = "1.2.10"
 
 [tool.poetry.dependencies]
 pandas = "^1.2.0"
