@@ -299,3 +299,4 @@ jobs:
                   token: ${{ secrets.STAGING_TRIGGER_TOKEN }}
                   type: workflow
                   ident: staging.yml
+                  payload: '{}'
