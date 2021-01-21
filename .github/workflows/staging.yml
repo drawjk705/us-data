@@ -2,13 +2,12 @@ name: Staging
 
 on:
     push:
-        branches:
-            - main
         tags:
             - 'v*.*.*'
 
 jobs:
     publish-to-test-pypi:
+        if: ${{ github.event.ref == 'refs/head/main'}}
         environment: Staging
         runs-on: ubuntu-latest
 
