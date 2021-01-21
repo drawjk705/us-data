@@ -901,6 +901,7 @@ class TestCensus:
         "censusCall",
         [
             lambda census: cast(Census, census).getSupportedGeographies(),  # type: ignore
+            lambda census: cast(Census, census).getGeographyCodes(GeoDomain("somewhere")),  # type: ignore
             lambda census: cast(Census, census).getAllVariables(),  # type: ignore
             lambda census: cast(Census, census).getGroups(),  # type: ignore
             lambda census: cast(Census, census).getVariablesByGroup(),  # type: ignore
