@@ -8,6 +8,7 @@ on:
 
 jobs:
     lint:
+        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -64,6 +65,7 @@ jobs:
                   poe sort-imports -c
 
     test:
+        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -104,6 +106,7 @@ jobs:
                   coverage report
 
     build:
+        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -141,6 +144,7 @@ jobs:
               run: poetry build
 
     enforce-title:
+        environment: CI
         if: >-
             github.event_name == 'pull_request' &&
             github.event.pull_request.user.login != 'dependabot-preview[bot]'
@@ -196,7 +200,8 @@ jobs:
                   IS_CHORE: ${{ steps.chore.outputs.exists }}
                   IS_PRERELEASE: ${{ steps.prerelease.outputs.exists }}
 
-    trigger-release:
+    create-tag:
+        environment: CI
         if: >-
             ${{ github.event_name == 'push' &&
                 github.ref == 'refs/heads/main' && 
@@ -204,9 +209,9 @@ jobs:
                   startsWith(github.event.head_commit.message, 'breaking') ||
                   startsWith(github.event.head_commit.message, 'feat') || 
                   startsWith(github.event.head_commit.message, 'fix') ||
-                  startsWith(github.event.head_commit.message, 'prerelease')
-                ) &&
-                github.event.commits.*.author.*.name != 'dependabot-preview[bot]'
+                  startsWith(github.event.head_commit.message, 'prerelease') ||
+                  github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
+                )
               }}
         needs: [test, lint, build]
         runs-on: ubuntu-latest
@@ -248,7 +253,9 @@ jobs:
 
             - name: check for patch
               id: patch
-              if: "startsWith(github.event.head_commit.message, 'fix: ')"
+              if: >-
+                  startsWith(github.event.head_commit.message, 'fix: ') ||
+                  github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
               run: |
                   echo "bump_type=patch" >> $GITHUB_ENV
 
@@ -268,11 +275,17 @@ jobs:
                       echo "should_tag=1" >> $GITHUB_ENV
                   fi
 
-            - name: dispatch to release workflow
-              if: ${{ env.should_tag == 1 }}
-              uses: ph-fritsche/action-dispatch@v1
+            - name: bump version
+              run: |
+                  poetry version $BUMP_TYPE
+
+                  VERSION=$(poetry version --short)
+                  echo "version=v$VERSION" >> $GITHUB_ENV
+              env:
+                  BUMP_TYPE: ${{ env.bump_type }}
+
+            - name: commit to master
+              uses: EndBug/add-and-commit@v6
               with:
-                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-                  type: workflow
-                  ident: release.yml
-                  payload: '{ "bump_type": "${{ env.bump_type }}" }'
+                  message: bump ${{ env.version }}
+                  tag: ${{ env.version }}

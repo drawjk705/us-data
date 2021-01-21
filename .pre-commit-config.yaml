@@ -14,7 +14,7 @@ repos:
       rev: 20.8b1
       hooks:
           - id: black
-            language_version: python3.9
+            language_version: python3
 
     - repo: https://github.com/PyCQA/isort
       rev: 5.7.0
@@ -32,5 +32,5 @@ repos:
           - id: commit-message-prefix
             name: validate commit message prefix
             language: pygrep
-            entry: '\A(?!(breaking|feat|fix|chore|prerelease): )'
+            entry: '\A(?!((breaking|feat|fix|chore|prerelease): |Merge))'
             stages: [commit-msg]
