@@ -153,6 +153,9 @@ class TestVariableRepository(ServiceTestFixture[VariableRepository]):
         def cachePutSideEffect(resource: str, _: Any) -> bool:
             return "group2" in resource or "group1" in resource
 
+        self.mocker.patch.object(
+            self._service._api, "allVariables", return_value=["something"]
+        )
         cachePut = self.mocker.patch.object(
             self._service._cache, "put", side_effect=cachePutSideEffect
         )
