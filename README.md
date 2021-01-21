@@ -2,6 +2,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ![Release](https://github.com/drawjk705/the_census/workflows/Release/badge.svg)
+![Staging](https://github.com/drawjk705/the_census/workflows/Staging/badge.svg)
 ![CI](https://github.com/drawjk705/the_census/workflows/CI/badge.svg)
 
 # The Census
