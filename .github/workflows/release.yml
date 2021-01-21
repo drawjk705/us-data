@@ -2,16 +2,22 @@ name: Release
 on:
     workflow_dispatch:
         inputs:
-            bump_type:
-                description: type of bump -- [major, minor, patch, prerelease]
+            tag:
+                description: The tag to release
                 required: true
+            is_prerelease:
+                description: Whether or not this is a prerelease
+                required: false
+                default: 'false'
 
 jobs:
-    tag_and_publish:
+    pypi-release:
         runs-on: ubuntu-latest
         steps:
             - name: checkout repo
               uses: actions/checkout@v2
+              with:
+                  ref: refs/tags/${{ inputs.tag }}
 
             - name: set up python
               uses: actions/setup-python@v2
@@ -36,65 +42,11 @@ jobs:
               run: poetry install
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-            - name: bump version
-              run: |
-                  echo $BUMP_TYPE
-                  poetry version $BUMP_TYPE
-              env:
-                  BUMP_TYPE: ${{ github.event.inputs.bump_type }}
-
             - name: poetry publish to pypi
               run: |
-                  if [ $TEST_ONLY=0 ];
-                  then
-                      poetry build
-                      poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-                      poetry publish
-                  fi
-              env:
-                  TEST_ONLY: ${{ secrets.TEST_ONLY }}
-
-            - name: poetry publish to pypi-test
-              continue-on-error: true
-              run: |
                   poetry build
-                  poetry config repositories.testpypi https://test.pypi.org/legacy/
-                  poetry config pypi-token.testpypi ${{ secrets.PYPI_TEST_TOKEN }}
-                  poetry publish -r testpypi
-
-            - name: get version number
-              run: |
-                  VERSION=$(poetry version --short)
-                  echo "version=v$VERSION" >> $GITHUB_ENV
-
-            - name: commit to master
-              uses: EndBug/add-and-commit@v6
-              with:
-                  message: bump ${{ env.version }}
-                  tag: ${{ env.version }}
-                  author_email: drawjk705@gmail.com
-
-            - name: store version
-              uses: nick-invision/persist-action-data@v1
-              with:
-                  data: ${{ env.version }}
-                  variable: TAGGED_VERSION
-
-    github_release:
-        needs: [tag_and_publish]
-        if: ${{ !startsWith(github.event.head_commit.message, 'chore') }}
-        runs-on: ubuntu-latest
-        steps:
-            - name: checkout repo
-              uses: actions/checkout@v2
-              with:
-                  token: ${{ secrets.PUSH_TO_PROTECTED_TOKEN }}
-
-            - name: get version
-              id: version_num
-              uses: nick-invision/persist-action-data@v1
-              with:
-                  retrieve_variables: TAGGED_VERSION
+                  poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+                  poetry publish
 
             - name: create release
               id: create_release
@@ -102,7 +54,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ steps.version_num.outputs.TAGGED_VERSION }}
-                  release_name: Release ${{ steps.version_num.outputs.TAGGED_VERSION }}
+                  tag_name: ${{ inputs.tag }}
+                  release_name: Release ${{ inputs.tag }}
                   draft: false
-                  prerelease: startsWith(github.event.head.commit.message, 'prerelease')
+                  prerelease: ${{ inputs.is_prerelease == 'true' }}
