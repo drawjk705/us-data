@@ -216,6 +216,9 @@ jobs:
         needs: [test, lint, build]
         runs-on: ubuntu-latest
         steps:
+            - name: checkout repo
+              uses: actions/checkout@v2
+
             - name: set up python
               uses: actions/setup-python@v2
               with:
