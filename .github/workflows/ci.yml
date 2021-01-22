@@ -179,7 +179,9 @@ jobs:
 
             - name: check for patch
               id: patch
-              if: "startsWith(github.event.pull_request.title, 'fix: ')"
+              if: >-
+                  startsWith(github.event.pull_request.title, 'fix: ') ||
+                  startsWith(github.event.pull_request.title, 'Revert ')
               run: |
                   echo "::set-output name=exists::1"
 
@@ -218,6 +220,7 @@ jobs:
                   startsWith(github.event.head_commit.message, 'breaking') ||
                   startsWith(github.event.head_commit.message, 'feat') || 
                   startsWith(github.event.head_commit.message, 'fix') ||
+                  startsWith(github.event.head_commit.message, 'Revert') ||
                   startsWith(github.event.head_commit.message, 'prerelease') ||
                   github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
                 )
@@ -268,6 +271,7 @@ jobs:
               id: patch
               if: >-
                   startsWith(github.event.head_commit.message, 'fix: ') ||
+                  startsWith(github.event.head_commit.message, 'Revert ') ||
                   github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
               run: |
                   echo "bump_type=patch" >> $GITHUB_ENV
