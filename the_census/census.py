@@ -37,7 +37,6 @@ from the_census._variables.search.service import VariableSearchService
 
 # these are singletons
 _serializer = ApiSerializationService()
-_transformer = CensusDataTransformer()
 _loggerFactory = LoggerFactory()
 
 
@@ -81,13 +80,13 @@ class Census:
         # singletons
         container.register(Config, instance=self._config)
         container.register(ICensusApiSerializationService, instance=_serializer)
-        container.register(
-            ICensusDataTransformer[pandas.DataFrame], instance=_transformer
-        )
         container.register(ILoggerFactory, instance=_loggerFactory)
 
         # services
         container.register(ICache[pandas.DataFrame], OnDiskCache)
+        container.register(
+            ICensusDataTransformer[pandas.DataFrame], CensusDataTransformer
+        )
         container.register(ICensusApiFetchService, CensusApiFetchService)
         container.register(IVariableRepository[pandas.DataFrame], VariableRepository)
         container.register(

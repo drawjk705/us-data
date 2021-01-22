@@ -52,7 +52,7 @@ sort-imports = "isort ."
 test = "pytest -m \"not integration\""
 test-coverage = "pytest --cov-report term-missing:skip-covered --cov=the_census tests/"
 test-integration = "pytest -m integration"
-typing = "pyright --outputjson"
+typing = "pyright"
 
 [tool.isort]
 profile = "black"

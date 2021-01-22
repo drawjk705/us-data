@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Set, Tuple
 import pandas as pd
 
 from the_census._api.interface import ICensusApiFetchService
-from the_census._config import Config
 from the_census._dataTransformation.interface import ICensusDataTransformer
 from the_census._exceptions import EmptyRepositoryException
 from the_census._geographies.interface import IGeographyRepository
@@ -23,7 +22,6 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _transformer: ICensusDataTransformer[pd.DataFrame]
     _variableRepo: IVariableRepository[pd.DataFrame]
     _geoRepo: IGeographyRepository[pd.DataFrame]
-    _config: Config
     _logger: Logger
 
     def __init__(
@@ -32,13 +30,11 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         transformer: ICensusDataTransformer[pd.DataFrame],
         variableRepo: IVariableRepository[pd.DataFrame],
         geoRepo: IGeographyRepository[pd.DataFrame],
-        config: Config,
         loggerFactory: ILoggerFactory,
     ) -> None:
         self._api = api
         self._transformer = transformer
         self._variableRepo = variableRepo
-        self._config = config
         self._geoRepo = geoRepo
         self._logger = loggerFactory.getLogger(__name__)
 
@@ -74,13 +70,10 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             set(variablesToQuery)
         )
 
-        sortedGeoDomains = self._sortGeoDomains([forDomain] + list(inDomains))
+        geoDomainsQueried = [forDomain] + list(inDomains)
 
         df = self._transformer.stats(
-            apiResults,
-            typeConversions,
-            sortedGeoDomains,
-            columnHeaders=columnHeaders if self._config.replaceColumnHeaders else None,
+            apiResults, typeConversions, geoDomainsQueried, columnHeaders
         )
 
         return df
@@ -118,16 +111,3 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
             columnHeaders.update({k: cleanedVarName})
 
         return columnHeaders, typeConversions
-
-    def _sortGeoDomains(self, geoDomains: List[GeoDomain]) -> List[GeoDomain]:
-        supportedGeos = self._geoRepo.getSupportedGeographies()
-        geoHierarchyMapping: List[Dict[str, str]] = (
-            supportedGeos[["name", "hierarchy"]].drop_duplicates().to_dict("records")
-        )
-        geoNameToHierarchy = {
-            mapping["name"]: mapping["hierarchy"] for mapping in geoHierarchyMapping
-        }
-
-        return sorted(
-            geoDomains, key=lambda geoDomain: geoNameToHierarchy[geoDomain.name]
-        )

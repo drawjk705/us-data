@@ -1,5 +1,5 @@
 {
-    "include": ["the_census"],
+    "include": ["the_census", "tests"],
     "ignore": ["typings"],
     "stubPath": "./typings",
 
