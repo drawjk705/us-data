@@ -62,7 +62,7 @@ class Census
                  should_load_from_existing_cache: bool = False,
                  should_cache_on_disk: bool = False,
                  replace_column_headers: bool = True,
-                 log_file: str = DEFAULT_LOG_FILE):  # census.log
+                 log_file: str = DEFAULT_LOG_FILE): # census.log
         pass
 ```
 
@@ -112,7 +112,7 @@ census.get_geography_codes(GeoDomain("state", "*"))
 
 ```python
 census.get_geography_codes(GeoDomain("school district", "*"),
-                         GeoDomain("state", "08"))
+                           GeoDomain("state", "08"))
 ```
 
 Note that geography code queries must follow supported geography guidelines.
@@ -151,7 +151,7 @@ You can either get a DataFrame of variables based on a set of groups:
 
 ```python
 census.get_variables_by_group(census.groups.SexByAge,
-                           census.groups.MedianAgeBySex)
+                              census.groups.MedianAgeBySex)
 ```
 
 Or, you can get a DataFrame with all variables for a given dataset:
@@ -196,8 +196,8 @@ from the_census import GeoDomain
 variables = census.getvariables_for_group(census.groups.SexByAge)
 
 census.get_stats(variables["code"].tolist(),
-                GeoDomain("school district", "*"),
-                GeoDomain("state", "08"))
+                 GeoDomain("school district", "*"),
+                 GeoDomain("state", "08"))
 ```
 
 ## Dataset "architecture"
