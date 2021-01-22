@@ -1,6 +1,6 @@
 import pandas
 
-from tests.serviceTestFixtures import ServiceTestFixture
+from tests.service_test_fixtures import ServiceTestFixture
 from the_census._variables.models import GroupCode
 from the_census._variables.search.service import VariableSearchService
 
@@ -9,7 +9,6 @@ from the_census._variables.search.service import VariableSearchService
 
 class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
     def test_search_groups(self):
-        variableStorage = self.castMock(self._service._variableRepository)
         foundDf = pandas.DataFrame(
             {
                 "description": [
@@ -23,7 +22,9 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
                 ]
             }
         )
-        self.mocker.patch.object(variableStorage, "get_groups", return_value=foundDf)
+        self.mocker.patch.object(
+            self._service._variable_repository, "get_groups", return_value=foundDf
+        )
 
         expectedRes = pandas.DataFrame({"description": ["banana", "elephant"]})
 
@@ -31,12 +32,12 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
 
         assert res.to_dict() == expectedRes.to_dict()
 
-    def test_search_variables_inAllGroups(self):
+    def test_search_all_variables(self):
         repoVariables = pandas.DataFrame(
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
         )
         self.mocker.patch.object(
-            self._service._variableRepository,
+            self._service._variable_repository,
             "get_all_variables",
             return_value=repoVariables,
         )
@@ -52,7 +53,7 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
         )
         self.mocker.patch.object(
-            self._service._variableRepository,
+            self._service._variable_repository,
             "get_variables_by_group",
             return_value=repoVariables,
         )

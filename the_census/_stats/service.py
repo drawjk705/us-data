@@ -20,8 +20,8 @@ from the_census._variables.repository.interface import IVariableRepository
 class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     _api: ICensusApiFetchService
     _transformer: ICensusDataTransformer[pd.DataFrame]
-    _variableRepo: IVariableRepository[pd.DataFrame]
-    _geoRepo: IGeographyRepository[pd.DataFrame]
+    _variable_repo: IVariableRepository[pd.DataFrame]
+    _geo_repo: IGeographyRepository[pd.DataFrame]
     _logger: Logger
 
     def __init__(
@@ -34,8 +34,8 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
     ) -> None:
         self._api = api
         self._transformer = transformer
-        self._variableRepo = variableRepo
-        self._geoRepo = geoRepo
+        self._variable_repo = variableRepo
+        self._geo_repo = geoRepo
         self._logger = loggerFactory.getLogger(__name__)
 
     @timer
@@ -66,13 +66,14 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
 
         apiResults: List[List[List[str]]] = [res for res in pullStats()]
 
-        column_headers, type_conversions = self._getVariableNamesAndtype_conversions(
-            set(variables_to_query)
-        )
+        (
+            column_headers,
+            type_conversions,
+        ) = self._get_variable_names_and_type_conversions(set(variables_to_query))
 
         geo_domains_queried = [for_domain] + list(in_domains)
 
-        supported_geos = self._geoRepo.get_supported_geographies()
+        supported_geos = self._geo_repo.get_supported_geographies()
 
         df = self._transformer.stats(
             apiResults,
@@ -84,29 +85,29 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
 
         return df
 
-    def _getVariableNamesAndtype_conversions(
+    def _get_variable_names_and_type_conversions(
         self, variables_to_query: Set[VariableCode]
     ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
 
-        relevantVariables = {
+        relevant_variables = {
             variable.code: variable
-            for variable in self._variableRepo.variables.values()
+            for variable in self._variable_repo.variables.values()
             if variable.code in variables_to_query
         }
-        if len(relevantVariables) != len(variables_to_query):
-            msg = f"Queried {len(variables_to_query)} variables, but found only {len(relevantVariables)} in repository"
+        if len(relevant_variables) != len(variables_to_query):
+            msg = f"Queried {len(variables_to_query)} variables, but found only {len(relevant_variables)} in repository"
 
             self._logger.exception(msg)
 
             raise EmptyRepositoryException(msg)
 
         hasDuplicateNames = len(
-            {v.cleaned_name for v in relevantVariables.values()}
+            {v.cleaned_name for v in relevant_variables.values()}
         ) < len(variables_to_query)
 
         type_conversions: Dict[str, Any] = {}
         column_headers: Dict[VariableCode, str] = {}
-        for k, v in relevantVariables.items():
+        for k, v in relevant_variables.items():
             if v.predicate_type in ["int", "float"]:
                 type_conversions.update({k: float})
 

@@ -111,7 +111,8 @@ class Census:
     def search_groups(self, regex: str) -> pandas.DataFrame:
         """
         Searches all group's based on their concept, according
-        to `regex`
+        to `regex`. If the groups aren't yet in memory,
+        this will handle that.
 
         Args:
             regex (str)

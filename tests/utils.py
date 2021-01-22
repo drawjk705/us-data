@@ -10,15 +10,17 @@ class ServiceTestFixtureException(Exception):
 
 
 class _RequestCls:
+    """
+    Utility class to help with typechecking pytest's `FixtureRequest`
+    """
+
     class Obj:
-        serviceType: Any
         _service: Any
-        _dependencies: Any
 
     cls: Obj
 
 
-def extractService(obj: _RequestCls.Obj) -> Any:
+def extract_service(obj: _RequestCls.Obj) -> Any:
     """
     This is some clever hackery to get the class type
     of the TypeVar that we pass in to `ServiceTestFixture`.

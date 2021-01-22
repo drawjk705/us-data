@@ -10,7 +10,7 @@ from the_census._variables.search.interface import IVariableSearchService
 
 
 class VariableSearchService(IVariableSearchService[pd.DataFrame]):
-    _variableRepository: IVariableRepository[pd.DataFrame]
+    _variable_repository: IVariableRepository[pd.DataFrame]
     _logger: Logger
 
     def __init__(
@@ -18,14 +18,14 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         variableRepository: IVariableRepository[pd.DataFrame],
         loggerFactory: ILoggerFactory,
     ) -> None:
-        self._variableRepository = variableRepository
+        self._variable_repository = variableRepository
         self._logger = loggerFactory.getLogger(__name__)
 
     @timer
     def search_groups(self, regex: str) -> pd.DataFrame:
         self._logger.debug(f"searching groups for regex: `{regex}`")
 
-        groups = self._variableRepository.get_groups()
+        groups = self._variable_repository.get_groups()
 
         if groups.empty:
             self._logger.info("There are no groups for this dataset")
@@ -51,9 +51,9 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
 
         variables: pd.DataFrame
         if not len(in_groups):
-            variables = self._variableRepository.get_all_variables()
+            variables = self._variable_repository.get_all_variables()
         else:
-            variables = self._variableRepository.get_variables_by_group(*in_groups)
+            variables = self._variable_repository.get_variables_by_group(*in_groups)
 
         if variables.empty:
             self._logger.info("There are no variables for this dataset")

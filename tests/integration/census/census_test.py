@@ -7,10 +7,9 @@ from typing import Any, Callable, Collection, Dict, Generator, List, Optional, S
 import pandas
 import pytest
 import requests
-from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
 
-from tests.integration.census.mockApiResponses import MOCK_API
+from tests.integration.census.mock_api_responses import MOCK_API
 from tests.utils import MockRes
 from the_census import Census, GeoDomain
 from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
@@ -140,10 +139,10 @@ expectedStatsResWithNames = [
 ]
 
 
-def verifyResource(
+def verify_resource(
     resource: str,
     exists: bool = True,
-    expectedData: Optional[List[Dict[str, Any]]] = None,
+    expected_data: Optional[List[Dict[str, Any]]] = None,
 ):
     path = Path(f"cache/2019/acs/acs1/{resource}")
 
@@ -152,50 +151,55 @@ def verifyResource(
     else:
         assert path.exists()
 
-        if expectedData:
+        if expected_data:
             df = pandas.read_csv(path)  # type: ignore
-            assert df.to_dict("records") == expectedData
+            assert df.to_dict("records") == expected_data
 
 
 @pytest.fixture(scope="function", autouse=True)
-def apiCalls(monkeypatch: MonkeyPatch) -> Set[str]:
-    _apiCalls: Set[str] = set()
+def api_calls(mocker: MockerFixture) -> Set[str]:
+    _api_calls: Set[str] = set()
 
     def mockGet(route: str):
-        routeWithoutKey = re.sub(r"(\?|&)key=.*", "", route)
-        _apiCalls.add(routeWithoutKey)
-        res = cast(Collection[Any], MOCK_API.get(routeWithoutKey))
+        route_without_api_key = re.sub(r"(\?|&)key=.*", "", route)
+
+        _api_calls.add(route_without_api_key)
+
+        res = cast(Collection[Any], MOCK_API.get(route_without_api_key))
+
         status_code = 404 if res is None else 200
+
         return MockRes(status_code, res)
 
-    monkeypatch.setattr(requests, "get", mockGet)
+    mocker.patch.object(requests, "get", mockGet)
 
-    return _apiCalls
+    return _api_calls
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setPathToTest() -> Generator[None, None, None]:
-    parentPath = Path(__file__).parent.absolute()
+def set_current_path() -> Generator[None, None, None]:
+    parent_path = Path(__file__).parent.absolute()
 
-    os.chdir(parentPath)
+    os.chdir(parent_path)
 
-    tempDir = Path("temp")
-    if tempDir.exists():
-        shutil.rmtree(tempDir)
+    temp_dir = Path("temp")
+    if temp_dir.exists():
+        shutil.rmtree(temp_dir)
 
-    tempDir.mkdir(parents=True, exist_ok=False)
+    temp_dir.mkdir(parents=True, exist_ok=False)
 
-    os.chdir(tempDir.absolute())
+    os.chdir(temp_dir.absolute())
 
     try:
         yield
+
     finally:
-        os.chdir(parentPath)
-        shutil.rmtree(tempDir.absolute())
+        os.chdir(parent_path)
+        shutil.rmtree(temp_dir.absolute())
 
 
 @pytest.fixture
-def givenCacheWithGroup() -> None:
+def given_cache_with_group() -> None:
     Path("cache/2019/acs/acs1/").mkdir(parents=True, exist_ok=True)
     pandas.DataFrame(
         [
@@ -203,11 +207,11 @@ def givenCacheWithGroup() -> None:
             dict(code="123", description="numbers", cleaned_name="Numbers"),
         ]
     ).to_csv("./cache/2019/acs/acs1/groups.csv")
-    verifyResource("groups.csv")
+    verify_resource("groups.csv")
 
 
 @pytest.fixture
-def givenCacheWithVariables() -> None:
+def given_cache_with_variables() -> None:
     Path("cache/2019/acs/acs1/variables/").mkdir(parents=True, exist_ok=True)
     pandas.DataFrame(
         [
@@ -233,42 +237,46 @@ def givenCacheWithVariables() -> None:
             ),
         ]
     ).to_csv("./cache/2019/acs/acs1/variables/varsForGroup.csv")
-    verifyResource("variables/varsForGroup.csv")
+    verify_resource("variables/varsForGroup.csv")
 
 
 @pytest.fixture(autouse=True)
-def givenEnvVar(mocker: MockerFixture):
+def given_env_var(mocker: MockerFixture):
     mocker.patch.object(os, "getenv", return_value="banana")
 
 
 @pytest.mark.integration
 class TestCensus:
-    def test_census_givenInvalidDataRequest(self):
+    def test_invalid_data_request(self):
         with pytest.raises(
             CensusDoesNotExistException,
             match="Data does not exist for dataset=acs; survey=acs1; year=2020",
         ):
             _ = Census(2020)
 
-    def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
+    def test_no_environment_variable_set(self, mocker: MockerFixture):
         mocker.patch.object(os, "getenv", return_value=None)
         with pytest.raises(
             NoCensusApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
         ):
             _ = Census(2019)
 
-    def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
+    def test_no_caching_on_or_loading_from_disk(
         self,
     ):
+        """This should not create a cache directory"""
+
         _ = Census(
             2019, should_load_from_existing_cache=False, should_cache_on_disk=False
         )
 
         assert not Path("cache").exists()
 
-    def test_census_givenCensusDoesNotLoadFromExistingCache_purgesExistingCache(
-        self, givenCacheWithGroup: None
-    ):
+    def test_do_not_load_from_existing_cache(self, given_cache_with_group: None):
+        """This should purge the existing cache"""
+
+        assert len(list(Path("cache/2019/acs/acs1").iterdir())) > 0
+
         _ = Census(
             2019, should_load_from_existing_cache=False, should_cache_on_disk=True
         )
@@ -276,8 +284,8 @@ class TestCensus:
         assert Path("cache").exists()
         assert len(list(Path("cache/2019/acs/acs1").iterdir())) == 0
 
-    def test_census_createsCacheAndLoadsItOnQuery(
-        self, apiCalls: Set[str], givenCacheWithGroup: None
+    def test_census_with_caching_and_loading_from_cache(
+        self, api_calls: Set[str], given_cache_with_group: None
     ):
         census = Census(
             2019, should_load_from_existing_cache=True, should_cache_on_disk=True
@@ -285,12 +293,11 @@ class TestCensus:
 
         census.get_groups()
 
-        assert "https://api.census.gov/data/2019/acs/acs1/groups.json" not in apiCalls
-        assert len(apiCalls) == 1
+        assert "https://api.census.gov/data/2019/acs/acs1/groups.json" not in api_calls
 
         assert Path("cache").exists()
 
-    def test_census_get_geography_codes(
+    def test_get_geography_codes(
         self,
     ):
         census = Census(2019)
@@ -340,36 +347,44 @@ class TestCensus:
 
         assert codes.to_dict("records") == expected
 
-    def test_census_groupsAndVariables(self):
+    def test_groups_and_variables(self):
+        # at first, there should be no groups in the on-disk cache
         census = Census(2019, should_cache_on_disk=True)
-        verifyResource("groups.csv", exists=False)
+        verify_resource("groups.csv", exists=False)
 
         _ = census.get_groups()
 
-        GroupCodes = list(census.groups.values())
-        verifyResource("groups.csv")
-        assert len(GroupCodes) == 3
+        # once the API has been hit, the groups should now
+        # be in the on-disk & in-memory caches
+        group_codes = list(census.groups.values())
+        verify_resource("groups.csv")
+        assert len(group_codes) == 3
 
-        for code in GroupCodes:
-            verifyResource(f"variables/{code}.csv", exists=False)
+        # no variables should exist yet
+        for code in group_codes:
+            verify_resource(f"variables/{code}.csv", exists=False)
 
-        variables = census.get_variables_by_group(*GroupCodes)
+        variables = census.get_variables_by_group(*group_codes)
+
+        # once the variables are retrieved,
+        # verify that they exist in the on-disk cache...
         variables["cleaned_name"] = variables["name"].apply(clean_variable_name)
-        for code in GroupCodes:
-            verifyResource(
+        for code in group_codes:
+            verify_resource(
                 f"variables/{code}.csv",
                 exists=True,
-                expectedData=[
+                expected_data=[
                     variable
                     for variable in variables.to_dict("records")
                     if variable["group_code"] == code
                 ],
             )
-
+        # ...and in the in-memory cache
         assert len(census.variables) == 12
 
-    def test_census_get_all_variables(self):
+    def test_get_all_variables(self):
         census = Census(2019, should_cache_on_disk=True)
+
         allVars = census.get_all_variables()
 
         assert len(allVars.to_dict("records")) == 12
@@ -377,13 +392,15 @@ class TestCensus:
 
         for group, variables in allVars.groupby(["group_code"]):  # type: ignore
             variables["cleaned_name"] = variables["name"].apply(clean_variable_name)
-            verifyResource(
+            verify_resource(
                 f"variables/{group}.csv",
                 exists=True,
-                expectedData=variables.to_dict("records"),
+                expected_data=variables.to_dict("records"),
             )
 
-    def test_census_groups_populatesGroupNames(self):
+    def test_groups_in_memory_cache_items(self):
+        """This is a more in-depth test of the in-memory caching for groups"""
+
         census = Census(2019)
 
         _ = census.get_groups()
@@ -394,7 +411,9 @@ class TestCensus:
             "SexByAgeByCognitiveDifficulty": "B18104",
         }
 
-    def test_census_variables_populatesVariableNames(self):
+    def test_variables_in_memory_cache_items(self):
+        """This is a more in-depth test of the in-memory caching for variables"""
+
         census = Census(2019)
 
         census.get_all_variables()
@@ -522,10 +541,10 @@ class TestCensus:
             ),
         }
 
-    def test_census_supported_geographies(self):
+    def test_supported_geographies_in_memory_and_on_disk_cache_items(self):
         census = Census(2019, should_cache_on_disk=True)
 
-        verifyResource("supported_geographies.csv", exists=False)
+        verify_resource("supported_geographies.csv", exists=False)
 
         _ = census.get_supported_geographies()
 
@@ -539,9 +558,9 @@ class TestCensus:
             "State": "state",
             "Us": "us",
         }
-        verifyResource("supported_geographies.csv")
+        verify_resource("supported_geographies.csv")
 
-    def test_census_search_groups(self):
+    def test_search_groups(self):
         census = Census(2019)
         regex = r"sex by age by .* difficulty"
 
@@ -560,7 +579,7 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    def test_census_search_variables_within_groups(self, apiCalls: Set[str]):
+    def test_search_variables_within_groups(self, api_calls: Set[str]):
         census = Census(2019)
         regex = r"estimate"
 
@@ -608,10 +627,10 @@ class TestCensus:
         assert {
             "https://api.census.gov/data/2019/acs/acs1/groups/B18105.json",
             "https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
-        }.issubset(apiCalls)
+        }.issubset(api_calls)
         assert res.to_dict("records") == expectedRes
 
-    def test_census_searchall_variables(self, apiCalls: Set[str]):
+    def test_search_all_variables(self, api_calls: Set[str]):
         census = Census(2019)
         regex = r"estimate"
 
@@ -680,13 +699,13 @@ class TestCensus:
 
         assert {
             "https://api.census.gov/data/2019/acs/acs1/variables.json",
-        }.issubset(apiCalls)
+        }.issubset(api_calls)
 
         assert res.to_dict("records") == expectedRes
 
     @pytest.mark.parametrize("should_rename_columns", [(True), (False)])
-    def test_census_stats_batchedApiCalls(
-        self, apiCalls: Set[str], mocker: MockerFixture, should_rename_columns: bool
+    def test_stats_batches_api_calls(
+        self, api_calls: Set[str], mocker: MockerFixture, should_rename_columns: bool
     ):
         census = Census(2019, replace_column_headers=should_rename_columns)
 
@@ -712,9 +731,13 @@ class TestCensus:
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B17015_001E&for=congressional%20district:*&in=state:01",
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18104_001E&for=congressional%20district:*&in=state:01",
             "https://api.census.gov/data/2019/acs/acs1?get=NAME,B18105_001E&for=congressional%20district:*&in=state:01",
-        }.issubset(apiCalls)
+        }.issubset(api_calls)
 
-    def test_census_stats_columnNameChangeWithDuplicate(self):
+    def test_stats_with_duplicate_variable_names_across_groups(self):
+        """Some group variables can have the same name (e.g. EstimateTotal). This
+        test verifies that in this case, variable names are suffixed with their group code
+        """
+
         variables = [
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
@@ -791,7 +814,7 @@ class TestCensus:
             },
         ]
 
-    def test_census_stats_columnNameChangeWithoutDuplicate(self):
+    def test_stats_without_duplicate_variable_names_across_groups(self):
         variables = [VariableCode("B17015_001E")]
         for_domain = GeoDomain("congressional district")
         in_domains = [GeoDomain("state", "01")]
@@ -854,11 +877,11 @@ class TestCensus:
         ]
 
     @pytest.mark.parametrize("shouldLoadFromCache", [(True), (False)])
-    def test_census_givenLoadFromCache_populatesRepository(
+    def test_populate_repository(
         self,
         shouldLoadFromCache: bool,
-        givenCacheWithGroup: None,
-        givenCacheWithVariables: None,
+        given_cache_with_group: None,
+        given_cache_with_variables: None,
     ):
 
         census = Census(
@@ -915,7 +938,7 @@ class TestCensus:
             lambda census: cast(Census, census).search_variables("regex"),  # type: ignore
         ],
     )
-    def test_emptyResponses(
+    def test_empty_api_responses(
         self, censusCall: Callable[[Census], pandas.DataFrame], mocker: MockerFixture
     ):
         mocker.patch.object(requests, "get", return_value=MockRes(204))

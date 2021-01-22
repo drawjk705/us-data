@@ -138,7 +138,7 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         ]
         sorted_geo_cols = [
             domain.name
-            for domain in self._sortGeoDomains(
+            for domain in self._sort_geo_domains(
                 [GeoDomain(col) for col in geo_cols], supported_geos
             )
         ]
@@ -149,7 +149,7 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
 
         return nameHeader, sorted_geo_cols, variable_cols
 
-    def _sortGeoDomains(
+    def _sort_geo_domains(
         self,
         geo_domains: List[GeoDomain],
         supported_geos: pd.DataFrame,

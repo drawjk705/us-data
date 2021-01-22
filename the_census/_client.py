@@ -18,10 +18,10 @@ class CensusClient:
     additional properties from consumers.
     """
 
-    _variableRepo: IVariableRepository[pd.DataFrame]
+    _variable_repo: IVariableRepository[pd.DataFrame]
     _variableSearch: IVariableSearchService[pd.DataFrame]
     _stats: ICensusStatisticsService[pd.DataFrame]
-    _geoRepo: IGeographyRepository[pd.DataFrame]
+    _geo_repo: IGeographyRepository[pd.DataFrame]
 
     def __init__(
         self,
@@ -31,10 +31,10 @@ class CensusClient:
         api: ICensusApiFetchService,
         geoRepo: IGeographyRepository[pd.DataFrame],
     ) -> None:
-        self._variableRepo = variableRepo
+        self._variable_repo = variableRepo
         self._variableSearch = variableSearch
         self._stats = stats
-        self._geoRepo = geoRepo
+        self._geo_repo = geoRepo
 
         # if this healthcheck fails, it will throw, and we
         # won't instantiate the client
@@ -55,21 +55,21 @@ class CensusClient:
     def get_geography_codes(
         self, for_domain: GeoDomain, *in_domains: GeoDomain
     ) -> pd.DataFrame:
-        return self._geoRepo.get_geography_codes(for_domain, *in_domains).copy(
+        return self._geo_repo.get_geography_codes(for_domain, *in_domains).copy(
             deep=True
         )
 
     def get_groups(self) -> pd.DataFrame:
-        return self._variableRepo.get_groups().copy(deep=True)
+        return self._variable_repo.get_groups().copy(deep=True)
 
     def get_variables_by_group(self, *groups: GroupCode) -> pd.DataFrame:
-        return self._variableRepo.get_variables_by_group(*groups).copy(deep=True)
+        return self._variable_repo.get_variables_by_group(*groups).copy(deep=True)
 
     def get_all_variables(self) -> pd.DataFrame:
-        return self._variableRepo.get_all_variables().copy(deep=True)
+        return self._variable_repo.get_all_variables().copy(deep=True)
 
     def get_supported_geographies(self) -> pd.DataFrame:
-        return self._geoRepo.get_supported_geographies().copy(deep=True)
+        return self._geo_repo.get_supported_geographies().copy(deep=True)
 
     def get_stats(
         self,
@@ -85,12 +85,12 @@ class CensusClient:
 
     @property
     def variables(self) -> VariableSet:
-        return self._variableRepo.variables
+        return self._variable_repo.variables
 
     @property
     def groups(self) -> GroupSet:
-        return self._variableRepo.groups
+        return self._variable_repo.groups
 
     @property
     def supported_geographies(self) -> SupportedGeoSet:
-        return self._geoRepo.supported_geographies
+        return self._geo_repo.supported_geographies
