@@ -67,8 +67,8 @@ class Census
 ```
 
 -   `year`: the year of the dataset
--   `dataset`: type of the dataset, specified by [`list_available_datasets`](#which-dataset)
--   `survey`: type of the survey, specified by [`list_available_datasets`](#which-dataset)
+-   `dataset`: type of the dataset, specified by [`list_available_datasets`](#selecting-a-dataset)
+-   `survey`: type of the survey, specified by [`list_available_datasets`](#selecting-a-dataset)
 -   `cache_dir`: if you opt in to on-disk caching (more on this below), the name of the directory in which to store cached data
 -   `should_load_from_existing_cache`: if you have cached data from a previous session, this will reload cached data into the `Census` object, instead of hitting the Census API when that data is queried
 -   `should_cache_on_disk`: whether or not to cache data on disk, to avoid repeat API calls. The following data will be cached:
