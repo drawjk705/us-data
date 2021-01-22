@@ -72,7 +72,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             String() & StartsWith(expectedRoute)
         )
 
-    def test_group_data_callsFetch(self):
+    def test_group_data_calls_fetch(self):
         self._service.group_data()
 
         self.requestsGetMock.assert_called_once_with(
@@ -80,7 +80,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/groups.json")
         )
 
-    def test_supported_geographies_callsFetch(self):
+    def test_supported_geographies_calls_fetch(self):
         self._service.supported_geographies()
 
         self.requestsGetMock.assert_called_once_with(
@@ -88,7 +88,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/geography.json")
         )
 
-    def test_variables_for_group_callsFetch(self):
+    def test_variables_for_group_calls_fetch(self):
         group = "abc123"
 
         self._service.variables_for_group(group)
@@ -100,7 +100,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             )
         )
 
-    def test_stats_callsFetchInBatches(self):
+    def test_stats_calls_fetchInBatches(self):
         self.mocker.patch("the_census._api.fetch.MAX_QUERY_SIZE", 3)
 
         varCodes = [

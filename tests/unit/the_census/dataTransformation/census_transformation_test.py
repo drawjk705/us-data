@@ -186,8 +186,8 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
             GeoDomain(place) for place in ["one place", "two place", "three place"]
         ]
 
-    @pytest.mark.parametrize("shouldreplace_column_headers", [True, False])
-    def test_stats(self, shouldreplace_column_headers: bool):
+    @pytest.mark.parametrize("should_replace_column_headers", [True, False])
+    def test_stats(self, should_replace_column_headers: bool):
         supported_geos = pd.DataFrame(
             [dict(name="geoCol1", hierarchy=1), dict(name="geoCol2", hierarchy=2)]
         )
@@ -222,14 +222,14 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
         self.mocker.patch.object(
             self._service._config,
             "replace_column_headers",
-            shouldreplace_column_headers,
+            should_replace_column_headers,
         )
 
         res = self._service.stats(
             results, type_conversions, geoDomains, column_headers, supported_geos
         )
 
-        if shouldreplace_column_headers:
+        if should_replace_column_headers:
             assert res.dtypes.to_dict() == {  # type: ignore
                 "NAME": np.dtype("O"),
                 "apple": np.dtype("float64"),

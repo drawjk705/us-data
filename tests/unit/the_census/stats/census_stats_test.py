@@ -18,7 +18,7 @@ var1 = GroupVariable(
     limit=1,
     predicate_only=False,
     predicate_type="int",
-    cleaned_name="cleaned_name1",
+    cleaned_name="cleanedName1",
 )
 var2 = GroupVariable(
     code=VariableCode("var2"),
@@ -28,7 +28,7 @@ var2 = GroupVariable(
     limit=1,
     predicate_only=False,
     predicate_type="float",
-    cleaned_name="cleaned_name2",
+    cleaned_name="cleanedName2",
 )
 var3 = GroupVariable(
     code=VariableCode("var3"),
@@ -38,7 +38,7 @@ var3 = GroupVariable(
     limit=1,
     predicate_only=False,
     predicate_type="string",
-    cleaned_name="cleaned_name3",
+    cleaned_name="cleanedName3",
 )
 var4 = GroupVariable(
     code=VariableCode("var4"),
@@ -48,7 +48,7 @@ var4 = GroupVariable(
     limit=1,
     predicate_only=False,
     predicate_type="string",
-    cleaned_name="cleaned_name4",
+    cleaned_name="cleanedName4",
 )
 
 variablesInRepo: Dict[str, GroupVariable] = dict(
@@ -121,9 +121,9 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         )
 
         assert columnMapping == {
-            "var1": "cleaned_name1",
-            "var2": "cleaned_name2",
-            "var3": "cleaned_name3",
+            "var1": "cleanedName1",
+            "var2": "cleanedName2",
+            "var3": "cleanedName3",
         }
         assert typeMapping == {"var1": float, "var2": float}
 
@@ -155,9 +155,9 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         )
 
         assert columnMapping == {
-            "var1": "cleaned_name1_g1",
-            "var2": "cleaned_name2_g1",
-            "var3": "cleaned_name3_g1",
-            "var5": "cleaned_name1_g2",
+            "var1": "cleanedName1_g1",
+            "var2": "cleanedName2_g1",
+            "var3": "cleanedName3_g1",
+            "var5": "cleanedName1_g2",
         }
         assert typeMapping == {"var1": float, "var2": float}

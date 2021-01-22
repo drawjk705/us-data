@@ -7,17 +7,17 @@ from pytest import MonkeyPatch
 from pytest_mock.plugin import MockerFixture
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import shuffledCases
+from tests.utils import shuffled_cases
 from the_census._config import Config
 from the_census._persistence.onDisk import OnDiskCache
 
 
-def makeCache(config: Config) -> OnDiskCache:
+def make_cache(config: Config) -> OnDiskCache:
     return OnDiskCache(config, MagicMock())
 
 
 @pytest.fixture
-def pathMock(mocker: MockerFixture) -> MagicMock:
+def path_mock(mocker: MockerFixture) -> MagicMock:
     mock = mocker.patch("the_census._persistence.onDisk.Path")
     mocker.patch.object(mock(), "joinpath", return_value=mock())
 
@@ -25,7 +25,7 @@ def pathMock(mocker: MockerFixture) -> MagicMock:
 
 
 @pytest.fixture
-def shutilMock(mocker: MockerFixture) -> Mock:
+def shutil_mock(mocker: MockerFixture) -> Mock:
     return mocker.patch("the_census._persistence.onDisk.shutil")
 
 
@@ -36,49 +36,49 @@ class DummyClass:
 # we're using a dummy class here, since we're specifically
 # testing the cache's constructor
 class TestOnDiskCache(ServiceTestFixture[DummyClass]):
-    @pytest.mark.parametrize(*shuffledCases(pathExists=[True, False]))
+    @pytest.mark.parametrize(*shuffled_cases(pathExists=[True, False]))
     def test_cacheInit(
         self,
-        pathMock: Mock,
-        shutilMock: Mock,
+        path_mock: Mock,
+        shutil_mock: Mock,
         pathExists: bool,
     ):
         config = Config(cache_dir="cache", should_cache_on_disk=True)
-        self.givenExistenceOfPath(pathMock, pathExists)
+        self.given_existence_of_path(path_mock, pathExists)
 
-        _ = makeCache(config)
+        _ = make_cache(config)
 
         if pathExists:
-            shutilMock.rmtree.assert_called_once_with("cache")  # type: ignore
+            shutil_mock.rmtree.assert_called_once_with("cache")  # type: ignore
         else:
-            shutilMock.rmtree.assert_not_called()  # type: ignore
+            shutil_mock.rmtree.assert_not_called()  # type: ignore
 
-        pathMock().mkdir.assert_called_once_with(parents=True, exist_ok=True)
+        path_mock().mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
     def test_cacheInit_givenArg_doesNotCreateCache(
-        self, pathMock: MagicMock, shutilMock: Mock
+        self, path_mock: MagicMock, shutil_mock: Mock
     ):
         config = Config(2019, should_cache_on_disk=False)
 
-        _ = makeCache(config)
+        _ = make_cache(config)
 
-        pathMock().mkdir.assert_not_called()  # type: ignore
-        self.castMock(shutilMock.rmtree).assert_not_called()  # type: ignore
+        path_mock().mkdir.assert_not_called()  # type: ignore
+        self.castMock(shutil_mock.rmtree).assert_not_called()  # type: ignore
 
     @pytest.mark.parametrize(
-        *shuffledCases(
+        *shuffled_cases(
             should_cache_on_disk=[True, False],
-            resourceExists=[True, False],
+            resource_exists=[True, False],
             should_load_from_existing_cache=[True, False],
         )
     )
     def test_put_givenShouldCacheOptions(
         self,
         should_cache_on_disk: bool,
-        resourceExists: bool,
-        pathMock: MagicMock,
+        resource_exists: bool,
+        path_mock: MagicMock,
         should_load_from_existing_cache: bool,
-        shutilMock: MagicMock,
+        shutil_mock: MagicMock,
     ):
         config = Config(
             2019,
@@ -87,32 +87,32 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         )
         resource = "resource"
         data = MagicMock(spec=pandas.DataFrame)
-        self.givenExistenceOfPath(pathMock, resourceExists)
+        self.given_existence_of_path(path_mock, resource_exists)
 
         cache = OnDiskCache(config, MagicMock())
 
         putRes = cache.put(resource, data)
 
-        if should_cache_on_disk and not resourceExists:
+        if should_cache_on_disk and not resource_exists:
             self.castMock(data.to_csv).assert_called_once_with(String(), index=False)  # type: ignore
 
-        assert putRes != (resourceExists and should_cache_on_disk)
+        assert putRes != (resource_exists and should_cache_on_disk)
 
     @pytest.mark.parametrize(
-        *shuffledCases(
+        *shuffled_cases(
             should_cache_on_disk=[True, False],
-            resourceExists=[True, False],
+            resource_exists=[True, False],
             should_load_from_existing_cache=[True, False],
         )
     )
     def test_get_givenOptions(
         self,
         should_cache_on_disk: bool,
-        pathMock: MagicMock,
-        resourceExists: bool,
+        path_mock: MagicMock,
+        resource_exists: bool,
         should_load_from_existing_cache: bool,
         monkeypatch: MonkeyPatch,
-        shutilMock: MagicMock,
+        shutil_mock: MagicMock,
     ):
         config = Config(
             2019,
@@ -121,26 +121,26 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         )
         resource = "resource"
 
-        cache = makeCache(config)
+        cache = make_cache(config)
 
-        self.givenExistenceOfPath(pathMock, resourceExists)
-        mockReadCsv = MagicMock()
+        self.given_existence_of_path(path_mock, resource_exists)
+        mock_read_csv = MagicMock()
         getRetval = MagicMock(spec=pandas.DataFrame)
-        mockReadCsv.return_value = getRetval
-        monkeypatch.setattr(pandas, "read_csv", mockReadCsv)
+        mock_read_csv.return_value = getRetval
+        monkeypatch.setattr(pandas, "read_csv", mock_read_csv)
 
         res = cache.get(resource)
 
         if (
             not should_cache_on_disk
-            or not resourceExists
+            or not resource_exists
             or not should_load_from_existing_cache
         ):
             assert res.empty
-            mockReadCsv.assert_not_called()
+            mock_read_csv.assert_not_called()
         else:
-            mockReadCsv.assert_called_once()
+            mock_read_csv.assert_called_once()
             assert res == getRetval
 
-    def givenExistenceOfPath(self, pathMock: MagicMock, exists: bool):
-        self.mocker.patch.object(pathMock(), "exists", return_value=exists)
+    def given_existence_of_path(self, path_mock: MagicMock, exists: bool):
+        self.mocker.patch.object(path_mock(), "exists", return_value=exists)

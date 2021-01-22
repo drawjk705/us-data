@@ -529,9 +529,9 @@ class TestCensus:
 
         _ = census.get_supported_geographies()
 
-        inMemsupported_geos = census.supported_geographies
+        in_mem_supported_geos = census.supported_geographies
 
-        assert inMemsupported_geos.__dict__ == {
+        assert in_mem_supported_geos.__dict__ == {
             "CongressionalDistrict": "congressional district",
             "County": "county",
             "Division": "division",
@@ -560,7 +560,7 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    def test_census_search_variablesWithin_groups(self, apiCalls: Set[str]):
+    def test_census_search_variables_within_groups(self, apiCalls: Set[str]):
         census = Census(2019)
         regex = r"estimate"
 
@@ -684,11 +684,11 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    @pytest.mark.parametrize("shouldRename_columns", [(True), (False)])
+    @pytest.mark.parametrize("should_rename_columns", [(True), (False)])
     def test_census_stats_batchedApiCalls(
-        self, apiCalls: Set[str], mocker: MockerFixture, shouldRename_columns: bool
+        self, apiCalls: Set[str], mocker: MockerFixture, should_rename_columns: bool
     ):
-        census = Census(2019, replace_column_headers=shouldRename_columns)
+        census = Census(2019, replace_column_headers=should_rename_columns)
 
         mocker.patch("the_census._api.fetch.MAX_QUERY_SIZE", 2)
 
@@ -704,7 +704,7 @@ class TestCensus:
 
         assert res.to_dict("records") == (
             expectedStatsResWithNames
-            if shouldRename_columns
+            if should_rename_columns
             else expectedStatsResWithoutNames
         )
 
@@ -925,7 +925,7 @@ class TestCensus:
         assert censusCall(census).empty
 
     def test_list_available_datasets(self):
-        datasets = Census.listAvailabeDatasets()
+        datasets = Census.list_available_datasets()
 
         assert datasets.to_dict("records") == [
             {

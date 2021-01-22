@@ -63,8 +63,8 @@ def __list_available_datasets() -> pd.DataFrame:
                     year=dataset.year,
                     name=dataset.title,
                     description=dataset.description,
-                    dataset_type=dataset_type,
-                    survey_type=survey_type,
+                    dataset=dataset_type,
+                    survey=survey_type,
                 ),
             )
         )

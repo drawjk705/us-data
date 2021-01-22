@@ -5,7 +5,7 @@ import pandas
 import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import DataFrameColumnMatcher, shuffledCases
+from tests.utils import DataFrameColumnMatcher, shuffled_cases
 from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
 from the_census._variables.repository.service import VariableRepository
 
@@ -16,7 +16,7 @@ apiRetval = "banana"
 
 
 class TestVariableRepository(ServiceTestFixture[VariableRepository]):
-    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
+    @pytest.mark.parametrize(*shuffled_cases(isCacheHit=[True, False]))
     def test_get_groups_givenCacheRetval(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [
@@ -50,7 +50,7 @@ class TestVariableRepository(ServiceTestFixture[VariableRepository]):
                 "groups.csv", fullDf
             )
 
-    @pytest.mark.parametrize(*shuffledCases(cache_miss_index=[0, 1, 2]))
+    @pytest.mark.parametrize(*shuffled_cases(cache_miss_index=[0, 1, 2]))
     def test_get_variables_by_group(self, cache_miss_index: int):
         cacheGroups = [GroupCode("g1"), GroupCode("g2"), GroupCode("g3")]
         cache_miss_group = cacheGroups[cache_miss_index]

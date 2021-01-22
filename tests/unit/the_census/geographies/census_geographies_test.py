@@ -4,14 +4,14 @@ import pandas
 import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import shuffledCases
+from tests.utils import shuffled_cases
 from the_census._geographies.service import GeographyRepository
 
 apiRetval = "banana"
 
 
 class TestGeographyRepository(ServiceTestFixture[GeographyRepository]):
-    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
+    @pytest.mark.parametrize(*shuffled_cases(isCacheHit=[True, False]))
     def test_get_supported_geographies(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [

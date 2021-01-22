@@ -231,7 +231,7 @@ class Census:
         )
 
     @staticmethod
-    def listAvailabeDatasets() -> pandas.DataFrame:
+    def list_available_datasets() -> pandas.DataFrame:
         """
         The name says it all
 
