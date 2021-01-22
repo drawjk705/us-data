@@ -19,37 +19,39 @@ def no_requests(monkeypatch: MonkeyPatch):
 
 
 @pytest.fixture(scope="function")
-def apiFixture(request: FixtureRequest, mocker: MockerFixture):
-    request.cls.requestsGetMock = mocker.patch.object(requests, "get")  # type: ignore
+def api_fixture(request: FixtureRequest, mocker: MockerFixture):
+    request.cls.requests_get_mock = mocker.patch.object(requests, "get")  # type: ignore
 
 
 @pytest.fixture(scope="function")
-def injectMockerToClass(request: FixtureRequest, mocker: MockerFixture):
+def inject_mocker_to_class(request: FixtureRequest, mocker: MockerFixture):
     request.cls.mocker = mocker  # type: ignore
 
 
 @pytest.fixture(scope="function")
-def injectMonkeyPatchToClass(request: FixtureRequest, monkeypatch: MonkeyPatch):
-    request.cls.monkeypatch = monkeypatch  # type: ignore
+def service_fixture(request: FixtureRequest):
+    """
+    This mocks all of a service's dependencies,
+    instantiates the service with those mocked dependencies,
+    and assigns the service to the test class's `_service`
+    variable
+    """
 
-
-@pytest.fixture(scope="function")
-def serviceFixture(request: FixtureRequest):
     req = cast(utils._RequestCls, request)
     obj = req.cls
 
-    service = utils.extractService(obj)
+    service = utils.extract_service(obj)
 
     dependencies: Dict[str, MagicMock] = {}
 
     # this lets us see all of the service's constructor types
-    for depName, depType in inspect.signature(service).parameters.items():
+    for dep_name, dep_type in inspect.signature(service).parameters.items():
         # this condition will be true if the service inherits
         # from a generic class
-        if hasattr(depType.annotation, "__origin__"):
-            dependencies.update({depName: MagicMock(depType.annotation.__origin__)})
+        if hasattr(dep_type.annotation, "__origin__"):
+            dependencies[dep_name] = MagicMock(dep_type.annotation.__origin__)
         else:
-            dependencies.update({depName: MagicMock(depType.annotation)})
+            dependencies[dep_name] = MagicMock(dep_type.annotation)
 
     # we call the service's constructor with the mocked dependencies
     # and set the test class obj's _service attribute to hold this service

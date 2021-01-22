@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from pytest_mock import MockFixture
 
-from tests.serviceTestFixtures import ServiceTestFixture
+from tests.service_test_fixtures import ServiceTestFixture
 from the_census._api.models import GeographyClauseSet, GeographyItem
 from the_census._data_transformation.service import CensusDataTransformer
 from the_census._geographies.models import GeoDomain
@@ -15,12 +15,12 @@ from the_census._variables.models import Group, GroupCode, GroupVariable, Variab
 
 
 @pytest.fixture
-def pandasMock(mocker: MockFixture) -> Mock:
+def pandas_mock(mocker: MockFixture) -> Mock:
     return mocker.patch("pandas.DataFrame")
 
 
 class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
-    def test_supported_geographies(self, pandasMock: MagicMock):
+    def test_supported_geographies(self, pandas_mock: MagicMock):
         supported_geos = OrderedDict(
             {
                 "abc": GeographyItem.makeItem(
@@ -54,18 +54,18 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
         self._service.supported_geographies(supported_geos)
 
-        pandasMock.assert_called_once_with(expectedCallValues)
+        pandas_mock.assert_called_once_with(expectedCallValues)
 
-    def test_geography_codes(self, pandasMock: Mock):
+    def test_geography_codes(self, pandas_mock: Mock):
         headers = ["header 1", "header 2"]
         rows = [["1", "2"], ["3", "4"], ["5", "6"]]
         geo_codes = [headers] + rows
 
         self._service.geography_codes(geo_codes)
 
-        pandasMock.assert_called_once_with(rows, columns=headers)
+        pandas_mock.assert_called_once_with(rows, columns=headers)
 
-    def test_group_data(self, pandasMock: Mock):
+    def test_group_data(self, pandas_mock: Mock):
         group_data = {
             "1": Group.from_json(dict(name="1", description="desc1")),
             "2": Group.from_json(dict(name="1", description="desc2")),
@@ -77,9 +77,9 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
         self._service.groups(group_data)
 
-        pandasMock.assert_called_once_with(expectedCalledWith)
+        pandas_mock.assert_called_once_with(expectedCalledWith)
 
-    def test_variables(self, pandasMock: Mock):
+    def test_variables(self, pandas_mock: Mock):
         variables = [
             GroupVariable(
                 code=VariableCode("123"),
@@ -125,7 +125,7 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
         self._service.variables(variables)
 
-        pandasMock.assert_called_once_with(expectedCall)
+        pandas_mock.assert_called_once_with(expectedCall)
 
     def test_partition_stats_columns(self):
         allsupported_geos = pd.DataFrame(
@@ -158,7 +158,7 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
         self.mocker.patch.object(
             self._service,
-            "_sortGeoDomains",
+            "_sort_geo_domains",
             return_value=[GeoDomain(col) for col in expectedsorted_geo_cols],
         )
 
@@ -176,11 +176,11 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
                 dict(name="three place", hierarchy=3),
             ]
         )
-        geoDomains = [
+        geo_domains = [
             GeoDomain(place) for place in ["two place", "one place", "three place"]
         ]
 
-        res = self._service._sortGeoDomains(geoDomains, allsupported_geos)
+        res = self._service._sort_geo_domains(geo_domains, allsupported_geos)
 
         assert res == [
             GeoDomain(place) for place in ["one place", "two place", "three place"]
@@ -208,7 +208,7 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
         column_headers: Dict[VariableCode, str] = dict(
             var1="banana", var2="apple", var3="pear", var4="peach"
         )
-        geoDomains = [GeoDomain("geoCol1"), GeoDomain("geoCol2")]
+        geo_domains = [GeoDomain("geoCol1"), GeoDomain("geoCol2")]
 
         self.mocker.patch.object(
             self._service,
@@ -226,7 +226,7 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
         )
 
         res = self._service.stats(
-            results, type_conversions, geoDomains, column_headers, supported_geos
+            results, type_conversions, geo_domains, column_headers, supported_geos
         )
 
         if should_replace_column_headers:

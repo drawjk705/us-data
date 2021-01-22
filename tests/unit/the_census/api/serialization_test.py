@@ -16,8 +16,8 @@ def service() -> ApiSerializationService:
 
 
 @given(
-    varCode1=st.text(),
-    varCode2=st.text(),
+    var_code1=st.text(),
+    var_code2=st.text(),
     var1=st.fixed_dictionaries(
         {
             "label": st.text(),
@@ -39,18 +39,18 @@ def service() -> ApiSerializationService:
         }
     ),
 )
-def test_parseVariableData(
-    varCode1: str,
-    varCode2: str,
+def test_parse_variable_data(
+    var_code1: str,
+    var_code2: str,
     var1: Dict[str, Union[str, int, bool]],
     var2: Dict[str, Union[str, int, bool]],
 ):
-    assume(varCode1 != varCode2)
+    assume(var_code1 != var_code2)
 
     service = ApiSerializationService()
-    variables = {"variables": {varCode1: var1, varCode2: var2}}
-    expectedVar1 = GroupVariable.from_json(varCode1, var1)
-    expectedVar2 = GroupVariable.from_json(varCode2, var2)
+    variables = {"variables": {var_code1: var1, var_code2: var2}}
+    expectedVar1 = GroupVariable.from_json(var_code1, var1)
+    expectedVar2 = GroupVariable.from_json(var_code2, var2)
     expected = [expectedVar1, expectedVar2]
 
     actual = service.parse_group_variables(variables)
@@ -58,7 +58,7 @@ def test_parseVariableData(
     assert actual == expected
 
 
-__supported_geosTestCases = [
+_supported_geos_test_cases = [
     (
         {
             "fips": [
@@ -137,13 +137,13 @@ __supported_geosTestCases = [
 ]
 
 
-@pytest.mark.parametrize(["apiResponse", "expected"], __supported_geosTestCases)
+@pytest.mark.parametrize(["api_response", "expected"], _supported_geos_test_cases)
 def test_parse_supported_geographies(
     service: ApiSerializationService,
-    apiResponse: Dict[Any, Any],
+    api_response: Dict[Any, Any],
     expected: GeographyItem,
 ):
-    actual = service.parse_supported_geographies(apiResponse)
+    actual = service.parse_supported_geographies(api_response)
 
     assert actual == expected
 

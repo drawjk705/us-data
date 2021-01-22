@@ -1,12 +1,12 @@
+from typing import Any, cast
 from unittest.mock import MagicMock, Mock
 
 import pandas
 import pytest
 from callee import String
-from pytest import MonkeyPatch
 from pytest_mock.plugin import MockerFixture
 
-from tests.serviceTestFixtures import ServiceTestFixture
+from tests.service_test_fixtures import ServiceTestFixture
 from tests.utils import shuffled_cases
 from the_census._config import Config
 from the_census._persistence.onDisk import OnDiskCache
@@ -56,14 +56,14 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         path_mock().mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
     def test_cacheInit_givenArg_doesNotCreateCache(
-        self, path_mock: MagicMock, shutil_mock: Mock
+        self, path_mock: MagicMock, shutil_mock: MagicMock
     ):
         config = Config(2019, should_cache_on_disk=False)
 
         _ = make_cache(config)
 
-        path_mock().mkdir.assert_not_called()  # type: ignore
-        self.castMock(shutil_mock.rmtree).assert_not_called()  # type: ignore
+        path_mock().mkdir.assert_not_called()
+        self.cast_mock(cast(Any, shutil_mock).rmtree).assert_not_called()
 
     @pytest.mark.parametrize(
         *shuffled_cases(
@@ -94,7 +94,9 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         putRes = cache.put(resource, data)
 
         if should_cache_on_disk and not resource_exists:
-            self.castMock(data.to_csv).assert_called_once_with(String(), index=False)  # type: ignore
+            self.cast_mock(cast(Any, data).to_csv).assert_called_once_with(
+                String(), index=False
+            )
 
         assert putRes != (resource_exists and should_cache_on_disk)
 
@@ -111,7 +113,6 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         path_mock: MagicMock,
         resource_exists: bool,
         should_load_from_existing_cache: bool,
-        monkeypatch: MonkeyPatch,
         shutil_mock: MagicMock,
     ):
         config = Config(
@@ -125,9 +126,10 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
 
         self.given_existence_of_path(path_mock, resource_exists)
         mock_read_csv = MagicMock()
-        getRetval = MagicMock(spec=pandas.DataFrame)
-        mock_read_csv.return_value = getRetval
-        monkeypatch.setattr(pandas, "read_csv", mock_read_csv)
+        get_retval = MagicMock(spec=pandas.DataFrame)
+        mock_read_csv.return_value = get_retval
+
+        self.mocker.patch.object(pandas, "read_csv", mock_read_csv)
 
         res = cache.get(resource)
 
@@ -140,7 +142,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
             mock_read_csv.assert_not_called()
         else:
             mock_read_csv.assert_called_once()
-            assert res == getRetval
+            assert res == get_retval
 
     def given_existence_of_path(self, path_mock: MagicMock, exists: bool):
         self.mocker.patch.object(path_mock(), "exists", return_value=exists)
