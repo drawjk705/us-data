@@ -6,7 +6,6 @@ import pandas as pd
 from the_census._api.models import GeographyItem
 from the_census._config import Config
 from the_census._dataTransformation.interface import ICensusDataTransformer
-from the_census._geographies.interface import IGeographyRepository
 from the_census._geographies.models import GeoDomain
 from the_census._utils.timer import timer
 from the_census._variables.models import Group, GroupVariable, VariableCode
@@ -14,13 +13,10 @@ from the_census._variables.models import Group, GroupVariable, VariableCode
 
 class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
 
-    _geoRepo: IGeographyRepository[pd.DataFrame]
     _config: Config
 
-    def __init__(
-        self, geoRepo: IGeographyRepository[pd.DataFrame], config: Config
-    ) -> None:
-        self._geoRepo = geoRepo
+    def __init__(self, config: Config) -> None:
+
         self._config = config
 
     @timer
@@ -93,6 +89,7 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         typeConversions: Dict[str, Any],
         geoDomainsQueried: List[GeoDomain],
         columnHeaders: Dict[VariableCode, str],
+        supportedGeos: pd.DataFrame,
     ) -> pd.DataFrame:
         mainDf = pd.DataFrame()
 
@@ -110,7 +107,9 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         allCols = mainDf.columns.tolist()
 
         nameCol, sortedGeoCols, variableCols = self._partitionStatColumns(
-            columnHeaders, allCols
+            columnHeaders,
+            allCols,
+            supportedGeos,
         )
 
         reorderedColumns = nameCol + sortedGeoCols + variableCols
@@ -124,7 +123,10 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         )
 
     def _partitionStatColumns(
-        self, renamedColumnHeaders: Dict[VariableCode, str], dfColumns: List[str]
+        self,
+        renamedColumnHeaders: Dict[VariableCode, str],
+        dfColumns: List[str],
+        supportedGeos: pd.DataFrame,
     ) -> Tuple[List[str], List[str], List[str]]:
         originalVariableHeaders = [str(col) for col in renamedColumnHeaders.keys()]
         nameHeader = ["NAME"]
@@ -134,7 +136,9 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         ]
         sortedGeoCols = [
             domain.name
-            for domain in self._sortGeoDomains([GeoDomain(col) for col in geoCols])
+            for domain in self._sortGeoDomains(
+                [GeoDomain(col) for col in geoCols], supportedGeos
+            )
         ]
 
         variableCols = [
@@ -143,8 +147,11 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
 
         return nameHeader, sortedGeoCols, variableCols
 
-    def _sortGeoDomains(self, geoDomains: List[GeoDomain]) -> List[GeoDomain]:
-        supportedGeos = self._geoRepo.getSupportedGeographies()
+    def _sortGeoDomains(
+        self,
+        geoDomains: List[GeoDomain],
+        supportedGeos: pd.DataFrame,
+    ) -> List[GeoDomain]:
         geoHierarchyMapping: List[Dict[str, str]] = (
             supportedGeos[["name", "hierarchy"]].drop_duplicates().to_dict("records")
         )

@@ -72,8 +72,14 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
 
         geoDomainsQueried = [forDomain] + list(inDomains)
 
+        supportedGeos = self._geoRepo.getSupportedGeographies()
+
         df = self._transformer.stats(
-            apiResults, typeConversions, geoDomainsQueried, columnHeaders
+            apiResults,
+            typeConversions,
+            geoDomainsQueried,
+            columnHeaders,
+            supportedGeos,
         )
 
         return df

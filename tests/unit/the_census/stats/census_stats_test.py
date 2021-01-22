@@ -77,6 +77,13 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             return_value=(expectedColumnMapping, expectedTypeMapping),
         )
 
+        geoRepoRetval = []
+        self.mocker.patch.object(
+            self._service._geoRepo,
+            "getSupportedGeographies",
+            return_value=geoRepoRetval,
+        )
+
         self._service.getStats(variablesToQuery, forDomain, *inDomains)
 
         apiGet.assert_called_once_with(variablesToQuery, forDomain, inDomains)
@@ -85,6 +92,7 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             expectedTypeMapping,
             [forDomain] + inDomains,
             expectedColumnMapping,
+            geoRepoRetval,
         )
 
     def test_getVariableNamesAndTypeConversions_givenEmptyRepo_throws(self):

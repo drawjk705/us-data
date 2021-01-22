@@ -128,6 +128,15 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
         pandasMock.assert_called_once_with(expectedCall)
 
     def test_partition_stats_columns(self):
+        allSupportedGeos = pd.DataFrame(
+            [
+                dict(name="one place", hierarchy=1),
+                dict(name="two place", hierarchy=2),
+                dict(name="three place", hierarchy=3),
+                dict(name="four place", hierarchy=4),
+                dict(name="five place", hierarchy=5),
+            ]
+        )
         renamedColHeaders = {VariableCode("abc"): "Abc", VariableCode("def"): "Def"}
         dfColumns = [
             "NAME",
@@ -153,7 +162,9 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
             return_value=[GeoDomain(col) for col in expectedSortedGeoCols],
         )
 
-        res = self._service._partitionStatColumns(renamedColHeaders, dfColumns)
+        res = self._service._partitionStatColumns(
+            renamedColHeaders, dfColumns, allSupportedGeos
+        )
 
         assert res == (["NAME"], expectedSortedGeoCols, ["abc", "def"])
 
@@ -169,13 +180,7 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
             GeoDomain(place) for place in ["two place", "one place", "three place"]
         ]
 
-        self.mocker.patch.object(
-            self._service._geoRepo,
-            "getSupportedGeographies",
-            return_value=allSupportedGeos,
-        )
-
-        res = self._service._sortGeoDomains(geoDomains)
+        res = self._service._sortGeoDomains(geoDomains, allSupportedGeos)
 
         assert res == [
             GeoDomain(place) for place in ["one place", "two place", "three place"]
@@ -183,6 +188,9 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
     @pytest.mark.parametrize("shouldReplaceColumnHeaders", [True, False])
     def test_stats(self, shouldReplaceColumnHeaders: bool):
+        supportedGeos = pd.DataFrame(
+            [dict(name="geoCol1", hierarchy=1), dict(name="geoCol2", hierarchy=2)]
+        )
         results = [
             [
                 ["NAME", "var1", "var2", "geoCol1", "geoCol2"],
@@ -215,7 +223,9 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
             self._service._config, "replaceColumnHeaders", shouldReplaceColumnHeaders
         )
 
-        res = self._service.stats(results, typeConversions, geoDomains, columnHeaders)
+        res = self._service.stats(
+            results, typeConversions, geoDomains, columnHeaders, supportedGeos
+        )
 
         if shouldReplaceColumnHeaders:
             assert res.dtypes.to_dict() == {  # type: ignore

@@ -38,6 +38,7 @@ class ICensusDataTransformer(Generic[T]):
         typeConversions: Dict[str, Any],
         geoDomainsQueried: List[GeoDomain],
         columnHeaders: Dict[VariableCode, str],
+        supportedGeos: T,
     ) -> T:
         """Parses stats data.
 
@@ -59,6 +60,8 @@ class ICensusDataTransformer(Generic[T]):
                 floats if necessary, otherwise strings
             geoDomainsQueried (List[str]): by the stats service
             columnHeaders (Dict[VariableCode, str]): the column headers with cleaned names
+            supportedGoes (T): we need to pass this in (as opposed to DI-ing the Geography
+                repo), since that would result in a circular dependency otherwise
 
         Returns:
             T: [description]
