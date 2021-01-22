@@ -1,10 +1,8 @@
 from typing import Any, Dict
 
-import pandas as pd
 import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import shuffledCases
 from the_census._exceptions import EmptyRepositoryException
 from the_census._geographies.models import GeoDomain
 from the_census._stats.service import CensusStatisticsService
@@ -59,15 +57,9 @@ variablesInRepo: Dict[str, GroupVariable] = dict(
 
 
 class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
-    @pytest.mark.parametrize(*shuffledCases(shouldReplaceColumnHeaders=[True, False]))
-    def test_getStats_passesCorrectValuesToTransformer(
-        self, shouldReplaceColumnHeaders: bool
-    ):
+    def test_getStats_passesCorrectValuesToTransformer(self):
         apiGet = self.mocker.patch.object(
             self._service._api, "stats", return_value=iter([[1, 2], [3]])
-        )
-        self.mocker.patch.object(
-            self._service._config, "replaceColumnHeaders", shouldReplaceColumnHeaders
         )
         variablesToQuery = [
             var1.code,
@@ -84,10 +76,12 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             "_getVariableNamesAndTypeConversions",
             return_value=(expectedColumnMapping, expectedTypeMapping),
         )
+
+        geoRepoRetval = []
         self.mocker.patch.object(
-            self._service,
-            "_sortGeoDomains",
-            return_value=[forDomain] + inDomains,
+            self._service._geoRepo,
+            "getSupportedGeographies",
+            return_value=geoRepoRetval,
         )
 
         self._service.getStats(variablesToQuery, forDomain, *inDomains)
@@ -97,7 +91,8 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             [[1, 2], [3]],
             expectedTypeMapping,
             [forDomain] + inDomains,
-            columnHeaders=expectedColumnMapping if shouldReplaceColumnHeaders else None,
+            expectedColumnMapping,
+            geoRepoRetval,
         )
 
     def test_getVariableNamesAndTypeConversions_givenEmptyRepo_throws(self):
@@ -166,36 +161,3 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             "var5": "cleanedName1_g2",
         }
         assert typeMapping == {"var1": float, "var2": float}
-
-    def test_sortGeoDomains(self):
-        geoDomains = [GeoDomain("apple"), GeoDomain("banana"), GeoDomain("cantelope")]
-        supportedGeoRetval = pd.DataFrame(
-            [
-                {
-                    "name": "banana",
-                    "hierarchy": "001",
-                },
-                {
-                    "name": "apple",
-                    "hierarchy": "010",
-                },
-                {
-                    "name": "cantelope",
-                    "hierarchy": "020",
-                },
-                {
-                    "name": "dingo",
-                    "hierarchy": "110",
-                },
-            ]
-        )
-
-        self.mocker.patch.object(
-            self._service._geoRepo,
-            "getSupportedGeographies",
-            return_value=supportedGeoRetval,
-        )
-
-        res = self._service._sortGeoDomains(geoDomains)
-
-        assert res == [GeoDomain("banana"), GeoDomain("apple"), GeoDomain("cantelope")]

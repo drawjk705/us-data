@@ -1,15 +1,13 @@
-# pyright: reportMissingTypeStubs=false
-
 from collections import OrderedDict
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from unittest.mock import MagicMock, Mock
 
 import numpy as np
+import pandas as pd
 import pytest
 from pytest_mock import MockFixture
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import shuffledCases
 from the_census._api.models import GeographyClauseSet, GeographyItem
 from the_census._dataTransformation.service import CensusDataTransformer
 from the_census._geographies.models import GeoDomain
@@ -129,8 +127,70 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
 
         pandasMock.assert_called_once_with(expectedCall)
 
-    @pytest.mark.parametrize(*shuffledCases(shouldUseColumnHeaders=[True, False]))
-    def test_stats(self, shouldUseColumnHeaders: bool):
+    def test_partition_stats_columns(self):
+        allSupportedGeos = pd.DataFrame(
+            [
+                dict(name="one place", hierarchy=1),
+                dict(name="two place", hierarchy=2),
+                dict(name="three place", hierarchy=3),
+                dict(name="four place", hierarchy=4),
+                dict(name="five place", hierarchy=5),
+            ]
+        )
+        renamedColHeaders = {VariableCode("abc"): "Abc", VariableCode("def"): "Def"}
+        dfColumns = [
+            "NAME",
+            "five place",
+            "abc",
+            "def",
+            "one place",
+            "three place",
+            "two place",
+            "four place",
+        ]
+        expectedSortedGeoCols = [
+            "one place",
+            "two place",
+            "three place",
+            "four place",
+            "five place",
+        ]
+
+        self.mocker.patch.object(
+            self._service,
+            "_sortGeoDomains",
+            return_value=[GeoDomain(col) for col in expectedSortedGeoCols],
+        )
+
+        res = self._service._partitionStatColumns(
+            renamedColHeaders, dfColumns, allSupportedGeos
+        )
+
+        assert res == (["NAME"], expectedSortedGeoCols, ["abc", "def"])
+
+    def test_sort_geo_domains(self):
+        allSupportedGeos = pd.DataFrame(
+            [
+                dict(name="one place", hierarchy=1),
+                dict(name="two place", hierarchy=2),
+                dict(name="three place", hierarchy=3),
+            ]
+        )
+        geoDomains = [
+            GeoDomain(place) for place in ["two place", "one place", "three place"]
+        ]
+
+        res = self._service._sortGeoDomains(geoDomains, allSupportedGeos)
+
+        assert res == [
+            GeoDomain(place) for place in ["one place", "two place", "three place"]
+        ]
+
+    @pytest.mark.parametrize("shouldReplaceColumnHeaders", [True, False])
+    def test_stats(self, shouldReplaceColumnHeaders: bool):
+        supportedGeos = pd.DataFrame(
+            [dict(name="geoCol1", hierarchy=1), dict(name="geoCol2", hierarchy=2)]
+        )
         results = [
             [
                 ["NAME", "var1", "var2", "geoCol1", "geoCol2"],
@@ -145,16 +205,29 @@ class TestCensusDataTransformer(ServiceTestFixture[CensusDataTransformer]):
         ]
 
         typeConversions: Dict[str, Any] = dict(var1=int, var2=float)
-        columnHeaders: Optional[Dict[VariableCode, str]] = (
-            dict(var1="banana", var2="apple", var3="pear", var4="peach")
-            if shouldUseColumnHeaders
-            else None
+        columnHeaders: Dict[VariableCode, str] = dict(
+            var1="banana", var2="apple", var3="pear", var4="peach"
         )
         geoDomains = [GeoDomain("geoCol1"), GeoDomain("geoCol2")]
 
-        res = self._service.stats(results, typeConversions, geoDomains, columnHeaders)
+        self.mocker.patch.object(
+            self._service,
+            "_partitionStatColumns",
+            return_value=(
+                ["NAME"],
+                ["geoCol1", "geoCol2"],
+                ["var1", "var2", "var3", "var4"],
+            ),
+        )
+        self.mocker.patch.object(
+            self._service._config, "replaceColumnHeaders", shouldReplaceColumnHeaders
+        )
 
-        if shouldUseColumnHeaders:
+        res = self._service.stats(
+            results, typeConversions, geoDomains, columnHeaders, supportedGeos
+        )
+
+        if shouldReplaceColumnHeaders:
             assert res.dtypes.to_dict() == {  # type: ignore
                 "NAME": np.dtype("O"),
                 "apple": np.dtype("float64"),

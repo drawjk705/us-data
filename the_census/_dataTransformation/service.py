@@ -1,9 +1,10 @@
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Tuple, Union, cast
 
 import pandas as pd
 
 from the_census._api.models import GeographyItem
+from the_census._config import Config
 from the_census._dataTransformation.interface import ICensusDataTransformer
 from the_census._geographies.models import GeoDomain
 from the_census._utils.timer import timer
@@ -11,8 +12,12 @@ from the_census._variables.models import Group, GroupVariable, VariableCode
 
 
 class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
-    def __init__(self) -> None:
-        super().__init__()
+
+    _config: Config
+
+    def __init__(self, config: Config) -> None:
+
+        self._config = config
 
     @timer
     def supportedGeographies(
@@ -82,33 +87,78 @@ class CensusDataTransformer(ICensusDataTransformer[pd.DataFrame]):
         self,
         results: List[List[List[str]]],
         typeConversions: Dict[str, Any],
-        geoDomains: List[GeoDomain],
-        columnHeaders: Optional[Dict[VariableCode, str]],
+        geoDomainsQueried: List[GeoDomain],
+        columnHeaders: Dict[VariableCode, str],
+        supportedGeos: pd.DataFrame,
     ) -> pd.DataFrame:
         mainDf = pd.DataFrame()
-        geoCols = [geoDomain.name for geoDomain in geoDomains]
+
+        mergeKeys = [domain.name for domain in geoDomainsQueried]
 
         for result in results:
             df = pd.DataFrame(result[1:], columns=result[0])
 
-            if mainDf.empty:  # type: ignore
+            if mainDf.empty:
                 mainDf = df
             else:
                 df = df.drop(columns=["NAME"])  # type: ignore
-                mainDf = pd.merge(mainDf, df, on=geoCols, how="inner")  # type: ignore
+                mainDf = cast(pd.DataFrame, pd.merge(mainDf, df, on=mergeKeys, how="inner"))  # type: ignore
 
-        allCols = cast(List[str], mainDf.columns.tolist())  # type: ignore
+        allCols = mainDf.columns.tolist()
 
-        # reshuffle the columns
-        nameCol = ["NAME"]
-        variableCols = [col for col in allCols if col != "NAME" and col not in geoCols]
+        nameCol, sortedGeoCols, variableCols = self._partitionStatColumns(
+            columnHeaders,
+            allCols,
+            supportedGeos,
+        )
 
-        reorderedColumns = nameCol + geoCols + variableCols
+        reorderedColumns = nameCol + sortedGeoCols + variableCols
 
         return (
             mainDf[reorderedColumns]  # type: ignore
             .astype(typeConversions)
-            .rename(columns=columnHeaders or {})
-            .sort_values(by=geoCols)
+            .rename(columns=columnHeaders if self._config.replaceColumnHeaders else {})
+            .sort_values(by=sortedGeoCols)
             .reset_index(drop=True)
+        )
+
+    def _partitionStatColumns(
+        self,
+        renamedColumnHeaders: Dict[VariableCode, str],
+        dfColumns: List[str],
+        supportedGeos: pd.DataFrame,
+    ) -> Tuple[List[str], List[str], List[str]]:
+        originalVariableHeaders = [str(col) for col in renamedColumnHeaders.keys()]
+        nameHeader = ["NAME"]
+
+        geoCols = [
+            col for col in dfColumns if col not in nameHeader + originalVariableHeaders
+        ]
+        sortedGeoCols = [
+            domain.name
+            for domain in self._sortGeoDomains(
+                [GeoDomain(col) for col in geoCols], supportedGeos
+            )
+        ]
+
+        variableCols = [
+            col for col in dfColumns if col != "NAME" and col not in geoCols
+        ]
+
+        return nameHeader, sortedGeoCols, variableCols
+
+    def _sortGeoDomains(
+        self,
+        geoDomains: List[GeoDomain],
+        supportedGeos: pd.DataFrame,
+    ) -> List[GeoDomain]:
+        geoHierarchyMapping: List[Dict[str, str]] = (
+            supportedGeos[["name", "hierarchy"]].drop_duplicates().to_dict("records")
+        )
+        geoNameToHierarchy = {
+            mapping["name"]: mapping["hierarchy"] for mapping in geoHierarchyMapping
+        }
+
+        return sorted(
+            geoDomains, key=lambda geoDomain: geoNameToHierarchy[geoDomain.name]
         )
