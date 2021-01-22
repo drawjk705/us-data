@@ -13,7 +13,7 @@ from pytest_mock import MockerFixture
 from tests.integration.census.mockApiResponses import MOCK_API
 from tests.utils import MockRes
 from the_census import Census, GeoDomain
-from the_census._exceptions import CensusDoesNotExistException, NoCensusapi_keyException
+from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
 from the_census._utils.clean_variable_name import clean_variable_name
 from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
 from the_census._variables.repository.models import GroupSet, VariableSet
@@ -253,7 +253,7 @@ class TestCensus:
     def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
         mocker.patch.object(os, "getenv", return_value=None)
         with pytest.raises(
-            NoCensusapi_keyException, match="Could not find `CENSUS_API_KEY` in .env"
+            NoCensusApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
         ):
             _ = Census(2019)
 

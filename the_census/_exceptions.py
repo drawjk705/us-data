@@ -27,7 +27,7 @@ class EmptyRepositoryException(Exception):
         super().__init__(*args)
 
 
-class NoCensusapi_keyException(Exception):
+class NoCensusApiKeyException(Exception):
     """
     Thrown when no Census API key is provided
     """

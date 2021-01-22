@@ -17,7 +17,7 @@ from the_census._client import CensusClient
 from the_census._config import CACHE_DIR, Config
 from the_census._data_transformation.interface import ICensusDataTransformer
 from the_census._data_transformation.service import CensusDataTransformer
-from the_census._exceptions import NoCensusapi_keyException
+from the_census._exceptions import NoCensusApiKeyException
 from the_census._geographies.interface import IGeographyRepository
 from the_census._geographies.models import GeoDomain, SupportedGeoSet
 from the_census._geographies.service import GeographyRepository
@@ -62,7 +62,7 @@ class Census:
         api_key = os.getenv("CENSUS_API_KEY")
 
         if api_key is None:
-            raise NoCensusapi_keyException("Could not find `CENSUS_API_KEY` in .env")
+            raise NoCensusApiKeyException("Could not find `CENSUS_API_KEY` in .env")
 
         self._config = Config(
             year,
