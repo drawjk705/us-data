@@ -17,7 +17,6 @@ jobs:
                   CONTEXT: ${{ toJson(github) }}
 
     lint:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -74,7 +73,6 @@ jobs:
                   poe sort-imports -c
 
     test:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -115,7 +113,6 @@ jobs:
                   coverage report
 
     build:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -153,7 +150,6 @@ jobs:
               run: poetry build
 
     enforce-title:
-        environment: CI
         if: >-
             github.event_name == 'pull_request' &&
             github.event.pull_request.user.login != 'dependabot-preview[bot]'
