@@ -13,7 +13,7 @@ from the_census._exceptions import CensusDoesNotExistException, InvalidQueryExce
 from the_census._geographies.models import GeoDomain
 from the_census._variables.models import VariableCode
 
-mockConfig = Config(year=2019, dataset_type="acs", survey_type="acs1")
+mockConfig = Config(year=2019, dataset="acs", survey="acs1")
 
 
 class ApiServiceWrapper(CensusApiFetchService):

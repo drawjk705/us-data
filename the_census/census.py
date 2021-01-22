@@ -47,8 +47,8 @@ class Census:
     def __init__(
         self,
         year: int,
-        dataset_type: str = "acs",
-        survey_type: str = "acs1",
+        dataset: str = "acs",
+        survey: str = "acs1",
         cache_dir: str = CACHE_DIR,
         should_load_from_existing_cache: bool = False,
         should_cache_on_disk: bool = False,
@@ -66,8 +66,8 @@ class Census:
 
         self._config = Config(
             year,
-            dataset_type,
-            survey_type,
+            dataset,
+            survey,
             cache_dir,
             should_load_from_existing_cache,
             should_cache_on_disk,
@@ -100,7 +100,7 @@ class Census:
         # the client
         container.register(CensusClient)
 
-        configureLogger(log_file, datasetName=f"{dataset_type}.{survey_type}")
+        configureLogger(log_file, datasetName=f"{dataset}.{survey}")
 
         # for Jupyter
         pandas.set_option("display.max_colwidth", None)  # type: ignore
@@ -267,7 +267,7 @@ class Census:
         return self._client.supported_geographies
 
     def __repr__(self) -> str:
-        return f"<Census year={self._config.year} dataset={self._config.dataset_type} survey={self._config.survey_type}>"
+        return f"<Census year={self._config.year} dataset={self._config.dataset} survey={self._config.survey}>"
 
     def __str__(self) -> str:
         return self.__repr__()

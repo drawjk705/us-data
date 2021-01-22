@@ -14,13 +14,13 @@ def get_unique(items: Collection[T]) -> List[T]:
         List[T]: list with distinct items
     """
 
-    uniqueList: List[T] = []
-    seenItems: Set[T] = set()
+    unique_list: List[T] = []
+    seen_items: Set[T] = set()
 
     for item in items:
-        if item in seenItems:
+        if item in seen_items:
             continue
-        seenItems.add(item)
-        uniqueList.append(item)
+        seen_items.add(item)
+        unique_list.append(item)
 
-    return uniqueList
+    return unique_list

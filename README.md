@@ -41,7 +41,7 @@ Say you're interested in the American Community Survey 1-year estimates for 2019
 
 ```python
 >>> from the_census import Census
->>> Census(year=2019, dataset_type="acs", survey_type="acs1")
+>>> Census(year=2019, dataset="acs", survey="acs1")
 
 <Census year=2019 dataset=acs survey=acs1>
 ```
@@ -56,8 +56,8 @@ This is the signature of `Census`:
 class Census
     def __init__(self,
                  year: int,
-                 dataset_type: str = "acs",
-                 survey_type: str = "acs1",
+                 dataset: str = "acs",
+                 survey: str = "acs1",
                  cache_dir: str = CACHE_DIR,        # cache
                  should_load_from_existing_cache: bool = False,
                  should_cache_on_disk: bool = False,
@@ -67,8 +67,8 @@ class Census
 ```
 
 -   `year`: the year of the dataset
--   `dataset_type`: type of the dataset, specified by [`list_available_datasets`](#which-dataset)
--   `survey_type`: type of the survey, specified by [`list_available_datasets`](#which-dataset)
+-   `dataset`: type of the dataset, specified by [`list_available_datasets`](#which-dataset)
+-   `survey`: type of the survey, specified by [`list_available_datasets`](#which-dataset)
 -   `cache_dir`: if you opt in to on-disk caching (more on this below), the name of the directory in which to store cached data
 -   `should_load_from_existing_cache`: if you have cached data from a previous session, this will reload cached data into the `Census` object, instead of hitting the Census API when that data is queried
 -   `should_cache_on_disk`: whether or not to cache data on disk, to avoid repeat API calls. The following data will be cached:

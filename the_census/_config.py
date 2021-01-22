@@ -11,8 +11,8 @@ class Config:
     """
 
     year: int = 2020
-    dataset_type: str = "acs"
-    survey_type: str = "acs1"
+    dataset: str = "acs"
+    survey: str = "acs1"
     cache_dir: str = CACHE_DIR
     should_load_from_existing_cache: bool = False
     should_cache_on_disk: bool = False

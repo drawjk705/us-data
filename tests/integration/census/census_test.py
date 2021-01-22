@@ -929,16 +929,16 @@ class TestCensus:
 
         assert datasets.to_dict("records") == [
             {
-                "dataset_type": "ecneoyinv",
+                "dataset": "ecneoyinv",
                 "description": "This dataset presents statistics for Wholesale Trade:  "
                 "Inventories by Valuation Method for the U.S.",
                 "name": "Economic Census: Economic Census of the United States: Wholesale "
                 "Trade: Inventories by Valuation Method for the U.S.",
-                "survey_type": "",
+                "survey": "",
                 "year": 2017,
             },
             {
-                "dataset_type": "dec",
+                "dataset": "dec",
                 "description": "Summary File 4 is repeated or iterated for the total "
                 "population and 335 additional population groups: 132 race "
                 "groups,78 American Indian and Alaska Native tribe categories, "
@@ -968,7 +968,7 @@ class TestCensus:
                 "tables, the universe classification is based on the race or "
                 "ethnicity of the householder.",
                 "name": "Decennial Census: Summary File 4",
-                "survey_type": "sf4",
+                "survey": "sf4",
                 "year": 2000,
             },
         ]

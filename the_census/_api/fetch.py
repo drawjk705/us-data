@@ -35,9 +35,7 @@ class CensusApiFetchService(ICensusApiFetchService):
         parser: ICensusApiSerializationService,
         logging_factory: ILoggerFactory,
     ) -> None:
-        self._url = API_URL_FORMAT.format(
-            config.year, config.dataset_type, config.survey_type
-        )
+        self._url = API_URL_FORMAT.format(config.year, config.dataset, config.survey)
         self._parser = parser
         self._config = config
         self._logger = logging_factory.getLogger(__name__)
@@ -46,7 +44,7 @@ class CensusApiFetchService(ICensusApiFetchService):
         res = requests.get(self._url + ".json")  # type: ignore
 
         if res.status_code in [404, 400]:
-            msg = f"Data does not exist for dataset={self._config.dataset_type}; survey={self._config.survey_type}; year={self._config.year}"
+            msg = f"Data does not exist for dataset={self._config.dataset}; survey={self._config.survey}; year={self._config.year}"
 
             self._logger.exception(msg)
 

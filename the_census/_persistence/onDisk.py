@@ -21,7 +21,7 @@ class OnDiskCache(ICache[pd.DataFrame]):
         self._logger = logger_factory.getLogger(__name__)
 
         self._cache_path = Path(
-            f"{config.cache_dir}/{config.year}/{config.dataset_type}/{config.survey_type}"
+            f"{config.cache_dir}/{config.year}/{config.dataset}/{config.survey}"
         )
 
         if not self._config.should_cache_on_disk:

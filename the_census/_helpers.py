@@ -40,11 +40,11 @@ def __list_available_datasets() -> pd.DataFrame:
     res: Dict[str, Any] = requests.get(URL).json()  # type: ignore
     dataset_dicts: List[Dict[str, str]] = []
 
-    availableDatasets: List[_DatasetsRes] = [
+    available_datasets: List[_DatasetsRes] = [
         _DatasetsRes.from_json(datasetJson) for datasetJson in res["dataset"]
     ]
 
-    for dataset in cast(List[_DatasetsRes], tqdm(availableDatasets)):
+    for dataset in cast(List[_DatasetsRes], tqdm(available_datasets)):
         # these won't play nice with the tool
         if not dataset.is_aggregate:
             continue
