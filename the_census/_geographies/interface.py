@@ -11,16 +11,16 @@ class IGeographyRepository(ABC, Generic[T]):
     Gets and stores all geography information
     """
 
-    _supportedGeographies: SupportedGeoSet
+    _supported_geographies: SupportedGeoSet
 
     @abstractmethod
-    def getSupportedGeographies(self) -> T:
+    def get_supported_geographies(self) -> T:
         ...
 
     @abstractmethod
-    def getGeographyCodes(self, forDomain: GeoDomain, *inDomains: GeoDomain) -> T:
+    def get_geography_codes(self, for_domain: GeoDomain, *in_domains: GeoDomain) -> T:
         ...
 
     @property
-    def supportedGeographies(self) -> SupportedGeoSet:
-        return self._supportedGeographies
+    def supported_geographies(self) -> SupportedGeoSet:
+        return self._supported_geographies

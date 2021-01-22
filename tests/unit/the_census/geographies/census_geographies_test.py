@@ -4,15 +4,15 @@ import pandas
 import pytest
 
 from tests.serviceTestFixtures import ServiceTestFixture
-from tests.utils import shuffledCases
+from tests.utils import shuffled_cases
 from the_census._geographies.service import GeographyRepository
 
 apiRetval = "banana"
 
 
 class TestGeographyRepository(ServiceTestFixture[GeographyRepository]):
-    @pytest.mark.parametrize(*shuffledCases(isCacheHit=[True, False]))
-    def test_getSupportedGeographies(self, isCacheHit: bool):
+    @pytest.mark.parametrize(*shuffled_cases(isCacheHit=[True, False]))
+    def test_get_supported_geographies(self, isCacheHit: bool):
         fullDf = pandas.DataFrame(
             [
                 {"name": "us", "hierarchy": 1, "for": "this", "in": "that"},
@@ -24,14 +24,14 @@ class TestGeographyRepository(ServiceTestFixture[GeographyRepository]):
             self._service._cache, "get", return_value=fullDf if isCacheHit else None
         )
         apiFetch = self.mocker.patch.object(
-            self._service._api, "supportedGeographies", return_value=apiRetval
+            self._service._api, "supported_geographies", return_value=apiRetval
         )
 
         transform = self.mocker.patch.object(
-            self._service._transformer, "supportedGeographies", return_value=fullDf
+            self._service._transformer, "supported_geographies", return_value=fullDf
         )
 
-        self._service.getSupportedGeographies()
+        self._service.get_supported_geographies()
 
         if isCacheHit:
             apiFetch.assert_not_called()
@@ -41,12 +41,12 @@ class TestGeographyRepository(ServiceTestFixture[GeographyRepository]):
             apiFetch.assert_called_once()
             transform.assert_called_once_with(apiRetval)
             self.castMock(self._service._cache.put).assert_called_once_with(
-                "supportedGeographies.csv", fullDf
+                "supported_geographies.csv", fullDf
             )
 
-    def test_getGeographyCodes(self):
-        forDomain = MagicMock()
-        inDomains = [MagicMock()]
+    def test_get_geography_codes(self):
+        for_domain = MagicMock()
+        in_domains = [MagicMock()]
 
         fullDf = pandas.DataFrame(
             [
@@ -62,15 +62,15 @@ class TestGeographyRepository(ServiceTestFixture[GeographyRepository]):
         )
 
         apiFetch = self.mocker.patch.object(
-            self._service._api, "geographyCodes", return_value=apiRetval
+            self._service._api, "geography_codes", return_value=apiRetval
         )
         transform = self.mocker.patch.object(
-            self._service._transformer, "geographyCodes", return_value=fullDf
+            self._service._transformer, "geography_codes", return_value=fullDf
         )
 
-        res = self._service.getGeographyCodes(forDomain, *inDomains)
+        res = self._service.get_geography_codes(for_domain, *in_domains)
 
-        apiFetch.assert_called_once_with(forDomain, inDomains)
+        apiFetch.assert_called_once_with(for_domain, in_domains)
         transform.assert_called_once_with(apiRetval)
 
         assert res.to_dict() == fullDf.to_dict()

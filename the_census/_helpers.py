@@ -16,12 +16,12 @@ URL = "https://api.census.gov/data.json"
 class _DatasetsRes:
     year: int
     dataset: List[str]
-    isAggregate: bool
+    is_aggregate: bool
     title: str
     description: str
 
     @classmethod
-    def fromJson(cls, jsonRes: Dict[str, Any]):
+    def from_json(cls, jsonRes: Dict[str, Any]):
         return cls(
             cast(int, jsonRes.get("c_vintage")),
             cast(List[str], jsonRes.get("c_dataset")),
@@ -31,40 +31,40 @@ class _DatasetsRes:
         )
 
 
-def listAvailableDataSets() -> pd.DataFrame:
-    return __listAvailableDataSets()
+def list_available_datasets() -> pd.DataFrame:
+    return __list_available_datasets()
 
 
 @cache
-def __listAvailableDataSets() -> pd.DataFrame:
+def __list_available_datasets() -> pd.DataFrame:
     res: Dict[str, Any] = requests.get(URL).json()  # type: ignore
-    datasetDicts: List[Dict[str, str]] = []
+    dataset_dicts: List[Dict[str, str]] = []
 
-    availableDatasets: List[_DatasetsRes] = [
-        _DatasetsRes.fromJson(datasetJson) for datasetJson in res["dataset"]
+    available_datasets: List[_DatasetsRes] = [
+        _DatasetsRes.from_json(datasetJson) for datasetJson in res["dataset"]
     ]
 
-    for dataset in cast(List[_DatasetsRes], tqdm(availableDatasets)):
+    for dataset in cast(List[_DatasetsRes], tqdm(available_datasets)):
         # these won't play nice with the tool
-        if not dataset.isAggregate:
+        if not dataset.is_aggregate:
             continue
 
-        datasetType = ""
-        surveyType = ""
+        dataset_type = ""
+        survey_type = ""
         if len(dataset.dataset) > 0:
-            datasetType = dataset.dataset[0]
+            dataset_type = dataset.dataset[0]
             if len(dataset.dataset) > 1:
-                surveyType = "/".join(dataset.dataset[1:])
+                survey_type = "/".join(dataset.dataset[1:])
 
-        datasetDicts.append(
+        dataset_dicts.append(
             cast(
                 Dict[str, str],
                 dict(
                     year=dataset.year,
                     name=dataset.title,
                     description=dataset.description,
-                    datasetType=datasetType,
-                    surveyType=surveyType,
+                    dataset=dataset_type,
+                    survey=survey_type,
                 ),
             )
         )
@@ -72,7 +72,7 @@ def __listAvailableDataSets() -> pd.DataFrame:
     pandas.set_option("display.max_colwidth", None)  # type: ignore
 
     return (
-        pd.DataFrame(datasetDicts)
+        pd.DataFrame(dataset_dicts)
         .sort_values(by=["year", "name"], ascending=[False, True])
         .reset_index(drop=True)
     )

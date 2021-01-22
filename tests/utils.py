@@ -71,7 +71,7 @@ def extractService(obj: _RequestCls.Obj) -> Any:
     return fixtureClass.__args__[0]  # type: ignore
 
 
-def shuffledCases(**kwargs: List[Any]) -> Tuple[List[str], List[Any]]:
+def shuffled_cases(**kwargs: List[Any]) -> Tuple[List[str], List[Any]]:
     keys = list(kwargs.keys())
     values = list(kwargs.values())
     combos = list(product(*values))

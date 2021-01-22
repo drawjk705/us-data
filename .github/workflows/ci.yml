@@ -17,7 +17,6 @@ jobs:
                   CONTEXT: ${{ toJson(github) }}
 
     lint:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -74,7 +73,6 @@ jobs:
                   poe sort-imports -c
 
     test:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -115,7 +113,6 @@ jobs:
                   coverage report
 
     build:
-        environment: CI
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -153,7 +150,6 @@ jobs:
               run: poetry build
 
     enforce-title:
-        environment: CI
         if: >-
             github.event_name == 'pull_request' &&
             github.event.pull_request.user.login != 'dependabot-preview[bot]'
@@ -179,7 +175,9 @@ jobs:
 
             - name: check for patch
               id: patch
-              if: "startsWith(github.event.pull_request.title, 'fix: ')"
+              if: >-
+                  startsWith(github.event.pull_request.title, 'fix: ') ||
+                  startsWith(github.event.pull_request.title, 'Revert ')
               run: |
                   echo "::set-output name=exists::1"
 
@@ -218,6 +216,7 @@ jobs:
                   startsWith(github.event.head_commit.message, 'breaking') ||
                   startsWith(github.event.head_commit.message, 'feat') || 
                   startsWith(github.event.head_commit.message, 'fix') ||
+                  startsWith(github.event.head_commit.message, 'Revert') ||
                   startsWith(github.event.head_commit.message, 'prerelease') ||
                   github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
                 )
@@ -268,6 +267,7 @@ jobs:
               id: patch
               if: >-
                   startsWith(github.event.head_commit.message, 'fix: ') ||
+                  startsWith(github.event.head_commit.message, 'Revert ') ||
                   github.event.commits.*.author.*.name == 'dependabot-preview[bot]'
               run: |
                   echo "bump_type=patch" >> $GITHUB_ENV

@@ -38,44 +38,46 @@ class CensusClient:
 
         # if this healthcheck fails, it will throw, and we
         # won't instantiate the client
-        api.healthCheck()
+        api.healthcheck()
 
     # search
-    def searchGroups(self, regex: str) -> pd.DataFrame:
-        return self._variableSearch.searchGroups(regex).copy(deep=True)
+    def search_groups(self, regex: str) -> pd.DataFrame:
+        return self._variableSearch.search_groups(regex).copy(deep=True)
 
-    def searchVariables(
+    def search_variables(
         self,
         regex: str,
-        *inGroups: GroupCode,
+        *in_groups: GroupCode,
     ) -> pd.DataFrame:
-        return self._variableSearch.searchVariables(regex, *inGroups).copy(deep=True)
+        return self._variableSearch.search_variables(regex, *in_groups).copy(deep=True)
 
     # repo
-    def getGeographyCodes(
-        self, forDomain: GeoDomain, *inDomains: GeoDomain
+    def get_geography_codes(
+        self, for_domain: GeoDomain, *in_domains: GeoDomain
     ) -> pd.DataFrame:
-        return self._geoRepo.getGeographyCodes(forDomain, *inDomains).copy(deep=True)
+        return self._geoRepo.get_geography_codes(for_domain, *in_domains).copy(
+            deep=True
+        )
 
-    def getGroups(self) -> pd.DataFrame:
-        return self._variableRepo.getGroups().copy(deep=True)
+    def get_groups(self) -> pd.DataFrame:
+        return self._variableRepo.get_groups().copy(deep=True)
 
-    def getVariablesByGroup(self, *groups: GroupCode) -> pd.DataFrame:
-        return self._variableRepo.getVariablesByGroup(*groups).copy(deep=True)
+    def get_variables_by_group(self, *groups: GroupCode) -> pd.DataFrame:
+        return self._variableRepo.get_variables_by_group(*groups).copy(deep=True)
 
-    def getAllVariables(self) -> pd.DataFrame:
-        return self._variableRepo.getAllVariables().copy(deep=True)
+    def get_all_variables(self) -> pd.DataFrame:
+        return self._variableRepo.get_all_variables().copy(deep=True)
 
-    def getSupportedGeographies(self) -> pd.DataFrame:
-        return self._geoRepo.getSupportedGeographies().copy(deep=True)
+    def get_supported_geographies(self) -> pd.DataFrame:
+        return self._geoRepo.get_supported_geographies().copy(deep=True)
 
-    def getStats(
+    def get_stats(
         self,
-        variablesToQuery: List[VariableCode],
-        forDomain: GeoDomain,
-        *inDomains: GeoDomain,
+        variables_to_query: List[VariableCode],
+        for_domain: GeoDomain,
+        *in_domains: GeoDomain,
     ) -> pd.DataFrame:
-        return self._stats.getStats(variablesToQuery, forDomain, *inDomains).copy(
+        return self._stats.get_stats(variables_to_query, for_domain, *in_domains).copy(
             deep=True
         )
 
@@ -90,5 +92,5 @@ class CensusClient:
         return self._variableRepo.groups
 
     @property
-    def supportedGeographies(self) -> SupportedGeoSet:
-        return self._geoRepo.supportedGeographies
+    def supported_geographies(self) -> SupportedGeoSet:
+        return self._geoRepo.supported_geographies

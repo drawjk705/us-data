@@ -57,7 +57,7 @@ class VariableSet(ICodeSet[GroupVariable, GroupVariable]):
         filteredItems = [item for item in items if item not in self.values()]
 
         entries = {
-            f"{item.cleanedName}_{item.groupCode}": item for item in filteredItems
+            f"{item.cleaned_name}_{item.group_code}": item for item in filteredItems
         }
 
         self.__dict__.update(entries)
@@ -65,15 +65,17 @@ class VariableSet(ICodeSet[GroupVariable, GroupVariable]):
 
 class GroupSet(ICodeSet[Group, GroupCode]):
     def add(self, *items: Group):
-        itemNames = [item.cleanedName for item in items]
+        itemNames = [item.cleaned_name for item in items]
 
         for item in items:
             if item.code in self.values():
                 continue
 
-            cleanedNameFreq = len([1 for name in itemNames if item.cleanedName == name])
+            cleaned_name_freq = len(
+                [1 for name in itemNames if item.cleaned_name == name]
+            )
 
-            if cleanedNameFreq > 1 or item.cleanedName in self.__dict__:
-                self.__dict__.update({f"{item.cleanedName}_{item.code}": item.code})
+            if cleaned_name_freq > 1 or item.cleaned_name in self.__dict__:
+                self.__dict__.update({f"{item.cleaned_name}_{item.code}": item.code})
             else:
-                self.__dict__.update({item.cleanedName: item.code})
+                self.__dict__.update({item.cleaned_name: item.code})

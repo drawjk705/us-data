@@ -14,10 +14,10 @@ class ICensusStatisticsService(ABC, Generic[_T]):
     """
 
     @abstractmethod
-    def getStats(
+    def get_stats(
         self,
-        variablesToQuery: List[VariableCode],
-        forDomain: GeoDomain,
-        *inDomains: GeoDomain,
+        variables_to_query: List[VariableCode],
+        for_domain: GeoDomain,
+        *in_domains: GeoDomain,
     ) -> _T:
         pass

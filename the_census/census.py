@@ -15,18 +15,18 @@ from the_census._api.interface import (
 from the_census._api.serialization import ApiSerializationService
 from the_census._client import CensusClient
 from the_census._config import CACHE_DIR, Config
-from the_census._dataTransformation.interface import ICensusDataTransformer
-from the_census._dataTransformation.service import CensusDataTransformer
+from the_census._data_transformation.interface import ICensusDataTransformer
+from the_census._data_transformation.service import CensusDataTransformer
 from the_census._exceptions import NoCensusApiKeyException
 from the_census._geographies.interface import IGeographyRepository
 from the_census._geographies.models import GeoDomain, SupportedGeoSet
 from the_census._geographies.service import GeographyRepository
-from the_census._helpers import listAvailableDataSets
+from the_census._helpers import list_available_datasets
 from the_census._persistence.interface import ICache
 from the_census._persistence.onDisk import OnDiskCache
 from the_census._stats.interface import ICensusStatisticsService
 from the_census._stats.service import CensusStatisticsService
-from the_census._utils.log.configureLogger import DEFAULT_LOGFILE, configureLogger
+from the_census._utils.log.configureLogger import DEFAULT_LOG_FILE, configureLogger
 from the_census._utils.log.factory import ILoggerFactory, LoggerFactory
 from the_census._variables.models import GroupCode, VariableCode
 from the_census._variables.repository.interface import IVariableRepository
@@ -47,32 +47,32 @@ class Census:
     def __init__(
         self,
         year: int,
-        datasetType: str = "acs",
-        surveyType: str = "acs1",
-        cacheDir: str = CACHE_DIR,
-        shouldLoadFromExistingCache: bool = False,
-        shouldCacheOnDisk: bool = False,
-        replaceColumnHeaders: bool = True,
-        logFile: str = DEFAULT_LOGFILE,
+        dataset: str = "acs",
+        survey: str = "acs1",
+        cache_dir: str = CACHE_DIR,
+        should_load_from_existing_cache: bool = False,
+        should_cache_on_disk: bool = False,
+        replace_column_headers: bool = True,
+        log_file: str = DEFAULT_LOG_FILE,
     ) -> None:
         dotenvPath = dotenv.find_dotenv()
 
         dotenv.load_dotenv(dotenvPath)
 
-        apiKey = os.getenv("CENSUS_API_KEY")
+        api_key = os.getenv("CENSUS_API_KEY")
 
-        if apiKey is None:
+        if api_key is None:
             raise NoCensusApiKeyException("Could not find `CENSUS_API_KEY` in .env")
 
         self._config = Config(
             year,
-            datasetType,
-            surveyType,
-            cacheDir,
-            shouldLoadFromExistingCache,
-            shouldCacheOnDisk,
-            replaceColumnHeaders,
-            apiKey,
+            dataset,
+            survey,
+            cache_dir,
+            should_load_from_existing_cache,
+            should_cache_on_disk,
+            replace_column_headers,
+            api_key,
         )
 
         container = punq.Container()
@@ -100,7 +100,7 @@ class Census:
         # the client
         container.register(CensusClient)
 
-        configureLogger(logFile, datasetName=f"{datasetType}.{surveyType}")
+        configureLogger(log_file, datasetName=f"{dataset}.{survey}")
 
         # for Jupyter
         pandas.set_option("display.max_colwidth", None)  # type: ignore
@@ -108,7 +108,7 @@ class Census:
         self._client = cast(CensusClient, container.resolve(CensusClient))
 
     # search
-    def searchGroups(self, regex: str) -> pandas.DataFrame:
+    def search_groups(self, regex: str) -> pandas.DataFrame:
         """
         Searches all group's based on their concept, according
         to `regex`
@@ -119,64 +119,64 @@ class Census:
         Returns:
             pandas.DataFrame: with all of the relevant groups.
         """
-        return self._client.searchGroups(regex).copy(deep=True)
+        return self._client.search_groups(regex).copy(deep=True)
 
-    def searchVariables(
+    def search_variables(
         self,
         regex: str,
-        *inGroups: GroupCode,
+        *in_groups: GroupCode,
     ) -> pandas.DataFrame:
         """
         - Searches variables based on `regex`.
         - It can search variables based on their name or group concept.
-        - Specify `inGroups` with a list of group codes to restrict the search to
+        - Specify `in_groups` with a list of group codes to restrict the search to
         variables within a particular group, or leave it empty to search all variables.
         - This will pull from the API whatever variables aren't in memory.
 
         Args:
             regex (str)
-            inGroups (List[GroupCode], optional): if populated, this will search
+            in_groups (List[GroupCode], optional): if populated, this will search
             only the variables within the specified groups. Defaults to [].
 
         Returns:
             pandas.DataFrame: with all of the matched variables
         """
-        return self._client.searchVariables(regex, *inGroups).copy(deep=True)
+        return self._client.search_variables(regex, *in_groups).copy(deep=True)
 
     # repo
-    def getGeographyCodes(
-        self, forDomain: GeoDomain, *inDomains: GeoDomain
+    def get_geography_codes(
+        self, for_domain: GeoDomain, *in_domains: GeoDomain
     ) -> pandas.DataFrame:
         """
         Gets geography codes for the specified geography query.
         A GeoDomain is comprised of the domain (e.g., "state"), and an ID
-        or wildcard. So passing in a `forDomain` of GeoDomain("congressional district", "*")
+        or wildcard. So passing in a `for_domain` of GeoDomain("congressional district", "*")
         would get all geography codes for all congressional district; providing an `inDomain`
         of, [GeoDomain("state", "06")] would constrain that search to the state with ID
         06 (California).
 
         Args:
-            forDomain (GeoDomain): the primary geography region to query
-            inDomains (List[GeoDomain], optional): any parents of the `forDomain`.
+            for_domain (GeoDomain): the primary geography region to query
+            in_domains (List[GeoDomain], optional): any parents of the `for_domain`.
             Whether or not these must be populated and/or can have wildcards
-            depends on the dataset/survey's supported geographies. (See `supportedGeographies`
+            depends on the dataset/survey's supported geographies. (See `supported_geographies`
             below.). Defaults to [].
 
         Returns:
             pandas.DataFrame: [description]
         """
-        return self._client.getGeographyCodes(forDomain, *inDomains).copy(deep=True)
+        return self._client.get_geography_codes(for_domain, *in_domains).copy(deep=True)
 
-    def getGroups(self) -> pandas.DataFrame:
+    def get_groups(self) -> pandas.DataFrame:
         """
         Gets all groups for the dataset/survey
 
         Returns:
             pandas.DataFrame: with all of the groups
         """
-        return self._client.getGroups().copy(deep=True)
+        return self._client.get_groups().copy(deep=True)
 
-    def getVariablesByGroup(self, *groups: GroupCode) -> pandas.DataFrame:
+    def get_variables_by_group(self, *groups: GroupCode) -> pandas.DataFrame:
         """
         Gets all variables whose group is in `groups`.
 
@@ -186,9 +186,9 @@ class Census:
         Returns:
             pandas.DataFrame: with the queried variables.
         """
-        return self._client.getVariablesByGroup(*groups).copy(deep=True)
+        return self._client.get_variables_by_group(*groups).copy(deep=True)
 
-    def getAllVariables(self) -> pandas.DataFrame:
+    def get_all_variables(self) -> pandas.DataFrame:
         """
         Gets all variables available to the dataset/survey.
         This may take a while.
@@ -196,9 +196,9 @@ class Census:
         Returns:
             pandas.DataFrame: with all of the variables.
         """
-        return self._client.getAllVariables().copy(deep=True)
+        return self._client.get_all_variables().copy(deep=True)
 
-    def getSupportedGeographies(self) -> pandas.DataFrame:
+    def get_supported_geographies(self) -> pandas.DataFrame:
         """
         Returns a DataFrame with all possible geography query
         patterns for the given dataset/survey.
@@ -206,32 +206,32 @@ class Census:
         Returns:
             pandas.DataFrame
         """
-        return self._client.getSupportedGeographies().copy(deep=True)
+        return self._client.get_supported_geographies().copy(deep=True)
 
-    def getStats(
+    def get_stats(
         self,
-        variablesToQuery: List[VariableCode],
-        forDomain: GeoDomain,
-        *inDomains: GeoDomain,
+        variables_to_query: List[VariableCode],
+        for_domain: GeoDomain,
+        *in_domains: GeoDomain,
     ) -> pandas.DataFrame:
         """
-        Gets statistical data based on `variablesToQuery`
+        Gets statistical data based on `variables_to_query`
         for the specified geographies.
 
         Args:
-            variablesToQuery (List[VariableCode]): the variables to query
-            forDomain (GeoDomain)
-            inDomains (List[GeoDomain], optional): Defaults to [].
+            variables_to_query (List[VariableCode]): the variables to query
+            for_domain (GeoDomain)
+            in_domains (List[GeoDomain], optional): Defaults to [].
 
         Returns:
             pandas.DataFrame: with the data
         """
-        return self._client.getStats(variablesToQuery, forDomain, *inDomains).copy(
+        return self._client.get_stats(variables_to_query, for_domain, *in_domains).copy(
             deep=True
         )
 
     @staticmethod
-    def listAvailabeDatasets() -> pandas.DataFrame:
+    def list_available_datasets() -> pandas.DataFrame:
         """
         The name says it all
 
@@ -239,7 +239,7 @@ class Census:
             pandas.DataFrame: DataFrame with all available datasets,
             along with their years & descriptions
         """
-        return listAvailableDataSets()
+        return list_available_datasets()
 
     @staticmethod
     def help() -> None:
@@ -263,11 +263,11 @@ class Census:
         return self._client.groups
 
     @property
-    def supportedGeographies(self) -> SupportedGeoSet:
-        return self._client.supportedGeographies
+    def supported_geographies(self) -> SupportedGeoSet:
+        return self._client.supported_geographies
 
     def __repr__(self) -> str:
-        return f"<Census year={self._config.year} dataset={self._config.datasetType} survey={self._config.surveyType}>"
+        return f"<Census year={self._config.year} dataset={self._config.dataset} survey={self._config.survey}>"
 
     def __str__(self) -> str:
         return self.__repr__()

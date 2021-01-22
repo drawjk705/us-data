@@ -12,43 +12,43 @@ from the_census._variables.models import GroupCode, GroupVariable, VariableCode
 
 var1 = GroupVariable(
     code=VariableCode("var1"),
-    groupCode=GroupCode("g1"),
-    groupConcept="concept1",
+    group_code=GroupCode("g1"),
+    group_concept="concept1",
     name="name 1",
     limit=1,
-    predicateOnly=False,
-    predicateType="int",
-    cleanedName="cleanedName1",
+    predicate_only=False,
+    predicate_type="int",
+    cleaned_name="cleanedName1",
 )
 var2 = GroupVariable(
     code=VariableCode("var2"),
-    groupCode=GroupCode("g1"),
-    groupConcept="concept1",
+    group_code=GroupCode("g1"),
+    group_concept="concept1",
     name="name 2",
     limit=1,
-    predicateOnly=False,
-    predicateType="float",
-    cleanedName="cleanedName2",
+    predicate_only=False,
+    predicate_type="float",
+    cleaned_name="cleanedName2",
 )
 var3 = GroupVariable(
     code=VariableCode("var3"),
-    groupCode=GroupCode("g1"),
-    groupConcept="concept1",
+    group_code=GroupCode("g1"),
+    group_concept="concept1",
     name="name 3",
     limit=1,
-    predicateOnly=False,
-    predicateType="string",
-    cleanedName="cleanedName3",
+    predicate_only=False,
+    predicate_type="string",
+    cleaned_name="cleanedName3",
 )
 var4 = GroupVariable(
     code=VariableCode("var4"),
-    groupCode=GroupCode("g1"),
-    groupConcept="concept1",
+    group_code=GroupCode("g1"),
+    group_concept="concept1",
     name="name 4",
     limit=1,
-    predicateOnly=False,
-    predicateType="string",
-    cleanedName="cleanedName4",
+    predicate_only=False,
+    predicate_type="string",
+    cleaned_name="cleanedName4",
 )
 
 variablesInRepo: Dict[str, GroupVariable] = dict(
@@ -57,56 +57,56 @@ variablesInRepo: Dict[str, GroupVariable] = dict(
 
 
 class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
-    def test_getStats_passesCorrectValuesToTransformer(self):
+    def test_get_stats_passesCorrectValuesToTransformer(self):
         apiGet = self.mocker.patch.object(
             self._service._api, "stats", return_value=iter([[1, 2], [3]])
         )
-        variablesToQuery = [
+        variables_to_query = [
             var1.code,
             var2.code,
             var3.code,
         ]
-        forDomain = GeoDomain("state")
-        inDomains = [GeoDomain("us")]
+        for_domain = GeoDomain("state")
+        in_domains = [GeoDomain("us")]
         expectedColumnMapping: Dict[str, int] = dict(map=1)
         expectedTypeMapping: Dict[str, Any] = dict(map=int)
 
         self.mocker.patch.object(
             self._service,
-            "_getVariableNamesAndTypeConversions",
+            "_getVariableNamesAndtype_conversions",
             return_value=(expectedColumnMapping, expectedTypeMapping),
         )
 
         geoRepoRetval = []
         self.mocker.patch.object(
             self._service._geoRepo,
-            "getSupportedGeographies",
+            "get_supported_geographies",
             return_value=geoRepoRetval,
         )
 
-        self._service.getStats(variablesToQuery, forDomain, *inDomains)
+        self._service.get_stats(variables_to_query, for_domain, *in_domains)
 
-        apiGet.assert_called_once_with(variablesToQuery, forDomain, inDomains)
+        apiGet.assert_called_once_with(variables_to_query, for_domain, in_domains)
         self.castMock(self._service._transformer.stats).assert_called_once_with(
             [[1, 2], [3]],
             expectedTypeMapping,
-            [forDomain] + inDomains,
+            [for_domain] + in_domains,
             expectedColumnMapping,
             geoRepoRetval,
         )
 
-    def test_getVariableNamesAndTypeConversions_givenEmptyRepo_throws(self):
-        variablesToQuery = [var1.code]
+    def test_getVariableNamesAndtype_conversions_givenEmptyRepo_throws(self):
+        variables_to_query = [var1.code]
         self.mocker.patch.object(self._service._variableRepo, "variables", dict())
 
         with pytest.raises(
             EmptyRepositoryException,
             match="Queried 1 variables, but found only 0 in repository",
         ):
-            self._service.getStats(variablesToQuery, GeoDomain("place"))
+            self._service.get_stats(variables_to_query, GeoDomain("place"))
 
-    def test_getVariableNamesAndTypeConversions_givenUniqueNames(self):
-        variablesToQuery = {
+    def test_getVariableNamesAndtype_conversions_givenUniqueNames(self):
+        variables_to_query = {
             var1.code,
             var2.code,
             var3.code,
@@ -116,8 +116,8 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
             self._service._variableRepo, "variables", variablesInRepo
         )
 
-        columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
-            variablesToQuery
+        columnMapping, typeMapping = self._service._getVariableNamesAndtype_conversions(
+            variables_to_query
         )
 
         assert columnMapping == {
@@ -127,31 +127,31 @@ class TestStatsAsDataFrame(ServiceTestFixture[CensusStatisticsService]):
         }
         assert typeMapping == {"var1": float, "var2": float}
 
-    def test_getVariableNamesAndTypeConversions_givenDuplicateNamesBetweenGroups(self):
+    def test_getVariableNamesAndtype_conversions_givenDuplicateNamesBetweenGroups(self):
         variableWithDuplicateName = GroupVariable(
             code=VariableCode("var5"),
-            groupCode=GroupCode("g2"),
-            groupConcept="concept 3",
+            group_code=GroupCode("g2"),
+            group_concept="concept 3",
             limit=0,
-            predicateType="string",
-            predicateOnly=False,
+            predicate_type="string",
+            predicate_only=False,
             name=var1.name,
-            cleanedName=var1.cleanedName,
+            cleaned_name=var1.cleaned_name,
         )
         self.mocker.patch.object(
             self._service._variableRepo,
             "variables",
             dict(variablesInRepo, var5=variableWithDuplicateName),
         )
-        variablesToQuery = {
+        variables_to_query = {
             var1.code,
             var2.code,
             var3.code,
             variableWithDuplicateName.code,
         }
 
-        columnMapping, typeMapping = self._service._getVariableNamesAndTypeConversions(
-            variablesToQuery
+        columnMapping, typeMapping = self._service._getVariableNamesAndtype_conversions(
+            variables_to_query
         )
 
         assert columnMapping == {
