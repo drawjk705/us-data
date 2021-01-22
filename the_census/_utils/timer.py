@@ -13,10 +13,10 @@ def timer(func: _Func) -> _Func:
 
         end_time = time.perf_counter()
 
-        elapsedMs = (end_time - start_time) * 1000
+        elapsed_ms = (end_time - start_time) * 1000
 
         logging.getLogger(__name__).debug(
-            f"[{func.__qualname__}] - duration: {elapsedMs:.2f}ms"
+            f"[{func.__qualname__}] - duration: {elapsed_ms:.2f}ms"
         )
 
         return retval
