@@ -10,6 +10,11 @@ repos:
           - id: check-yaml
           - id: check-merge-conflict
 
+    - repo: https://gitlab.com/pycqa/flake8
+      rev: 3.8.4
+      hooks:
+          - id: flake8
+
     - repo: https://github.com/psf/black
       rev: 20.8b1
       hooks:
