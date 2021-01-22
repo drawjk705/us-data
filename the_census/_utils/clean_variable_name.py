@@ -1,19 +1,19 @@
-def cleanVariableName(variableName: str) -> str:
+def clean_variable_name(variable_name: str) -> str:
     """
     Removes punctuation/spaces from variable names
 
     Args:
-        variableName (str)
+        variable_name (str)
 
     Returns:
         str: without punctuation
     """
 
-    fullName = ""
+    full_name = ""
 
-    for i, chunk in enumerate(variableName.split("!!")):
-        newName = ""
-        for subChunk in (
+    for i, chunk in enumerate(variable_name.split("!!")):
+        new_name = ""
+        for sub_chunk in (
             chunk.replace(",", " ")
             .replace("-", " ")
             .replace(".", " ")
@@ -24,13 +24,16 @@ def cleanVariableName(variableName: str) -> str:
             .replace("/", " slash ")
             .split(" ")
         ):
-            newName += (
-                subChunk.capitalize().replace(" ", "").replace(":", "").replace("'", "")
+            new_name += (
+                sub_chunk.capitalize()
+                .replace(" ", "")
+                .replace(":", "")
+                .replace("'", "")
             )
 
         if i == 0:
-            fullName += newName
+            full_name += new_name
         else:
-            fullName += f"_{newName}"
+            full_name += f"_{new_name}"
 
-    return fullName
+    return full_name

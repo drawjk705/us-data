@@ -11,10 +11,10 @@ class Config:
     """
 
     year: int = 2020
-    datasetType: str = "acs"
-    surveyType: str = "acs1"
-    cacheDir: str = CACHE_DIR
-    shouldLoadFromExistingCache: bool = False
-    shouldCacheOnDisk: bool = False
-    replaceColumnHeaders: bool = False
-    apiKey: str = ""
+    dataset_type: str = "acs"
+    survey_type: str = "acs1"
+    cache_dir: str = CACHE_DIR
+    should_load_from_existing_cache: bool = False
+    should_cache_on_disk: bool = False
+    replace_column_headers: bool = False
+    api_key: str = ""

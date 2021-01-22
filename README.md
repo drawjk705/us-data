@@ -18,7 +18,7 @@ If you you're not sure what Census dataset you're interested in, the following c
 ```python
 from the_census import Census
 
-Census.listAvailableDataSets()
+Census.list_available_datasets()
 ```
 
 This will present you with a pandas DataFrame listing all available datasets from the US Census API. (This includes only aggregate datasets, as they other types [of which there are very few] don't play nice with the client).
@@ -37,11 +37,11 @@ or in a `.env` file:
 CENSUS_API_KEY=<your key>
 ```
 
-Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `listAvailableDataSets`, and execute the following code:
+Say you're interested in the American Community Survey 1-year estimates for 2019. Look up the dataset and survey name in the table provided by `list_available_datasets`, and execute the following code:
 
 ```python
 >>> from the_census import Census
->>> Census(year=2019, datasetType="acs", surveyType="acs1")
+>>> Census(year=2019, dataset_type="acs", survey_type="acs1")
 
 <Census year=2019 dataset=acs survey=acs1>
 ```
@@ -56,31 +56,31 @@ This is the signature of `Census`:
 class Census
     def __init__(self,
                  year: int,
-                 datasetType: str = "acs",
-                 surveyType: str = "acs1",
-                 cacheDir: str = CACHE_DIR,        # cache
-                 shouldLoadFromExistingCache: bool = False,
-                 shouldCacheOnDisk: bool = False,
-                 replaceColumnHeaders: bool = True,
-                 logFile: str = DEFAULT_LOGFILE):  # census.log
+                 dataset_type: str = "acs",
+                 survey_type: str = "acs1",
+                 cache_dir: str = CACHE_DIR,        # cache
+                 should_load_from_existing_cache: bool = False,
+                 should_cache_on_disk: bool = False,
+                 replace_column_headers: bool = True,
+                 log_file: str = DEFAULT_LOG_FILE):  # census.log
         pass
 ```
 
 -   `year`: the year of the dataset
--   `datasetType`: type of the dataset, specified by [`listAvailableDatasets`](#which-dataset)
--   `surveyType`: type of the survey, specified by [`listAvailableDatasets`](#which-dataset)
--   `cacheDir`: if you opt in to on-disk caching (more on this below), the name of the directory in which to store cached data
--   `shouldLoadFromExistingCache`: if you have cached data from a previous session, this will reload cached data into the `Census` object, instead of hitting the Census API when that data is queried
--   `shouldCacheOnDisk`: whether or not to cache data on disk, to avoid repeat API calls. The following data will be cached:
+-   `dataset_type`: type of the dataset, specified by [`list_available_datasets`](#which-dataset)
+-   `survey_type`: type of the survey, specified by [`list_available_datasets`](#which-dataset)
+-   `cache_dir`: if you opt in to on-disk caching (more on this below), the name of the directory in which to store cached data
+-   `should_load_from_existing_cache`: if you have cached data from a previous session, this will reload cached data into the `Census` object, instead of hitting the Census API when that data is queried
+-   `should_cache_on_disk`: whether or not to cache data on disk, to avoid repeat API calls. The following data will be cached:
     -   Supported Geographies
     -   Group codes
     -   Variable codes
--   `replaceColumnHeaders`: whether or not to replace column header names for variables with more intelligible names instead of their codes
--   `logFile`: name of the file in which to store logging information
+-   `replace_column_headers`: whether or not to replace column header names for variables with more intelligible names instead of their codes
+-   `log_file`: name of the file in which to store logging information
 
 ###### A note on caching
 
-While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `census.getGroups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
+While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `census.get_groups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
 
 ## Making queries
 
@@ -89,7 +89,7 @@ While on-disk caching is optional, this tool, by design, performs in-memory cach
 Getting the [supported geographies](#supported-geographies) for a dataset as as simple as this:
 
 ```python
-census.getSupportedGeographies()
+census.get_supported_geographies()
 ```
 
 This will output a DataFrame will all possible supported geographies (e.g., if I can query all school districts across all states).
@@ -105,13 +105,13 @@ So, if you're interested in all school districts in Colorado, here's what you'd 
 ```python
 from the_census import GeoDomain
 
-census.getGeographyCodes(GeoDomain("state", "*"))
+census.get_geography_codes(GeoDomain("state", "*"))
 ```
 
 2. Get FIPS codes for all school districts within Colorado (FIPS code `08`):
 
 ```python
-census.getGeographyCodes(GeoDomain("school district", "*"),
+census.get_geography_codes(GeoDomain("school district", "*"),
                          GeoDomain("state", "08"))
 ```
 
@@ -122,17 +122,17 @@ Note that geography code queries must follow supported geography guidelines.
 Want to figure out what groups are available for your dataset? No problem. This will do the trick for ya:
 
 ```python
-census.getGroups()
+census.get_groups()
 ```
 
 ...and you'll get a DataFrame with all groups for your census.
 
 #### Searching groups
 
-`census.getGroups()` will return a lot of data that might be difficult to slog through. In that case, run this:
+`census.get_groups()` will return a lot of data that might be difficult to slog through. In that case, run this:
 
 ```python
-census.searchGroups(regex=r"my regex")
+census.search_groups(regex=r"my regex")
 ```
 
 and you'll get a filtered DataFrame with matches to your regex.
@@ -150,14 +150,14 @@ census.groups.SexByAge   # code for this group
 You can either get a DataFrame of variables based on a set of groups:
 
 ```python
-census.getVariablesByGroup(census.groups.SexByAge,
+census.get_variables_by_group(census.groups.SexByAge,
                            census.groups.MedianAgeBySex)
 ```
 
 Or, you can get a DataFrame with all variables for a given dataset:
 
 ```python
-census.getAllVariables()
+census.get_all_variables()
 ```
 
 This second operation, can, however, take a lot of time.
@@ -167,13 +167,13 @@ This second operation, can, however, take a lot of time.
 Similar to groups, you can search variables by regex:
 
 ```python
-census.searchVariables(r"my regex")
+census.search_variables(r"my regex")
 ```
 
 And, you can limit that search to variables of a particular group or groups:
 
 ```python
-census.searchVariables(r"my regex", census.groups.SexByAge)
+census.search_variables(r"my regex", census.groups.SexByAge)
 ```
 
 #### Variables autocomplete
@@ -193,9 +193,9 @@ Once you have the variables you want to query, along with the geography you're i
 ```python
 from the_census import GeoDomain
 
-variables = census.getVariablesForGroup(census.groups.SexByAge)
+variables = census.getvariables_for_group(census.groups.SexByAge)
 
-census.getStats(variables["code"].tolist(),
+census.get_stats(variables["code"].tolist(),
                 GeoDomain("school district", "*"),
                 GeoDomain("state", "08"))
 ```

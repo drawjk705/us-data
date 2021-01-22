@@ -11,7 +11,7 @@ class ICache(ABC, Generic[T]):
     so we don't need to make repeat API calls.
     """
 
-    _cachePath: Path
+    _cache_path: Path
 
     @abstractmethod
     def put(self, resource: str, data: T) -> bool:
@@ -41,5 +41,5 @@ class ICache(ABC, Generic[T]):
         ...
 
     @property
-    def cachePath(self) -> Path:
-        return self._cachePath
+    def cache_path(self) -> Path:
+        return self._cache_path

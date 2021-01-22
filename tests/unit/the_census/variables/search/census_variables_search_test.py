@@ -8,7 +8,7 @@ from the_census._variables.search.service import VariableSearchService
 
 
 class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
-    def test_searchGroups(self):
+    def test_search_groups(self):
         variableStorage = self.castMock(self._service._variableRepository)
         foundDf = pandas.DataFrame(
             {
@@ -23,41 +23,41 @@ class TestVariableSearchService(ServiceTestFixture[VariableSearchService]):
                 ]
             }
         )
-        self.mocker.patch.object(variableStorage, "getGroups", return_value=foundDf)
+        self.mocker.patch.object(variableStorage, "get_groups", return_value=foundDf)
 
         expectedRes = pandas.DataFrame({"description": ["banana", "elephant"]})
 
-        res = self._service.searchGroups("an")
+        res = self._service.search_groups("an")
 
         assert res.to_dict() == expectedRes.to_dict()
 
-    def test_searchVariables_inAllGroups(self):
+    def test_search_variables_inAllGroups(self):
         repoVariables = pandas.DataFrame(
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
         )
         self.mocker.patch.object(
             self._service._variableRepository,
-            "getAllVariables",
+            "get_all_variables",
             return_value=repoVariables,
         )
 
-        res = self._service.searchVariables("an")
+        res = self._service.search_variables("an")
 
         assert res.to_dict("records") == pandas.DataFrame(
             [dict(name="banana"), dict(name="elephant")]
         ).to_dict("records")
 
-    def test_searchVariables_inGroups(self):
+    def test_search_variables_in_groups(self):
         repoVariables = pandas.DataFrame(
             [dict(name="banana"), dict(name="apple"), dict(name="elephant")]
         )
         self.mocker.patch.object(
             self._service._variableRepository,
-            "getVariablesByGroup",
+            "get_variables_by_group",
             return_value=repoVariables,
         )
 
-        res = self._service.searchVariables("an", GroupCode("abc"))
+        res = self._service.search_variables("an", GroupCode("abc"))
 
         assert res.to_dict("records") == pandas.DataFrame(
             [dict(name="banana"), dict(name="elephant")]

@@ -2,10 +2,10 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, Literal, NewType
 
-from the_census._utils.cleanVariableName import cleanVariableName
+from the_census._utils.clean_variable_name import clean_variable_name
 
 VariableCode = NewType("VariableCode", str)
-GroupCode = NewType("GroupCode", str)
+GroupCode = NewType("group_code", str)
 
 
 @dataclass(frozen=True)
@@ -17,24 +17,24 @@ class Group:
     code: GroupCode
     description: str
     variables: str = field(default="")
-    cleanedName: str = field(default="")
+    cleaned_name: str = field(default="")
 
     @classmethod
-    def fromJson(cls, jsonDict: Dict[str, str]):
+    def from_json(cls, jsonDict: Dict[str, str]):
         code = jsonDict.get("name", "")
         description = jsonDict.get("description", "")
         variables = jsonDict.get("variables", "")
 
         return cls(
-            GroupCode(code), description, variables, cleanVariableName(description)
+            GroupCode(code), description, variables, clean_variable_name(description)
         )
 
     @classmethod
-    def fromDfRecord(cls, record: Dict[str, Any]):
+    def from_df_record(cls, record: Dict[str, Any]):
         return cls(
             GroupCode(record["code"]),
             record["description"],
-            cleanedName=record["cleanedName"],
+            cleaned_name=record["cleaned_name"],
         )
 
 
@@ -45,46 +45,46 @@ class GroupVariable:
     """
 
     code: VariableCode
-    groupCode: GroupCode
-    groupConcept: str
+    group_code: GroupCode
+    group_concept: str
     name: str
     limit: int = field(default=0)
-    predicateOnly: bool = field(default=False)
-    predicateType: Literal["string", "int", "float"] = field(default="string")
-    cleanedName: str = field(default="")
+    predicate_only: bool = field(default=False)
+    predicate_type: Literal["string", "int", "float"] = field(default="string")
+    cleaned_name: str = field(default="")
 
     @classmethod
-    def fromJson(cls, code: str, jsonData: Dict[Any, Any]):
-        groupCode = jsonData.get("group", "")
-        groupConcept = jsonData.get("concept", "")
+    def from_json(cls, code: str, jsonData: Dict[Any, Any]):
+        group_code = jsonData.get("group", "")
+        group_concept = jsonData.get("concept", "")
         label = jsonData.get("label", "")
         limit = jsonData.get("limit", 0)
-        predicateOnly = jsonData.get("predicateOnly", False)
-        predicateType = jsonData.get("predicateType", "string")
-        cleanedName = cleanVariableName(label)
+        predicate_only = jsonData.get("predicateOnly", False)
+        predicate_type = jsonData.get("predicateType", "string")
+        cleaned_name = clean_variable_name(label)
 
         return cls(
             VariableCode(code),
-            GroupCode(groupCode),
-            groupConcept,
+            GroupCode(group_code),
+            group_concept,
             label,
             limit,
-            predicateOnly,
-            predicateType,
-            cleanedName,
+            predicate_only,
+            predicate_type,
+            cleaned_name,
         )
 
     @classmethod
-    def fromDfRecord(cls, record: Dict[str, Any]):
+    def from_df_record(cls, record: Dict[str, Any]):
         return cls(
             VariableCode(record["code"]),
-            GroupCode(record["groupCode"]),
-            record["groupConcept"],
+            GroupCode(record["group_code"]),
+            record["group_concept"],
             record["name"],
             record["limit"],
-            record["predicateOnly"],
-            record["predicateType"],
-            record["cleanedName"],
+            record["predicate_only"],
+            record["predicate_type"],
+            record["cleaned_name"],
         )
 
     def __hash__(self) -> int:

@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from the_census._utils.chunk import chunk
 from the_census._utils.timer import timer
-from the_census._utils.unique import getUnique
+from the_census._utils.unique import get_unique
 
 
 def test_chunk_givenChunkLessThanSize():
@@ -29,10 +29,10 @@ def test_chunk_givenChunkGreaterThanSize():
         assert subset == items
 
 
-def test_getUnique_preservesOrder():
+def test_get_unique_preservesOrder():
     items = [1, 2, 3, 4, 5, 1]
 
-    res = getUnique(items)
+    res = get_unique(items)
 
     assert res == [1, 2, 3, 4, 5]
 

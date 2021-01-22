@@ -13,30 +13,31 @@ from the_census._variables.models import Group, GroupVariable
 
 class ApiSerializationService(ICensusApiSerializationService):
     @timer
-    def parseGroupVariables(self, groupVariables: Any) -> List[GroupVariable]:
-        if len(groupVariables) == 0:
+    def parse_group_variables(self, group_variables: Any) -> List[GroupVariable]:
+        if len(group_variables) == 0:
             return []
 
         variables: List[GroupVariable] = []
-        for varCode, varData in groupVariables["variables"].items():
-            groupVar = GroupVariable.fromJson(varCode, varData)
+        for varCode, varData in group_variables["variables"].items():
+            groupVar = GroupVariable.from_json(varCode, varData)
             variables.append(groupVar)
 
         return variables
 
     @timer
-    def parseSupportedGeographies(
+    def parse_supported_geographies(
         self,
-        supportedGeosResponse: Any,
+        supported_geos_response: Any,
     ) -> OrderedDict[str, GeographyItem]:
 
-        supportedGeographies: Dict[str, GeographyItem] = {}
+        supported_geographies: Dict[str, GeographyItem] = {}
 
-        if len(supportedGeosResponse) == 0:
-            return OrderedDict(supportedGeographies)
+        if len(supported_geos_response) == 0:
+            return OrderedDict(supported_geographies)
 
         fips = [
-            GeographyResponseItem.fromJson(fip) for fip in supportedGeosResponse["fips"]
+            GeographyResponseItem.from_json(fip)
+            for fip in supported_geos_response["fips"]
         ]
 
         for fip in fips:
@@ -48,44 +49,44 @@ class ApiSerializationService(ICensusApiSerializationService):
             )
 
             withAllCodes = GeographyClauseSet.makeSet(
-                forClause=f"{varName}:CODE",
-                inClauses=[f"{requirement}:CODE" for requirement in requirements],
+                for_clause=f"{varName}:CODE",
+                in_clauses=[f"{requirement}:CODE" for requirement in requirements],
             )
 
             withWithCardForVar = GeographyClauseSet.makeSet(
-                forClause=f"{varName}:*",
-                inClauses=[
+                for_clause=f"{varName}:*",
+                in_clauses=[
                     f"{requirement}:CODE" for requirement in nonWildcardableRequirements
                 ],
             )
 
             withWildCardedRequirements = GeographyClauseSet.makeSet(
-                forClause=f"{varName}:*",
-                inClauses=[
+                for_clause=f"{varName}:*",
+                in_clauses=[
                     f"{requirement}:CODE" for requirement in nonWildcardableRequirements
                 ]
                 + [f"{wildcard}:*" for wildcard in wildcards],
             )
 
-            supportedGeographies[varName] = GeographyItem.makeItem(
+            supported_geographies[varName] = GeographyItem.makeItem(
                 name=varName,
                 hierarchy=fip.geoLevelDisplay,
                 clauses=[withAllCodes, withWithCardForVar, withWildCardedRequirements],
             )
 
         return OrderedDict(
-            sorted(supportedGeographies.items(), key=lambda t: t[1].hierarchy)
+            sorted(supported_geographies.items(), key=lambda t: t[1].hierarchy)
         )
 
     @timer
-    def parseGroups(
-        self, groupsRes: Dict[str, List[Dict[str, str]]]
+    def parse_groups(
+        self, groups_res: Dict[str, List[Dict[str, str]]]
     ) -> Dict[str, Group]:
 
-        if len(groupsRes) == 0:
+        if len(groups_res) == 0:
             return {}
 
         return {
-            Group.fromJson(group).code: Group.fromJson(group)
-            for group in groupsRes["groups"]
+            Group.from_json(group).code: Group.from_json(group)
+            for group in groups_res["groups"]
         }

@@ -13,12 +13,12 @@ from the_census._exceptions import CensusDoesNotExistException, InvalidQueryExce
 from the_census._geographies.models import GeoDomain
 from the_census._variables.models import VariableCode
 
-mockConfig = Config(year=2019, datasetType="acs", surveyType="acs1")
+mockConfig = Config(year=2019, dataset_type="acs", survey_type="acs1")
 
 
 class ApiServiceWrapper(CensusApiFetchService):
     def __init__(self, parser: ICensusApiSerializationService) -> None:
-        super().__init__(config=mockConfig, parser=parser, loggingFactory=MagicMock())
+        super().__init__(config=mockConfig, parser=parser, logging_factory=MagicMock())
 
 
 class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
@@ -28,7 +28,7 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         with pytest.raises(
             InvalidQueryException, match="Could not make query for route `/groups.json`"
         ):
-            self._service.groupData()
+            self._service.group_data()
 
     def test_fetch_givenNoContent(self):
         self.requestsGetMock.return_value = MockRes(204)
@@ -60,38 +60,38 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             ),
         ],
     )
-    def test_geographyCodes(
+    def test_geography_codes(
         self,
         domain: GeoDomain,
         parentDomains: List[GeoDomain],
         expectedRoute: str,
     ):
-        self._service.geographyCodes(domain, parentDomains)
+        self._service.geography_codes(domain, parentDomains)
 
         self.requestsGetMock.assert_called_once_with(
             String() & StartsWith(expectedRoute)
         )
 
-    def test_groupData_callsFetch(self):
-        self._service.groupData()
+    def test_group_data_callsFetch(self):
+        self._service.group_data()
 
         self.requestsGetMock.assert_called_once_with(
             String()
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/groups.json")
         )
 
-    def test_supportedGeographies_callsFetch(self):
-        self._service.supportedGeographies()
+    def test_supported_geographies_callsFetch(self):
+        self._service.supported_geographies()
 
         self.requestsGetMock.assert_called_once_with(
             String()
             & StartsWith("https://api.census.gov/data/2019/acs/acs1/geography.json")
         )
 
-    def test_variablesForGroup_callsFetch(self):
+    def test_variables_for_group_callsFetch(self):
         group = "abc123"
 
-        self._service.variablesForGroup(group)
+        self._service.variables_for_group(group)
 
         self.requestsGetMock.assert_called_with(
             String()
@@ -109,10 +109,10 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             VariableCode("3"),
             VariableCode("4"),
         ]
-        forDomain = GeoDomain("banana")
-        inDomains = [GeoDomain("phone", "92")]
+        for_domain = GeoDomain("banana")
+        in_domains = [GeoDomain("phone", "92")]
 
-        for _ in self._service.stats(varCodes, forDomain, inDomains):
+        for _ in self._service.stats(varCodes, for_domain, in_domains):
             ...
         assert self.requestsGetMock.call_args_list == [
             call(
@@ -129,8 +129,8 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
             ),
         ]
 
-    def test_allVariables(self):
-        self._service.allVariables()
+    def test_all_variables(self):
+        self._service.all_variables()
 
         self.requestsGetMock.assert_called_once_with(
             String()
@@ -162,10 +162,10 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
     def test_healthCheck_pass(self):
         self.requestsGetMock.return_value = MockRes(200)
 
-        self._service.healthCheck()
+        self._service.healthcheck()
 
         self.castMock(self._service._logger.debug).assert_called_once_with(
-            "healthCheck OK"
+            "healthcheck OK"
         )
 
     def test_healthCheck_fail(self):
@@ -174,6 +174,6 @@ class TestApiFetchService(ApiServiceTestFixture[ApiServiceWrapper]):
         msg = "Data does not exist for dataset=acs; survey=acs1; year=2019"
 
         with pytest.raises(CensusDoesNotExistException, match=msg):
-            self._service.healthCheck()
+            self._service.healthcheck()
 
         self.castMock(self._service._logger.exception).assert_called_once_with(msg)

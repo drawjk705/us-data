@@ -3,15 +3,15 @@ import sys
 
 from the_census._utils.log.filters import ModuleFilter
 
-DEFAULT_LOGFILE = "census.log"
+DEFAULT_LOG_FILE = "census.log"
 
 
-def configureLogger(logFile: str, datasetName: str) -> None:
+def configureLogger(log_file: str, datasetName: str) -> None:
     """
     sets up logger for the project
 
     Args:
-        logFile (str): the name of the file that log output will be sent to
+        log_file (str): the name of the file that log output will be sent to
     """
 
     logFormat = "[{0} %(levelname)s] %(asctime)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s".format(
@@ -28,7 +28,7 @@ def configureLogger(logFile: str, datasetName: str) -> None:
     streamHandler.setFormatter(formatter)
     logger.addHandler(streamHandler)
 
-    rootHandler = logging.FileHandler(logFile)
+    rootHandler = logging.FileHandler(log_file)
     rootHandler.setLevel(logging.NOTSET)
     rootHandler.addFilter(ModuleFilter())
     rootHandler.setFormatter(formatter)

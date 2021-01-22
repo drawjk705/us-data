@@ -22,10 +22,10 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         self._logger = loggerFactory.getLogger(__name__)
 
     @timer
-    def searchGroups(self, regex: str) -> pd.DataFrame:
+    def search_groups(self, regex: str) -> pd.DataFrame:
         self._logger.debug(f"searching groups for regex: `{regex}`")
 
-        groups = self._variableRepository.getGroups()
+        groups = self._variableRepository.get_groups()
 
         if groups.empty:
             self._logger.info("There are no groups for this dataset")
@@ -41,19 +41,19 @@ class VariableSearchService(IVariableSearchService[pd.DataFrame]):
         )
 
     @timer
-    def searchVariables(
+    def search_variables(
         self,
         regex: str,
-        *inGroups: GroupCode,
+        *in_groups: GroupCode,
     ) -> pd.DataFrame:
 
         self._logger.debug(f"searching variables for pattern `{regex}`")
 
         variables: pd.DataFrame
-        if not len(inGroups):
-            variables = self._variableRepository.getAllVariables()
+        if not len(in_groups):
+            variables = self._variableRepository.get_all_variables()
         else:
-            variables = self._variableRepository.getVariablesByGroup(*inGroups)
+            variables = self._variableRepository.get_variables_by_group(*in_groups)
 
         if variables.empty:
             self._logger.info("There are no variables for this dataset")

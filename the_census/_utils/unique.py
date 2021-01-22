@@ -3,7 +3,7 @@ from typing import Collection, List, Set, TypeVar
 T = TypeVar("T")
 
 
-def getUnique(items: Collection[T]) -> List[T]:
+def get_unique(items: Collection[T]) -> List[T]:
     """
     Get all unique elements in a list
 

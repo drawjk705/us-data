@@ -1,10 +1,10 @@
 import pytest
 
-from the_census._utils.cleanVariableName import cleanVariableName
+from the_census._utils.clean_variable_name import clean_variable_name
 
 
 @pytest.mark.parametrize(
-    ["variableName", "cleanedName"],
+    ["variableName", "cleaned_name"],
     [
         ("Estimate!!Total:", "Estimate_Total"),
         ("banana", "Banana"),
@@ -18,7 +18,7 @@ from the_census._utils.cleanVariableName import cleanVariableName
         ),
     ],
 )
-def test_cleanVariableName(variableName: str, cleanedName: str):
-    res = cleanVariableName(variableName)
+def test_clean_variable_name(variableName: str, cleaned_name: str):
+    res = clean_variable_name(variableName)
 
-    assert res == cleanedName
+    assert res == cleaned_name

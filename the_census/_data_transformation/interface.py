@@ -16,11 +16,13 @@ class ICensusDataTransformer(Generic[T]):
     """
 
     @abstractmethod
-    def supportedGeographies(self, supportedGeos: OrderedDict[str, GeographyItem]) -> T:
+    def supported_geographies(
+        self, supported_geos: OrderedDict[str, GeographyItem]
+    ) -> T:
         ...
 
     @abstractmethod
-    def geographyCodes(self, geoCodes: List[List[str]]) -> T:
+    def geography_codes(self, geo_codes: List[List[str]]) -> T:
         ...
 
     @abstractmethod
@@ -35,10 +37,10 @@ class ICensusDataTransformer(Generic[T]):
     def stats(
         self,
         results: List[List[List[str]]],
-        typeConversions: Dict[str, Any],
-        geoDomainsQueried: List[GeoDomain],
-        columnHeaders: Dict[VariableCode, str],
-        supportedGeos: T,
+        type_conversions: Dict[str, Any],
+        geo_domains_queried: List[GeoDomain],
+        column_headers: Dict[VariableCode, str],
+        supported_geos: T,
     ) -> T:
         """Parses stats data.
 
@@ -56,10 +58,10 @@ class ICensusDataTransformer(Generic[T]):
 
         Args:
             results (List[List[List[str]]]): from the API
-            typeConversions (Dict[str, Any]): for converting the data (which may all be strings) to
+            type_conversions (Dict[str, Any]): for converting the data (which may all be strings) to
                 floats if necessary, otherwise strings
-            geoDomainsQueried (List[str]): by the stats service
-            columnHeaders (Dict[VariableCode, str]): the column headers with cleaned names
+            geo_domains_queried (List[str]): by the stats service
+            column_headers (Dict[VariableCode, str]): the column headers with cleaned names
             supportedGoes (T): we need to pass this in (as opposed to DI-ing the Geography
                 repo), since that would result in a circular dependency otherwise
 

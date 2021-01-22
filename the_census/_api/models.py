@@ -1,20 +1,20 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, cast
 
-from the_census._utils.unique import getUnique
+from the_census._utils.unique import get_unique
 
 
 @dataclass(frozen=True)
 class GeographyClauseSet:
-    forClause: str
-    inClauses: Tuple[str, ...]
+    for_clause: str
+    in_clauses: Tuple[str, ...]
 
     @classmethod
-    def makeSet(cls, forClause: str, inClauses: List[str]):
-        return cls(forClause, tuple(getUnique(inClauses)))
+    def makeSet(cls, for_clause: str, in_clauses: List[str]):
+        return cls(for_clause, tuple(get_unique(in_clauses)))
 
     def __repr__(self) -> str:
-        return "\n".join([self.forClause] + list(self.inClauses))
+        return "\n".join([self.for_clause] + list(self.in_clauses))
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -28,7 +28,7 @@ class GeographyItem:
 
     @classmethod
     def makeItem(cls, name: str, hierarchy: str, clauses: List[GeographyClauseSet]):
-        return cls(name, hierarchy, tuple(getUnique(clauses)))
+        return cls(name, hierarchy, tuple(get_unique(clauses)))
 
 
 @dataclass(frozen=True)
@@ -41,7 +41,7 @@ class GeographyResponseItem:
     optionalWithWCFor: str = field(default="")
 
     @classmethod
-    def fromJson(cls, jsonRes: Dict[str, str]):
+    def from_json(cls, jsonRes: Dict[str, str]):
         return cls(
             jsonRes.get("name", ""),
             jsonRes.get("geoLevelDisplay", ""),

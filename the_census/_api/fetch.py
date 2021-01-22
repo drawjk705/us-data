@@ -33,106 +33,114 @@ class CensusApiFetchService(ICensusApiFetchService):
         self,
         config: Config,
         parser: ICensusApiSerializationService,
-        loggingFactory: ILoggerFactory,
+        logging_factory: ILoggerFactory,
     ) -> None:
         self._url = API_URL_FORMAT.format(
-            config.year, config.datasetType, config.surveyType
+            config.year, config.dataset_type, config.survey_type
         )
         self._parser = parser
         self._config = config
-        self._logger = loggingFactory.getLogger(__name__)
+        self._logger = logging_factory.getLogger(__name__)
 
-    def healthCheck(self) -> None:
+    def healthcheck(self) -> None:
         res = requests.get(self._url + ".json")  # type: ignore
 
         if res.status_code in [404, 400]:
-            msg = f"Data does not exist for dataset={self._config.datasetType}; survey={self._config.surveyType}; year={self._config.year}"
+            msg = f"Data does not exist for dataset={self._config.dataset_type}; survey={self._config.survey_type}; year={self._config.year}"
 
             self._logger.exception(msg)
 
             raise CensusDoesNotExistException(msg)
 
-        self._logger.debug("healthCheck OK")
+        self._logger.debug("healthcheck OK")
 
     @timer
-    def geographyCodes(
-        self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
+    def geography_codes(
+        self, for_domain: GeoDomain, in_domains: List[GeoDomain] = []
     ) -> Any:
 
-        forClause = f"for={forDomain}"
-        inClauses = "&in=".join([str(parent) for parent in inDomains])
+        for_clause = f"for={for_domain}"
+        in_clauses = "&in=".join([str(parent) for parent in in_domains])
 
-        querystring = f"?get=NAME&{forClause}"
-        if len(inDomains):
-            querystring += f"&in={inClauses}"  # type: ignore
+        querystring = f"?get=NAME&{for_clause}"
+        if len(in_domains):
+            querystring += f"&in={in_clauses}"  # type: ignore
 
-        uriQuerystring: str = requote_uri(querystring)
+        uri_querystring: str = requote_uri(querystring)
 
-        return self._fetch(route=uriQuerystring)
-
-    @timer
-    def groupData(self) -> Dict[str, Group]:
-        groupsRes: Dict[str, List[Dict[str, str]]] = self._fetch(route="/groups.json")
-
-        return self._parser.parseGroups(groupsRes)
+        return self._fetch(route=uri_querystring)
 
     @timer
-    def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
+    def group_data(self) -> Dict[str, Group]:
+        groups_res: Dict[str, List[Dict[str, str]]] = self._fetch(route="/groups.json")
+
+        return self._parser.parse_groups(groups_res)
+
+    @timer
+    def supported_geographies(self) -> OrderedDict[str, GeographyItem]:
         geogRes = self._fetch(route="/geography.json")
 
-        return self._parser.parseSupportedGeographies(geogRes)
+        return self._parser.parse_supported_geographies(geogRes)
 
     @timer
-    def variablesForGroup(self, group: str) -> List[GroupVariable]:
+    def variables_for_group(self, group: str) -> List[GroupVariable]:
         res = self._fetch(route=f"/groups/{group}.json")
 
-        return self._parser.parseGroupVariables(res)
+        return self._parser.parse_group_variables(res)
 
     @timer
-    def allVariables(self) -> List[GroupVariable]:
+    def all_variables(self) -> List[GroupVariable]:
         res = self._fetch("/variables.json")
 
-        return self._parser.parseGroupVariables(res)
+        return self._parser.parse_group_variables(res)
 
     @timer
     def stats(
         self,
-        variablesCodes: List[VariableCode],
-        forDomain: GeoDomain,
-        inDomains: List[GeoDomain] = [],
+        variables_codes: List[VariableCode],
+        for_domain: GeoDomain,
+        in_domains: List[GeoDomain] = [],
     ) -> Generator[List[List[str]], None, None]:
 
         # we need the minus 1 since we're also querying name
-        for codes in chunk(variablesCodes, MAX_QUERY_SIZE - 1):
-            codeStr = ",".join(codes)
-            varStr = "get=NAME" + f",{codeStr}" if len(codeStr) > 0 else ""
+        for codes in chunk(variables_codes, MAX_QUERY_SIZE - 1):
+            code_str = ",".join(codes)
+            var_str = "get=NAME" + f",{code_str}" if len(code_str) > 0 else ""
 
-            domainStr = "for=" + str(forDomain)
-            inDomainStr = "&".join([f"in={domain}" for domain in inDomains])
+            domainStr = "for=" + str(for_domain)
+            in_domainstr = "&".join([f"in={domain}" for domain in in_domains])
 
-            if len(inDomainStr) > 0:
+            if len(in_domainstr) > 0:
                 domainStr += "&"  # type: ignore
-                domainStr += inDomainStr  # type: ignore
+                domainStr += in_domainstr  # type: ignore
 
-            route = f"?{varStr}&{domainStr}"
+            route = f"?{var_str}&{domainStr}"
 
-            uriRoute: str = requote_uri(route)
+            uri_route: str = requote_uri(route)
 
             # not doing any serializing here, because this is a bit more
             # complicated (we need to convert the stats to the appropriate
             # data types, [e.g., int, float] further up when we're working
             # with dataFrames; there's no real good way to do it down here)
 
-            yield self._fetch(uriRoute)
+            yield self._fetch(uri_route)
 
     def _fetch(self, route: str = "") -> Any:
-        ampersandOrQuestionMark = "&" if "?" in route else "?"
-        url = self._url + route + ampersandOrQuestionMark + "key=" + self._config.apiKey
+        ampersand_or_question_mark = "&" if "?" in route else "?"
+        url = (
+            self._url
+            + route
+            + ampersand_or_question_mark
+            + "key="
+            + self._config.api_key
+        )
         res = requests.get(url)  # type: ignore
+
         if res.status_code in [400, 404]:
             msg = f"Could not make query for route `{route}`"
             self._logger.exception(msg)
             raise InvalidQueryException(msg)
+
         if res.status_code == 204:  # no content
             msg = f"Received no content for query for route {route}"
             self._logger.info(msg)

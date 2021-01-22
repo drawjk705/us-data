@@ -5,14 +5,14 @@ from typing import Any, Dict, List, Set, Tuple
 import pandas as pd
 
 from the_census._api.interface import ICensusApiFetchService
-from the_census._dataTransformation.interface import ICensusDataTransformer
+from the_census._data_transformation.interface import ICensusDataTransformer
 from the_census._exceptions import EmptyRepositoryException
 from the_census._geographies.interface import IGeographyRepository
 from the_census._geographies.models import GeoDomain
 from the_census._stats.interface import ICensusStatisticsService
 from the_census._utils.log.factory import ILoggerFactory
 from the_census._utils.timer import timer
-from the_census._utils.unique import getUnique
+from the_census._utils.unique import get_unique
 from the_census._variables.models import VariableCode
 from the_census._variables.repository.interface import IVariableRepository
 
@@ -39,81 +39,81 @@ class CensusStatisticsService(ICensusStatisticsService[pd.DataFrame]):
         self._logger = loggerFactory.getLogger(__name__)
 
     @timer
-    def getStats(
+    def get_stats(
         self,
-        variablesToQuery: List[VariableCode],
-        forDomain: GeoDomain,
-        *inDomains: GeoDomain,
+        variables_to_query: List[VariableCode],
+        for_domain: GeoDomain,
+        *in_domains: GeoDomain,
     ) -> pd.DataFrame:
 
-        return self.__getStats(
-            variablesToQuery=tuple(getUnique(variablesToQuery)),
-            forDomain=forDomain,
-            inDomains=tuple(getUnique(inDomains)),
+        return self.__get_stats(
+            variables_to_query=tuple(get_unique(variables_to_query)),
+            for_domain=for_domain,
+            in_domains=tuple(get_unique(in_domains)),
         )
 
     @cache
-    def __getStats(
+    def __get_stats(
         self,
-        variablesToQuery: Tuple[VariableCode],
-        forDomain: GeoDomain,
-        inDomains: Tuple[GeoDomain],
+        variables_to_query: Tuple[VariableCode],
+        for_domain: GeoDomain,
+        in_domains: Tuple[GeoDomain],
     ) -> pd.DataFrame:
 
         pullStats = lambda: self._api.stats(
-            list(variablesToQuery), forDomain, list(inDomains)
+            list(variables_to_query), for_domain, list(in_domains)
         )
 
         apiResults: List[List[List[str]]] = [res for res in pullStats()]
 
-        columnHeaders, typeConversions = self._getVariableNamesAndTypeConversions(
-            set(variablesToQuery)
+        column_headers, type_conversions = self._getVariableNamesAndtype_conversions(
+            set(variables_to_query)
         )
 
-        geoDomainsQueried = [forDomain] + list(inDomains)
+        geo_domains_queried = [for_domain] + list(in_domains)
 
-        supportedGeos = self._geoRepo.getSupportedGeographies()
+        supported_geos = self._geoRepo.get_supported_geographies()
 
         df = self._transformer.stats(
             apiResults,
-            typeConversions,
-            geoDomainsQueried,
-            columnHeaders,
-            supportedGeos,
+            type_conversions,
+            geo_domains_queried,
+            column_headers,
+            supported_geos,
         )
 
         return df
 
-    def _getVariableNamesAndTypeConversions(
-        self, variablesToQuery: Set[VariableCode]
+    def _getVariableNamesAndtype_conversions(
+        self, variables_to_query: Set[VariableCode]
     ) -> Tuple[Dict[VariableCode, str], Dict[str, Any]]:
 
         relevantVariables = {
             variable.code: variable
             for variable in self._variableRepo.variables.values()
-            if variable.code in variablesToQuery
+            if variable.code in variables_to_query
         }
-        if len(relevantVariables) != len(variablesToQuery):
-            msg = f"Queried {len(variablesToQuery)} variables, but found only {len(relevantVariables)} in repository"
+        if len(relevantVariables) != len(variables_to_query):
+            msg = f"Queried {len(variables_to_query)} variables, but found only {len(relevantVariables)} in repository"
 
             self._logger.exception(msg)
 
             raise EmptyRepositoryException(msg)
 
         hasDuplicateNames = len(
-            {v.cleanedName for v in relevantVariables.values()}
-        ) < len(variablesToQuery)
+            {v.cleaned_name for v in relevantVariables.values()}
+        ) < len(variables_to_query)
 
-        typeConversions: Dict[str, Any] = {}
-        columnHeaders: Dict[VariableCode, str] = {}
+        type_conversions: Dict[str, Any] = {}
+        column_headers: Dict[VariableCode, str] = {}
         for k, v in relevantVariables.items():
-            if v.predicateType in ["int", "float"]:
-                typeConversions.update({k: float})
+            if v.predicate_type in ["int", "float"]:
+                type_conversions.update({k: float})
 
-            cleanedVarName = v.cleanedName
+            cleanedVarName = v.cleaned_name
             if hasDuplicateNames:
-                cleanedVarName += f"_{v.groupCode}"
+                cleanedVarName += f"_{v.group_code}"
 
-            columnHeaders.update({k: cleanedVarName})
+            column_headers.update({k: cleanedVarName})
 
-        return columnHeaders, typeConversions
+        return column_headers, type_conversions

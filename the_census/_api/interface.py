@@ -14,7 +14,7 @@ class ICensusApiFetchService(ABC):
     """
 
     @abstractmethod
-    def healthCheck(self) -> None:
+    def healthcheck(self) -> None:
         """
         makes sure that the API client is
         configured properly
@@ -22,18 +22,18 @@ class ICensusApiFetchService(ABC):
         ...
 
     @abstractmethod
-    def geographyCodes(
-        self, forDomain: GeoDomain, inDomains: List[GeoDomain] = []
+    def geography_codes(
+        self, for_domain: GeoDomain, in_domains: List[GeoDomain] = []
     ) -> List[List[str]]:
         """
         Gets all geography codes for a given location domain:
 
         Args:
-            forDomain (GeoDomain): the domain you want to search. This must
-            be a child of any provided `inDomains`, as specified in the API's
+            for_domain (GeoDomain): the domain you want to search. This must
+            be a child of any provided `in_domains`, as specified in the API's
             geography hierarchy.
 
-            inDomains (List[GeoDomain], optional): geography domains
+            in_domains (List[GeoDomain], optional): geography domains
             that may help specify the query (e.g., if you want to
             search all congressional districts in a particular state).
             Defaults to [].
@@ -44,7 +44,7 @@ class ICensusApiFetchService(ABC):
         ...
 
     @abstractmethod
-    def groupData(self) -> Dict[str, Group]:
+    def group_data(self) -> Dict[str, Group]:
         """
         Retrieves data on available concept groups for a given dataset/survey
 
@@ -54,7 +54,7 @@ class ICensusApiFetchService(ABC):
         ...
 
     @abstractmethod
-    def supportedGeographies(self) -> OrderedDict[str, GeographyItem]:
+    def supported_geographies(self) -> OrderedDict[str, GeographyItem]:
         """
         Retrieves all queryable geographies for a given dataset/survey
 
@@ -65,7 +65,7 @@ class ICensusApiFetchService(ABC):
         ...
 
     @abstractmethod
-    def variablesForGroup(self, group: str) -> List[GroupVariable]:
+    def variables_for_group(self, group: str) -> List[GroupVariable]:
         """
         Gets all queryable variables for a survey group concept.
 
@@ -78,7 +78,7 @@ class ICensusApiFetchService(ABC):
         ...
 
     @abstractmethod
-    def allVariables(self) -> List[GroupVariable]:
+    def all_variables(self) -> List[GroupVariable]:
         """
         Gets all variables. This may be costly
 
@@ -90,9 +90,9 @@ class ICensusApiFetchService(ABC):
     @abstractmethod
     def stats(
         self,
-        variablesCodes: List[VariableCode],
-        forDomain: GeoDomain,
-        inDomains: List[GeoDomain] = [],
+        variables_codes: List[VariableCode],
+        for_domain: GeoDomain,
+        in_domains: List[GeoDomain] = [],
     ) -> Generator[List[List[str]], None, None]:
         """
         Gets stats based on `variableCodes` for the geographies in question.
@@ -101,9 +101,9 @@ class ICensusApiFetchService(ABC):
         will accept to query at a time.
 
         Args:
-            variablesCodes (List[VariableCode])
-            forDomain (GeoDomain)
-            inDomains (List[GeoDomain], optional). Defaults to [].
+            variables_codes (List[VariableCode])
+            for_domain (GeoDomain)
+            in_domains (List[GeoDomain], optional). Defaults to [].
 
         Yields:
             Generator[List[List[str]], None, None]
@@ -117,12 +117,12 @@ class ICensusApiSerializationService(ABC):
     """
 
     @abstractmethod
-    def parseGroupVariables(self, groupVariables: Any) -> List[GroupVariable]:
+    def parse_group_variables(self, group_variables: Any) -> List[GroupVariable]:
         """
         Parses an API response for variable retrieval
 
         Args:
-            variableData (Any): JSON response
+            group_variables (Any): JSON response
 
         Returns:
             List[GroupVariable]:
@@ -131,14 +131,14 @@ class ICensusApiSerializationService(ABC):
         ...
 
     @abstractmethod
-    def parseSupportedGeographies(
-        self, supportedGeosResponse: Any
+    def parse_supported_geographies(
+        self, supported_geos_response: Any
     ) -> OrderedDict[str, GeographyItem]:
         """
         parse a supported geographies response from the census API:
 
         Args:
-            supportedGeosResponse (Any)
+            supported_geos_response (Any)
 
         Returns:
             OrderedDict[str, GeographyItem]: mapping the geography title to its name and code
@@ -147,14 +147,14 @@ class ICensusApiSerializationService(ABC):
         ...
 
     @abstractmethod
-    def parseGroups(
-        self, groupsRes: Dict[str, List[Dict[str, str]]]
+    def parse_groups(
+        self, groups_res: Dict[str, List[Dict[str, str]]]
     ) -> Dict[str, Group]:
         """
         Parses a /groups.json response from the census API
 
         Args:
-            groupsRes (Dict[str, List[Dict[str, str]]])
+            groups_res (Dict[str, List[Dict[str, str]]])
 
         Returns:
             Dict[str, Group]

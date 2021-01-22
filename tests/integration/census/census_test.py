@@ -13,8 +13,8 @@ from pytest_mock import MockerFixture
 from tests.integration.census.mockApiResponses import MOCK_API
 from tests.utils import MockRes
 from the_census import Census, GeoDomain
-from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
-from the_census._utils.cleanVariableName import cleanVariableName
+from the_census._exceptions import CensusDoesNotExistException, NoCensusapi_keyException
+from the_census._utils.clean_variable_name import clean_variable_name
 from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
 from the_census._variables.repository.models import GroupSet, VariableSet
 
@@ -199,8 +199,8 @@ def givenCacheWithGroup() -> None:
     Path("cache/2019/acs/acs1/").mkdir(parents=True, exist_ok=True)
     pandas.DataFrame(
         [
-            dict(code="abc", description="alphabet", cleanedName="Alphabet"),
-            dict(code="123", description="numbers", cleanedName="Numbers"),
+            dict(code="abc", description="alphabet", cleaned_name="Alphabet"),
+            dict(code="123", description="numbers", cleaned_name="Numbers"),
         ]
     ).to_csv("./cache/2019/acs/acs1/groups.csv")
     verifyResource("groups.csv")
@@ -213,23 +213,23 @@ def givenCacheWithVariables() -> None:
         [
             dict(
                 code="v1",
-                groupCode="g1",
-                groupConcept="group 1",
+                group_code="g1",
+                group_concept="group 1",
                 name="variable 1",
-                predicateType="int",
-                predicateOnly=True,
+                predicate_type="int",
+                predicate_only=True,
                 limit=0,
-                cleanedName="Variable 1",
+                cleaned_name="Variable 1",
             ),
             dict(
                 code="v2",
-                groupCode="g1",
-                groupConcept="group 1",
+                group_code="g1",
+                group_concept="group 1",
                 name="variable 2",
-                predicateType="int",
-                predicateOnly=True,
+                predicate_type="int",
+                predicate_only=True,
                 limit=0,
-                cleanedName="Variable 2",
+                cleaned_name="Variable 2",
             ),
         ]
     ).to_csv("./cache/2019/acs/acs1/variables/varsForGroup.csv")
@@ -253,21 +253,25 @@ class TestCensus:
     def test_census_givenNoEnvironmentVariable(self, mocker: MockerFixture):
         mocker.patch.object(os, "getenv", return_value=None)
         with pytest.raises(
-            NoCensusApiKeyException, match="Could not find `CENSUS_API_KEY` in .env"
+            NoCensusapi_keyException, match="Could not find `CENSUS_API_KEY` in .env"
         ):
             _ = Census(2019)
 
     def test_census_givenNotCachingOnDiskAndNoLoadingFromDisk_doesNotCreateCache(
         self,
     ):
-        _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=False)
+        _ = Census(
+            2019, should_load_from_existing_cache=False, should_cache_on_disk=False
+        )
 
         assert not Path("cache").exists()
 
     def test_census_givenCensusDoesNotLoadFromExistingCache_purgesExistingCache(
         self, givenCacheWithGroup: None
     ):
-        _ = Census(2019, shouldLoadFromExistingCache=False, shouldCacheOnDisk=True)
+        _ = Census(
+            2019, should_load_from_existing_cache=False, should_cache_on_disk=True
+        )
 
         assert Path("cache").exists()
         assert len(list(Path("cache/2019/acs/acs1").iterdir())) == 0
@@ -275,21 +279,23 @@ class TestCensus:
     def test_census_createsCacheAndLoadsItOnQuery(
         self, apiCalls: Set[str], givenCacheWithGroup: None
     ):
-        census = Census(2019, shouldLoadFromExistingCache=True, shouldCacheOnDisk=True)
+        census = Census(
+            2019, should_load_from_existing_cache=True, should_cache_on_disk=True
+        )
 
-        census.getGroups()
+        census.get_groups()
 
         assert "https://api.census.gov/data/2019/acs/acs1/groups.json" not in apiCalls
         assert len(apiCalls) == 1
 
         assert Path("cache").exists()
 
-    def test_census_getGeographyCodes(
+    def test_census_get_geography_codes(
         self,
     ):
         census = Census(2019)
 
-        codes = census.getGeographyCodes(
+        codes = census.get_geography_codes(
             GeoDomain("congressional district"),
             GeoDomain("state", "01"),
         )
@@ -335,42 +341,42 @@ class TestCensus:
         assert codes.to_dict("records") == expected
 
     def test_census_groupsAndVariables(self):
-        census = Census(2019, shouldCacheOnDisk=True)
+        census = Census(2019, should_cache_on_disk=True)
         verifyResource("groups.csv", exists=False)
 
-        _ = census.getGroups()
+        _ = census.get_groups()
 
-        groupCodes = list(census.groups.values())
+        GroupCodes = list(census.groups.values())
         verifyResource("groups.csv")
-        assert len(groupCodes) == 3
+        assert len(GroupCodes) == 3
 
-        for code in groupCodes:
+        for code in GroupCodes:
             verifyResource(f"variables/{code}.csv", exists=False)
 
-        variables = census.getVariablesByGroup(*groupCodes)
-        variables["cleanedName"] = variables["name"].apply(cleanVariableName)
-        for code in groupCodes:
+        variables = census.get_variables_by_group(*GroupCodes)
+        variables["cleaned_name"] = variables["name"].apply(clean_variable_name)
+        for code in GroupCodes:
             verifyResource(
                 f"variables/{code}.csv",
                 exists=True,
                 expectedData=[
                     variable
                     for variable in variables.to_dict("records")
-                    if variable["groupCode"] == code
+                    if variable["group_code"] == code
                 ],
             )
 
         assert len(census.variables) == 12
 
-    def test_census_getAllVariables(self):
-        census = Census(2019, shouldCacheOnDisk=True)
-        allVars = census.getAllVariables()
+    def test_census_get_all_variables(self):
+        census = Census(2019, should_cache_on_disk=True)
+        allVars = census.get_all_variables()
 
         assert len(allVars.to_dict("records")) == 12
         assert len(census.variables) == 12
 
-        for group, variables in allVars.groupby(["groupCode"]):  # type: ignore
-            variables["cleanedName"] = variables["name"].apply(cleanVariableName)
+        for group, variables in allVars.groupby(["group_code"]):  # type: ignore
+            variables["cleaned_name"] = variables["name"].apply(clean_variable_name)
             verifyResource(
                 f"variables/{group}.csv",
                 exists=True,
@@ -380,7 +386,7 @@ class TestCensus:
     def test_census_groups_populatesGroupNames(self):
         census = Census(2019)
 
-        _ = census.getGroups()
+        _ = census.get_groups()
 
         assert dict(census.groups.items()) == {
             "PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome": "B17015",
@@ -391,141 +397,141 @@ class TestCensus:
     def test_census_variables_populatesVariableNames(self):
         census = Census(2019)
 
-        census.getAllVariables()
+        census.get_all_variables()
 
         assert dict(census.variables.items()) == {
             "AnnotationOfEstimate_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001EA"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                group_code=GroupCode("B17015"),
+                group_concept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 name="Annotation of Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfEstimate_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfEstimate_Total",
             ),
             "AnnotationOfEstimate_Total_B18104": GroupVariable(
                 code=VariableCode("B18104_001EA"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                group_code=GroupCode("B18104"),
+                group_concept="SEX BY AGE BY COGNITIVE DIFFICULTY",
                 name="Annotation of Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfEstimate_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfEstimate_Total",
             ),
             "AnnotationOfEstimate_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001EA"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                group_code=GroupCode("B18105"),
+                group_concept="SEX BY AGE BY AMBULATORY DIFFICULTY",
                 name="Annotation of Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfEstimate_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfEstimate_Total",
             ),
             "AnnotationOfMarginOfError_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001MA"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                group_code=GroupCode("B17015"),
+                group_concept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 name="Annotation of Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfMarginOfError_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfMarginOfError_Total",
             ),
             "AnnotationOfMarginOfError_Total_B18104": GroupVariable(
                 code=VariableCode("B18104_001MA"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                group_code=GroupCode("B18104"),
+                group_concept="SEX BY AGE BY COGNITIVE DIFFICULTY",
                 name="Annotation of Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfMarginOfError_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfMarginOfError_Total",
             ),
             "AnnotationOfMarginOfError_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001MA"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                group_code=GroupCode("B18105"),
+                group_concept="SEX BY AGE BY AMBULATORY DIFFICULTY",
                 name="Annotation of Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="string",
-                cleanedName="AnnotationOfMarginOfError_Total",
+                predicate_only=True,
+                predicate_type="string",
+                cleaned_name="AnnotationOfMarginOfError_Total",
             ),
             "Estimate_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001E"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                group_code=GroupCode("B17015"),
+                group_concept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 name="Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Estimate_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="Estimate_Total",
             ),
             "Estimate_Total_B18104": GroupVariable(
                 code=VariableCode("B18104_001E"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                group_code=GroupCode("B18104"),
+                group_concept="SEX BY AGE BY COGNITIVE DIFFICULTY",
                 name="Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Estimate_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="Estimate_Total",
             ),
             "Estimate_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001E"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                group_code=GroupCode("B18105"),
+                group_concept="SEX BY AGE BY AMBULATORY DIFFICULTY",
                 name="Estimate!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Estimate_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="Estimate_Total",
             ),
             "MarginOfError_Total_B17015": GroupVariable(
                 code=VariableCode("B17015_001M"),
-                groupCode=GroupCode("B17015"),
-                groupConcept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
+                group_code=GroupCode("B17015"),
+                group_concept="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 name="Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="MarginOfError_Total",
             ),
             "MarginOfError_Total_B18104": GroupVariable(
                 code=VariableCode("B18104_001M"),
-                groupCode=GroupCode("B18104"),
-                groupConcept="SEX BY AGE BY COGNITIVE DIFFICULTY",
+                group_code=GroupCode("B18104"),
+                group_concept="SEX BY AGE BY COGNITIVE DIFFICULTY",
                 name="Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="MarginOfError_Total",
             ),
             "MarginOfError_Total_B18105": GroupVariable(
                 code=VariableCode("B18105_001M"),
-                groupCode=GroupCode("B18105"),
-                groupConcept="SEX BY AGE BY AMBULATORY DIFFICULTY",
+                group_code=GroupCode("B18105"),
+                group_concept="SEX BY AGE BY AMBULATORY DIFFICULTY",
                 name="Margin of Error!!Total:",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="MarginOfError_Total",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="MarginOfError_Total",
             ),
         }
 
-    def test_census_supportedGeographies(self):
-        census = Census(2019, shouldCacheOnDisk=True)
+    def test_census_supported_geographies(self):
+        census = Census(2019, should_cache_on_disk=True)
 
-        verifyResource("supportedGeographies.csv", exists=False)
+        verifyResource("supported_geographies.csv", exists=False)
 
-        _ = census.getSupportedGeographies()
+        _ = census.get_supported_geographies()
 
-        inMemSupportedGeos = census.supportedGeographies
+        inMemsupported_geos = census.supported_geographies
 
-        assert inMemSupportedGeos.__dict__ == {
+        assert inMemsupported_geos.__dict__ == {
             "CongressionalDistrict": "congressional district",
             "County": "county",
             "Division": "division",
@@ -533,13 +539,13 @@ class TestCensus:
             "State": "state",
             "Us": "us",
         }
-        verifyResource("supportedGeographies.csv")
+        verifyResource("supported_geographies.csv")
 
-    def test_census_searchGroups(self):
+    def test_census_search_groups(self):
         census = Census(2019)
         regex = r"sex by age by .* difficulty"
 
-        res = census.searchGroups(regex)
+        res = census.search_groups(regex)
 
         expectedRes = [
             {
@@ -554,48 +560,48 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    def test_census_searchVariablesWithinGroups(self, apiCalls: Set[str]):
+    def test_census_search_variablesWithin_groups(self, apiCalls: Set[str]):
         census = Census(2019)
         regex = r"estimate"
 
-        res = census.searchVariables(regex, GroupCode("B18104"), GroupCode("B18105"))
+        res = census.search_variables(regex, GroupCode("B18104"), GroupCode("B18105"))
 
         expectedRes = [
             {
                 "code": "B18104_001E",
-                "groupCode": "B18104",
-                "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
+                "group_code": "B18104",
+                "group_concept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
                 "limit": 0,
                 "name": "Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "int",
+                "predicate_only": True,
+                "predicate_type": "int",
             },
             {
                 "code": "B18104_001EA",
-                "groupCode": "B18104",
-                "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
+                "group_code": "B18104",
+                "group_concept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
                 "limit": 0,
                 "name": "Annotation of Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "string",
+                "predicate_only": True,
+                "predicate_type": "string",
             },
             {
                 "code": "B18105_001E",
-                "groupCode": "B18105",
-                "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
+                "group_code": "B18105",
+                "group_concept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
                 "limit": 0,
                 "name": "Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "int",
+                "predicate_only": True,
+                "predicate_type": "int",
             },
             {
                 "code": "B18105_001EA",
-                "groupCode": "B18105",
-                "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
+                "group_code": "B18105",
+                "group_concept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
                 "limit": 0,
                 "name": "Annotation of Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "string",
+                "predicate_only": True,
+                "predicate_type": "string",
             },
         ]
 
@@ -605,70 +611,70 @@ class TestCensus:
         }.issubset(apiCalls)
         assert res.to_dict("records") == expectedRes
 
-    def test_census_searchAllVariables(self, apiCalls: Set[str]):
+    def test_census_searchall_variables(self, apiCalls: Set[str]):
         census = Census(2019)
         regex = r"estimate"
 
-        res = census.searchVariables(regex)
+        res = census.search_variables(regex)
 
         expectedRes = [
             {
                 "code": "B17015_001E",
-                "groupCode": "B17015",
-                "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
+                "group_code": "B17015",
+                "group_concept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
                 "TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY "
                 "INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 "limit": 0,
                 "name": "Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "int",
+                "predicate_only": True,
+                "predicate_type": "int",
             },
             {
                 "code": "B17015_001EA",
-                "groupCode": "B17015",
-                "groupConcept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
+                "group_code": "B17015",
+                "group_concept": "POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY "
                 "TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY "
                 "INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                 "limit": 0,
                 "name": "Annotation of Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "string",
+                "predicate_only": True,
+                "predicate_type": "string",
             },
             {
                 "code": "B18104_001E",
-                "groupCode": "B18104",
-                "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
+                "group_code": "B18104",
+                "group_concept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
                 "limit": 0,
                 "name": "Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "int",
+                "predicate_only": True,
+                "predicate_type": "int",
             },
             {
                 "code": "B18104_001EA",
-                "groupCode": "B18104",
-                "groupConcept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
+                "group_code": "B18104",
+                "group_concept": "SEX BY AGE BY COGNITIVE DIFFICULTY",
                 "limit": 0,
                 "name": "Annotation of Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "string",
+                "predicate_only": True,
+                "predicate_type": "string",
             },
             {
                 "code": "B18105_001E",
-                "groupCode": "B18105",
-                "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
+                "group_code": "B18105",
+                "group_concept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
                 "limit": 0,
                 "name": "Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "int",
+                "predicate_only": True,
+                "predicate_type": "int",
             },
             {
                 "code": "B18105_001EA",
-                "groupCode": "B18105",
-                "groupConcept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
+                "group_code": "B18105",
+                "group_concept": "SEX BY AGE BY AMBULATORY DIFFICULTY",
                 "limit": 0,
                 "name": "Annotation of Estimate!!Total:",
-                "predicateOnly": True,
-                "predicateType": "string",
+                "predicate_only": True,
+                "predicate_type": "string",
             },
         ]
 
@@ -678,11 +684,11 @@ class TestCensus:
 
         assert res.to_dict("records") == expectedRes
 
-    @pytest.mark.parametrize("shouldRenameColumns", [(True), (False)])
+    @pytest.mark.parametrize("shouldRename_columns", [(True), (False)])
     def test_census_stats_batchedApiCalls(
-        self, apiCalls: Set[str], mocker: MockerFixture, shouldRenameColumns: bool
+        self, apiCalls: Set[str], mocker: MockerFixture, shouldRename_columns: bool
     ):
-        census = Census(2019, replaceColumnHeaders=shouldRenameColumns)
+        census = Census(2019, replace_column_headers=shouldRename_columns)
 
         mocker.patch("the_census._api.fetch.MAX_QUERY_SIZE", 2)
 
@@ -690,15 +696,15 @@ class TestCensus:
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
         ]
-        forDomain = GeoDomain("congressional district")
-        inDomains = [GeoDomain("state", "01")]
-        _ = census.getAllVariables()
+        for_domain = GeoDomain("congressional district")
+        in_domains = [GeoDomain("state", "01")]
+        _ = census.get_all_variables()
 
-        res = census.getStats(variables, forDomain, *inDomains)
+        res = census.get_stats(variables, for_domain, *in_domains)
 
         assert res.to_dict("records") == (
             expectedStatsResWithNames
-            if shouldRenameColumns
+            if shouldRename_columns
             else expectedStatsResWithoutNames
         )
 
@@ -713,18 +719,18 @@ class TestCensus:
             VariableCode(code)
             for code in "B17015_001E,B18104_001E,B18105_001E".split(",")
         ]
-        forDomain = GeoDomain("congressional district")
-        inDomains = [GeoDomain("state", "01")]
+        for_domain = GeoDomain("congressional district")
+        in_domains = [GeoDomain("state", "01")]
 
         census = Census(
             2019,
-            replaceColumnHeaders=True,
+            replace_column_headers=True,
         )
 
         # to populate "variables"
-        _ = census.getAllVariables()
+        _ = census.get_all_variables()
 
-        res = census.getStats(variables, forDomain, *inDomains)
+        res = census.get_stats(variables, for_domain, *in_domains)
 
         assert res.to_dict("records") == [
             {
@@ -787,20 +793,20 @@ class TestCensus:
 
     def test_census_stats_columnNameChangeWithoutDuplicate(self):
         variables = [VariableCode("B17015_001E")]
-        forDomain = GeoDomain("congressional district")
-        inDomains = [GeoDomain("state", "01")]
+        for_domain = GeoDomain("congressional district")
+        in_domains = [GeoDomain("state", "01")]
 
         census = Census(
             2019,
-            shouldLoadFromExistingCache=True,
-            shouldCacheOnDisk=True,
-            replaceColumnHeaders=True,
+            should_load_from_existing_cache=True,
+            should_cache_on_disk=True,
+            replace_column_headers=True,
         )
 
         # to populate "variables"
-        _ = census.getAllVariables()
+        _ = census.get_all_variables()
 
-        res = census.getStats(variables, forDomain, *inDomains)
+        res = census.get_stats(variables, for_domain, *in_domains)
 
         assert res.to_dict("records") == [
             {
@@ -857,34 +863,34 @@ class TestCensus:
 
         census = Census(
             2019,
-            shouldLoadFromExistingCache=shouldLoadFromCache,
-            shouldCacheOnDisk=True,
+            should_load_from_existing_cache=shouldLoadFromCache,
+            should_cache_on_disk=True,
         )
         expectedRepoVars = VariableSet(
             GroupVariable(
                 code=VariableCode("v1"),
-                groupCode=GroupCode("g1"),
-                groupConcept="group 1",
+                group_code=GroupCode("g1"),
+                group_concept="group 1",
                 name="variable 1",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Variable 1",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="Variable 1",
             ),
             GroupVariable(
                 code=VariableCode("v2"),
-                groupCode=GroupCode("g1"),
-                groupConcept="group 1",
+                group_code=GroupCode("g1"),
+                group_concept="group 1",
                 name="variable 2",
                 limit=0,
-                predicateOnly=True,
-                predicateType="int",
-                cleanedName="Variable 2",
+                predicate_only=True,
+                predicate_type="int",
+                cleaned_name="Variable 2",
             ),
         )
         expectedRepoGroups = GroupSet(
-            Group(GroupCode("abc"), "alphabet", cleanedName="Alphabet"),
-            Group(GroupCode("123"), "numbers", cleanedName="Numbers"),
+            Group(GroupCode("abc"), "alphabet", cleaned_name="Alphabet"),
+            Group(GroupCode("123"), "numbers", cleaned_name="Numbers"),
         )
 
         repoVars = census.variables
@@ -900,13 +906,13 @@ class TestCensus:
     @pytest.mark.parametrize(
         "censusCall",
         [
-            lambda census: cast(Census, census).getSupportedGeographies(),  # type: ignore
-            lambda census: cast(Census, census).getGeographyCodes(GeoDomain("somewhere")),  # type: ignore
-            lambda census: cast(Census, census).getAllVariables(),  # type: ignore
-            lambda census: cast(Census, census).getGroups(),  # type: ignore
-            lambda census: cast(Census, census).getVariablesByGroup(),  # type: ignore
-            lambda census: cast(Census, census).searchGroups(GroupCode("g-123")),  # type: ignore
-            lambda census: cast(Census, census).searchVariables("regex"),  # type: ignore
+            lambda census: cast(Census, census).get_supported_geographies(),  # type: ignore
+            lambda census: cast(Census, census).get_geography_codes(GeoDomain("somewhere")),  # type: ignore
+            lambda census: cast(Census, census).get_all_variables(),  # type: ignore
+            lambda census: cast(Census, census).get_groups(),  # type: ignore
+            lambda census: cast(Census, census).get_variables_by_group(),  # type: ignore
+            lambda census: cast(Census, census).search_groups(GroupCode("g-123")),  # type: ignore
+            lambda census: cast(Census, census).search_variables("regex"),  # type: ignore
         ],
     )
     def test_emptyResponses(
@@ -918,21 +924,21 @@ class TestCensus:
 
         assert censusCall(census).empty
 
-    def test_listAvailableDatasets(self):
+    def test_list_available_datasets(self):
         datasets = Census.listAvailabeDatasets()
 
         assert datasets.to_dict("records") == [
             {
-                "datasetType": "ecneoyinv",
+                "dataset_type": "ecneoyinv",
                 "description": "This dataset presents statistics for Wholesale Trade:  "
                 "Inventories by Valuation Method for the U.S.",
                 "name": "Economic Census: Economic Census of the United States: Wholesale "
                 "Trade: Inventories by Valuation Method for the U.S.",
-                "surveyType": "",
+                "survey_type": "",
                 "year": 2017,
             },
             {
-                "datasetType": "dec",
+                "dataset_type": "dec",
                 "description": "Summary File 4 is repeated or iterated for the total "
                 "population and 335 additional population groups: 132 race "
                 "groups,78 American Indian and Alaska Native tribe categories, "
@@ -962,7 +968,7 @@ class TestCensus:
                 "tables, the universe classification is based on the race or "
                 "ethnicity of the householder.",
                 "name": "Decennial Census: Summary File 4",
-                "surveyType": "sf4",
+                "survey_type": "sf4",
                 "year": 2000,
             },
         ]

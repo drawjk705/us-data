@@ -43,7 +43,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         shutilMock: Mock,
         pathExists: bool,
     ):
-        config = Config(cacheDir="cache", shouldCacheOnDisk=True)
+        config = Config(cache_dir="cache", should_cache_on_disk=True)
         self.givenExistenceOfPath(pathMock, pathExists)
 
         _ = makeCache(config)
@@ -58,7 +58,7 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
     def test_cacheInit_givenArg_doesNotCreateCache(
         self, pathMock: MagicMock, shutilMock: Mock
     ):
-        config = Config(2019, shouldCacheOnDisk=False)
+        config = Config(2019, should_cache_on_disk=False)
 
         _ = makeCache(config)
 
@@ -67,23 +67,23 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
 
     @pytest.mark.parametrize(
         *shuffledCases(
-            shouldCacheOnDisk=[True, False],
+            should_cache_on_disk=[True, False],
             resourceExists=[True, False],
-            shouldLoadFromExistingCache=[True, False],
+            should_load_from_existing_cache=[True, False],
         )
     )
     def test_put_givenShouldCacheOptions(
         self,
-        shouldCacheOnDisk: bool,
+        should_cache_on_disk: bool,
         resourceExists: bool,
         pathMock: MagicMock,
-        shouldLoadFromExistingCache: bool,
+        should_load_from_existing_cache: bool,
         shutilMock: MagicMock,
     ):
         config = Config(
             2019,
-            shouldCacheOnDisk=shouldCacheOnDisk,
-            shouldLoadFromExistingCache=shouldLoadFromExistingCache,
+            should_cache_on_disk=should_cache_on_disk,
+            should_load_from_existing_cache=should_load_from_existing_cache,
         )
         resource = "resource"
         data = MagicMock(spec=pandas.DataFrame)
@@ -93,31 +93,31 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
 
         putRes = cache.put(resource, data)
 
-        if shouldCacheOnDisk and not resourceExists:
+        if should_cache_on_disk and not resourceExists:
             self.castMock(data.to_csv).assert_called_once_with(String(), index=False)  # type: ignore
 
-        assert putRes != (resourceExists and shouldCacheOnDisk)
+        assert putRes != (resourceExists and should_cache_on_disk)
 
     @pytest.mark.parametrize(
         *shuffledCases(
-            shouldCacheOnDisk=[True, False],
+            should_cache_on_disk=[True, False],
             resourceExists=[True, False],
-            shouldLoadFromExistingCache=[True, False],
+            should_load_from_existing_cache=[True, False],
         )
     )
     def test_get_givenOptions(
         self,
-        shouldCacheOnDisk: bool,
+        should_cache_on_disk: bool,
         pathMock: MagicMock,
         resourceExists: bool,
-        shouldLoadFromExistingCache: bool,
+        should_load_from_existing_cache: bool,
         monkeypatch: MonkeyPatch,
         shutilMock: MagicMock,
     ):
         config = Config(
             2019,
-            shouldCacheOnDisk=shouldCacheOnDisk,
-            shouldLoadFromExistingCache=shouldLoadFromExistingCache,
+            should_cache_on_disk=should_cache_on_disk,
+            should_load_from_existing_cache=should_load_from_existing_cache,
         )
         resource = "resource"
 
@@ -132,9 +132,9 @@ class TestOnDiskCache(ServiceTestFixture[DummyClass]):
         res = cache.get(resource)
 
         if (
-            not shouldCacheOnDisk
+            not should_cache_on_disk
             or not resourceExists
-            or not shouldLoadFromExistingCache
+            or not should_load_from_existing_cache
         ):
             assert res.empty
             mockReadCsv.assert_not_called()

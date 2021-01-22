@@ -22,20 +22,20 @@ def service() -> ApiSerializationService:
         {
             "label": st.text(),
             "concept": st.text(),
-            "predicateType": st.text(),
+            "predicate_type": st.text(),
             "group": st.text(),
             "limit": st.integers(),
-            "predicateOnly": st.booleans(),
+            "predicate_only": st.booleans(),
         }
     ),
     var2=st.fixed_dictionaries(
         {
             "label": st.text(),
             "concept": st.text(),
-            "predicateType": st.text(),
+            "predicate_type": st.text(),
             "group": st.text(),
             "limit": st.integers(),
-            "predicateOnly": st.booleans(),
+            "predicate_only": st.booleans(),
         }
     ),
 )
@@ -49,16 +49,16 @@ def test_parseVariableData(
 
     service = ApiSerializationService()
     variables = {"variables": {varCode1: var1, varCode2: var2}}
-    expectedVar1 = GroupVariable.fromJson(varCode1, var1)
-    expectedVar2 = GroupVariable.fromJson(varCode2, var2)
+    expectedVar1 = GroupVariable.from_json(varCode1, var1)
+    expectedVar2 = GroupVariable.from_json(varCode2, var2)
     expected = [expectedVar1, expectedVar2]
 
-    actual = service.parseGroupVariables(variables)
+    actual = service.parse_group_variables(variables)
 
     assert actual == expected
 
 
-__supportedGeosTestCases = [
+__supported_geosTestCases = [
     (
         {
             "fips": [
@@ -80,15 +80,15 @@ __supportedGeosTestCases = [
                     hierarchy="312",
                     clauses=[
                         GeographyClauseSet.makeSet(
-                            forClause="principal city (or part):CODE",
-                            inClauses=[
+                            for_clause="principal city (or part):CODE",
+                            in_clauses=[
                                 "metropolitan statistical area/micropolitan statistical area:CODE",
                                 "state (or part):CODE",
                             ],
                         ),
                         GeographyClauseSet.makeSet(
-                            forClause="principal city (or part):*",
-                            inClauses=[
+                            for_clause="principal city (or part):*",
+                            in_clauses=[
                                 "metropolitan statistical area/micropolitan statistical area:CODE",
                                 "state (or part):CODE",
                             ],
@@ -118,15 +118,15 @@ __supportedGeosTestCases = [
                     hierarchy="500",
                     clauses=[
                         GeographyClauseSet.makeSet(
-                            forClause="congressional district:CODE",
-                            inClauses=["state:CODE"],
+                            for_clause="congressional district:CODE",
+                            in_clauses=["state:CODE"],
                         ),
                         GeographyClauseSet.makeSet(
-                            forClause="congressional district:*", inClauses=[]
+                            for_clause="congressional district:*", in_clauses=[]
                         ),
                         GeographyClauseSet.makeSet(
-                            forClause="congressional district:*",
-                            inClauses=["state:*"],
+                            for_clause="congressional district:*",
+                            in_clauses=["state:*"],
                         ),
                     ],
                 ),
@@ -137,13 +137,13 @@ __supportedGeosTestCases = [
 ]
 
 
-@pytest.mark.parametrize(["apiResponse", "expected"], __supportedGeosTestCases)
-def test_parseSupportedGeographies(
+@pytest.mark.parametrize(["apiResponse", "expected"], __supported_geosTestCases)
+def test_parse_supported_geographies(
     service: ApiSerializationService,
     apiResponse: Dict[Any, Any],
     expected: GeographyItem,
 ):
-    actual = service.parseSupportedGeographies(apiResponse)
+    actual = service.parse_supported_geographies(apiResponse)
 
     assert actual == expected
 
@@ -171,24 +171,24 @@ def test_parseSupportedGeographies(
                     code=GroupCode("B17015"),
                     description="POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY FAMILY TYPE BY SOCIAL SECURITY INCOME BY SUPPLEMENTAL SECURITY INCOME (SSI) AND CASH PUBLIC ASSISTANCE INCOME",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B17015.json",
-                    cleanedName="PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome",
+                    cleaned_name="PovertyStatusInThePast12MonthsOfFamiliesByFamilyTypeBySocialSecurityIncomeBySupplementalSecurityIncomeSsiAndCashPublicAssistanceIncome",
                 ),
                 "B18104": Group(
                     code=GroupCode("B18104"),
                     description="SEX BY AGE BY COGNITIVE DIFFICULTY",
                     variables="https://api.census.gov/data/2019/acs/acs1/groups/B18104.json",
-                    cleanedName="SexByAgeByCognitiveDifficulty",
+                    cleaned_name="SexByAgeByCognitiveDifficulty",
                 ),
             },
         ),
         ([], {}),
     ],
 )
-def test_parseGroups(
+def test_parse_groups(
     service: ApiSerializationService,
     groupResponse: Dict[Any, Any],
     expected: Dict[str, Group],
 ):
-    actual = service.parseGroups(groupResponse)
+    actual = service.parse_groups(groupResponse)
 
     assert actual == expected
