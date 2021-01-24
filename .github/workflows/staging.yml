@@ -1,6 +1,11 @@
 name: Staging
 
-on: workflow_dispatch
+on:
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: The tag to release
+                required: true
 
 jobs:
     publish-to-test-pypi:
@@ -10,6 +15,8 @@ jobs:
         steps:
             - name: checkout repo
               uses: actions/checkout@v2
+              with:
+                  ref: refs/tags/${{ github.event.inputs.tag }}
 
             - name: set up python
               uses: actions/setup-python@v2
