@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Tuple, Union
 
 from the_census._utils.clean_variable_name import clean_variable_name
 
@@ -13,6 +14,19 @@ class GeoDomain:
 
     def __repr__(self) -> str:
         return f"{self.name}:{self.code_or_wildcard}"
+
+    @classmethod
+    def from_tuple(
+        cls,
+        tuple_geo_domain: Union[
+            Tuple[
+                str,
+                str,
+            ],
+            Tuple[str],
+        ],
+    ) -> "GeoDomain":
+        return cls(*tuple_geo_domain)
 
 
 class SupportedGeoSet:

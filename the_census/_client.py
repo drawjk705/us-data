@@ -87,18 +87,11 @@ class CensusClient:
 
     # helpers
 
-    def __convert_to_geo_domain(self, geo_domain: GeoDomainTypes) -> GeoDomain:  # type: ignore (checker gets upset since there's no return after the `else`)
+    def __convert_to_geo_domain(self, geo_domain: GeoDomainTypes) -> GeoDomain:
         if isinstance(geo_domain, GeoDomain):
             return geo_domain
-        elif isinstance(geo_domain, tuple):  # type: ignore
-            if not all([isinstance(i, str) for i in geo_domain]):  # type: ignore
-                raise ValueError("GeoDomain params must be strings")
-            if len(geo_domain) == 2:
-                return GeoDomain(geo_domain[0], geo_domain[1])
-            elif len(geo_domain) == 1:
-                return GeoDomain(geo_domain[0])
         else:
-            raise ValueError("geo_domain is not of correct type")
+            return GeoDomain.from_tuple(geo_domain)
 
     # property variables for Jupyter notebook usage
 
