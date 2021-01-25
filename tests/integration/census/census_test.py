@@ -242,6 +242,66 @@ def given_cache_with_variables() -> None:
     verify_resource("variables/varsForGroup.csv")
 
 
+@pytest.fixture
+def given_supported_geos_in_cache() -> None:
+    Path("cache/2019/acs/acs1/").mkdir(parents=True, exist_ok=True)
+    pandas.DataFrame(
+        [
+            # us
+            {"name": "us", "hierarchy": "010", "for": "us:CODE", "in": None},
+            {"name": "us", "hierarchy": "010", "for": "us:*", "in": None},
+            # region
+            {"name": "region", "hierarchy": "020", "for": "region:CODE", "in": None},
+            {"name": "region", "hierarchy": "020", "for": "region:*", "in": None},
+            # county
+            {
+                "name": "county",
+                "hierarchy": "050",
+                "for": "county:CODE",
+                "in": "state:CODE",
+            },
+            {"name": "county", "hierarchy": "050", "for": "county:*", "in": "state:*"},
+            {"name": "county", "hierarchy": "050", "for": "county:*", "in": None},
+            # state
+            {"name": "state", "hierarchy": "040", "for": "state:*", "in": None},
+            {"name": "state", "hierarchy": "040", "for": "state:CODE", "in": None},
+            # division
+            {
+                "name": "division",
+                "hierarchy": "030",
+                "for": "division:CODE",
+                "in": None,
+            },
+            {
+                "name": "division",
+                "hierarchy": "030",
+                "for": "division:*",
+                "in": None,
+            },
+            # congressional district
+            {
+                "name": "congressional district",
+                "hierarchy": "500",
+                "for": "congressional district:CODE",
+                "in": "state:CODE",
+            },
+            {
+                "name": "congressional district",
+                "hierarchy": "500",
+                "for": "congressional district:*",
+                "in": None,
+            },
+            {
+                "name": "congressional district",
+                "hierarchy": "500",
+                "for": "congressional district:*",
+                "in": "state:*",
+            },
+        ]
+    ).to_csv("./cache/2019/acs/acs1/supported_geographies.csv")
+    verify_resource("supported_geographies.csv")
+
+
 @pytest.fixture(autouse=True)
 def given_env_var(mocker: MockerFixture):
     mocker.patch.object(os, "getenv", return_value="banana")
@@ -885,17 +945,17 @@ class TestCensus:
             },
         ]
 
-    @pytest.mark.parametrize("shouldLoadFromCache", [(True), (False)])
-    def test_populate_repository(
+    @pytest.mark.parametrize("should_load_from_cache", [(True), (False)])
+    def test_populate_variable_repository(
         self,
-        shouldLoadFromCache: bool,
+        should_load_from_cache: bool,
         given_cache_with_group: None,
         given_cache_with_variables: None,
     ):
 
         census = Census(
             2019,
-            should_load_from_existing_cache=shouldLoadFromCache,
+            should_load_from_existing_cache=should_load_from_cache,
             should_cache_on_disk=True,
         )
         expectedRepoVars = VariableSet(
@@ -928,12 +988,34 @@ class TestCensus:
         repoVars = census.variables
         repoGroups = census.groups
 
-        if shouldLoadFromCache:
+        if should_load_from_cache:
             assert repoVars == expectedRepoVars
             assert repoGroups == expectedRepoGroups
         else:
             assert len(repoVars) == 0
             assert len(repoGroups) == 0
+
+    @pytest.mark.parametrize("should_load_from_cache", [(True), (False)])
+    def test_populate_geography_repository(
+        self, should_load_from_cache: bool, given_supported_geos_in_cache: None
+    ):
+        c = Census(
+            2019,
+            should_load_from_existing_cache=should_load_from_cache,
+            should_cache_on_disk=True,
+        )
+
+        if should_load_from_cache:
+            assert c.supported_geographies.__dict__ == {
+                "CongressionalDistrict": "congressional district",
+                "County": "county",
+                "Division": "division",
+                "Region": "region",
+                "State": "state",
+                "Us": "us",
+            }
+        else:
+            assert c.supported_geographies.__dict__ == {}
 
     @pytest.mark.parametrize(
         "censusCall",

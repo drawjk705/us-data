@@ -39,6 +39,6 @@ class SupportedGeoSet:
     def __init__(self) -> None:
         super().__init__()
 
-    def add(self, *geoName: str):
-        mapping = {clean_variable_name(name): name for name in geoName}
+    def add(self, *geo_name: str):
+        mapping = {clean_variable_name(name): name for name in geo_name}
         self.__dict__.update(mapping)
