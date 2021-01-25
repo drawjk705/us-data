@@ -1,6 +1,6 @@
 from functools import cache
 from logging import Logger
-from typing import Tuple
+from typing import List, Tuple, cast
 
 import pandas as pd
 
@@ -35,6 +35,8 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
         self._logger = logger_factory.getLogger(__name__)
 
         self._supported_geographies = SupportedGeoSet()
+
+        self.__populate_repository()
 
     @timer
     def get_geography_codes(
@@ -84,3 +86,16 @@ class GeographyRepository(IGeographyRepository[pd.DataFrame]):
         self._supported_geographies.add(*df["name"].tolist())
 
         return df
+
+    def __populate_repository(self) -> None:
+        self._logger.debug("Trying to populate geography repository")
+
+        df = self._cache.get(SUPPORTED_GEOS_FILE)
+
+        if df is None or df.empty:
+            self._logger.debug("Could not populate geography repository")
+            return
+
+        self._supported_geographies.add(*set(cast(List[str], df["name"].tolist())))
+
+        self._logger.debug("Populated geography repository")

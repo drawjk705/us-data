@@ -19,7 +19,7 @@ from the_census._data_transformation.interface import ICensusDataTransformer
 from the_census._data_transformation.service import CensusDataTransformer
 from the_census._exceptions import NoCensusApiKeyException
 from the_census._geographies.interface import IGeographyRepository
-from the_census._geographies.models import GeoDomain, SupportedGeoSet
+from the_census._geographies.models import GeoDomainTypes, SupportedGeoSet
 from the_census._geographies.service import GeographyRepository
 from the_census._helpers import list_available_datasets
 from the_census._persistence.interface import ICache
@@ -146,7 +146,7 @@ class Census:
 
     # repo
     def get_geography_codes(
-        self, for_domain: GeoDomain, *in_domains: GeoDomain
+        self, for_domain: GeoDomainTypes, *in_domains: GeoDomainTypes
     ) -> pandas.DataFrame:
         """
         Gets geography codes for the specified geography query.
@@ -212,8 +212,8 @@ class Census:
     def get_stats(
         self,
         variables_to_query: List[VariableCode],
-        for_domain: GeoDomain,
-        *in_domains: GeoDomain,
+        for_domain: GeoDomainTypes,
+        *in_domains: GeoDomainTypes,
     ) -> pandas.DataFrame:
         """
         Gets statistical data based on `variables_to_query`

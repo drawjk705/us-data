@@ -23,6 +23,16 @@ Census.list_available_datasets()
 
 This will present you with a pandas DataFrame listing all available datasets from the US Census API. (This includes only aggregate datasets, as they other types [of which there are very few] don't play nice with the client).
 
+### Help with terminology
+
+Some of the terms used in the data returned can be a bit opaque. To get a clearer sense of what some of those mean, run this:
+
+```python
+Census.help()
+```
+
+This will print out links to documentation for various datasets, along with what their group/variable names mean, and how statistics were calculated.
+
 ### Selecting a dataset
 
 Before getting started, you need to [get a Census API key](https://api.census.gov/data/key_signup.html), and set the following the environment variable `CENSUS_API_KEY` to whatever that key is, either with
@@ -94,6 +104,12 @@ census.get_supported_geographies()
 
 This will output a DataFrame will all possible supported geographies (e.g., if I can query all school districts across all states).
 
+If you don't want to have to keep on typing supported geographies after this, you can use tab-completion in Jupyter by typing:
+
+```python
+census.supported_geographies.<TAB>
+```
+
 ### Geography codes
 
 If you decide you want to query a particular geography (e.g., a particular school district within a particular state), you'll need the [FIPS](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code#FIPS_state_codes) codes for that school district and state.
@@ -108,11 +124,24 @@ from the_census import GeoDomain
 census.get_geography_codes(GeoDomain("state", "*"))
 ```
 
+Or, if you don't want to import `GeoDomain`, and prefer to use tuples:
+
+```python
+census.get_geography_codes(("state", "*"))
+```
+
 2. Get FIPS codes for all school districts within Colorado (FIPS code `08`):
 
 ```python
 census.get_geography_codes(GeoDomain("school district", "*"),
                            GeoDomain("state", "08"))
+```
+
+Or, if you don't want to import `GeoDomain`, and prefer to use tuples:
+
+```python
+census.get_geography_codes(("school district", "*"),
+                           ("state", "08"))
 ```
 
 Note that geography code queries must follow supported geography guidelines.
@@ -193,11 +222,21 @@ Once you have the variables you want to query, along with the geography you're i
 ```python
 from the_census import GeoDomain
 
-variables = census.getvariables_for_group(census.groups.SexByAge)
+variables = census.get_variables_for_group(census.groups.SexByAge)
 
 census.get_stats(variables["code"].tolist(),
                  GeoDomain("school district", "*"),
                  GeoDomain("state", "08"))
+```
+
+Or, if you'd rather use tuples instead of `GeoDomain`:
+
+```python
+variables = census.get_variables_for_group(census.groups.SexByAge)
+
+census.get_stats(variables["code"].tolist(),
+                 ("school district", "*"),
+                 ("state", "08"))
 ```
 
 ## Dataset "architecture"
@@ -213,6 +252,8 @@ US Census datasets have 3 primary components:
 A group is a "category" of data gathered for a particular census. For example, the `SEX BY AGE` group would provide breakdowns of gender and age demographics in a given region in the United States.
 
 Some of these groups' names, however, are a not as clear as `SEX BY AGE`. In that case, I recommend heading over to the survey in question's [technical documentation](https://www2.census.gov/programs-surveys/) which elaborates on what certain terms mean with respect to particular groups. Unfortunately, the above link might be complicated to navigate, but if you're looking for ACS group documentation, [here's](https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2019_ACSSubjectDefinitions.pdf) a handy link.
+
+(You can also get these links by running `Census.help()`.)
 
 ### Variables
 
