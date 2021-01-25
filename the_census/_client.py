@@ -4,8 +4,7 @@ import pandas as pd
 
 from the_census._api.fetch import ICensusApiFetchService
 from the_census._geographies.interface import IGeographyRepository
-from the_census._geographies.models import GeoDomain, SupportedGeoSet
-from the_census._helpers import GeoDomainTypes
+from the_census._geographies.models import GeoDomain, GeoDomainTypes, SupportedGeoSet
 from the_census._stats.interface import ICensusStatisticsService
 from the_census._variables.models import GroupCode, VariableCode
 from the_census._variables.repository.interface import IVariableRepository
@@ -57,8 +56,8 @@ class CensusClient:
         self, for_domain: GeoDomainTypes, *in_domains: GeoDomainTypes
     ) -> pd.DataFrame:
         return self._geo_repo.get_geography_codes(
-            self.__convert_to_geo_domain(for_domain),
-            *[self.__convert_to_geo_domain(in_domain) for in_domain in in_domains],
+            GeoDomain._from(for_domain),
+            *[GeoDomain._from(in_domain) for in_domain in in_domains],
         ).copy(deep=True)
 
     def get_groups(self) -> pd.DataFrame:
@@ -81,17 +80,11 @@ class CensusClient:
     ) -> pd.DataFrame:
         return self._stats.get_stats(
             variables_to_query,
-            self.__convert_to_geo_domain(for_domain),
-            *[self.__convert_to_geo_domain(in_domain) for in_domain in in_domains],
+            GeoDomain._from(for_domain),
+            *[GeoDomain._from(in_domain) for in_domain in in_domains],
         ).copy(deep=True)
 
     # helpers
-
-    def __convert_to_geo_domain(self, geo_domain: GeoDomainTypes) -> GeoDomain:
-        if isinstance(geo_domain, GeoDomain):
-            return geo_domain
-        else:
-            return GeoDomain.from_tuple(geo_domain)
 
     # property variables for Jupyter notebook usage
 

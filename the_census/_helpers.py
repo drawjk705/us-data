@@ -1,19 +1,15 @@
 from dataclasses import dataclass
 from functools import cache
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import Any, Dict, List, cast
 
 import pandas
 import pandas as pd
 import requests
 from tqdm.notebook import tqdm
 
-from the_census._geographies.models import GeoDomain
-
 URL = "https://api.census.gov/data.json"
 
 # documentation: https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/
-
-GeoDomainTypes = Union[GeoDomain, Tuple[str, str], Tuple[str]]
 
 
 @dataclass(frozen=True)

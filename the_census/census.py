@@ -19,9 +19,9 @@ from the_census._data_transformation.interface import ICensusDataTransformer
 from the_census._data_transformation.service import CensusDataTransformer
 from the_census._exceptions import NoCensusApiKeyException
 from the_census._geographies.interface import IGeographyRepository
-from the_census._geographies.models import SupportedGeoSet
+from the_census._geographies.models import GeoDomainTypes, SupportedGeoSet
 from the_census._geographies.service import GeographyRepository
-from the_census._helpers import GeoDomainTypes, list_available_datasets
+from the_census._helpers import list_available_datasets
 from the_census._persistence.interface import ICache
 from the_census._persistence.onDisk import OnDiskCache
 from the_census._stats.interface import ICensusStatisticsService

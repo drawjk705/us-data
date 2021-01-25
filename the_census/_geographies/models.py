@@ -3,6 +3,8 @@ from typing import Tuple, Union
 
 from the_census._utils.clean_variable_name import clean_variable_name
 
+GeoDomainTypes = Union["GeoDomain", Tuple[str, str], Tuple[str]]
+
 
 @dataclass(frozen=True)
 class GeoDomain:
@@ -16,9 +18,10 @@ class GeoDomain:
         return f"{self.name}:{self.code_or_wildcard}"
 
     @classmethod
-    def from_tuple(
+    def _from(
         cls,
-        tuple_geo_domain: Union[
+        geo_domain: Union[
+            "GeoDomain",
             Tuple[
                 str,
                 str,
@@ -26,7 +29,10 @@ class GeoDomain:
             Tuple[str],
         ],
     ) -> "GeoDomain":
-        return cls(*tuple_geo_domain)
+        if isinstance(geo_domain, GeoDomain):
+            return cls(geo_domain.name, geo_domain.code_or_wildcard)
+        else:
+            return cls(*geo_domain)
 
 
 class SupportedGeoSet:
