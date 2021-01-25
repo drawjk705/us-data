@@ -124,7 +124,7 @@ from the_census import GeoDomain
 census.get_geography_codes(GeoDomain("state", "*"))
 ```
 
-Of, if you don't want to import `GeoDomain`, and prefer to use tuples:
+Or, if you don't want to import `GeoDomain`, and prefer to use tuples:
 
 ```python
 census.get_geography_codes(("state", "*"))
@@ -137,7 +137,7 @@ census.get_geography_codes(GeoDomain("school district", "*"),
                            GeoDomain("state", "08"))
 ```
 
-Of, if you don't want to import `GeoDomain`, and prefer to use tuples:
+Or, if you don't want to import `GeoDomain`, and prefer to use tuples:
 
 ```python
 census.get_geography_codes(("school district", "*"),
