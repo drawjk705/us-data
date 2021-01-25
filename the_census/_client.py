@@ -5,6 +5,7 @@ import pandas as pd
 from the_census._api.fetch import ICensusApiFetchService
 from the_census._geographies.interface import IGeographyRepository
 from the_census._geographies.models import GeoDomain, SupportedGeoSet
+from the_census._helpers import GeoDomainTypes
 from the_census._stats.interface import ICensusStatisticsService
 from the_census._variables.models import GroupCode, VariableCode
 from the_census._variables.repository.interface import IVariableRepository
@@ -53,11 +54,12 @@ class CensusClient:
 
     # repo
     def get_geography_codes(
-        self, for_domain: GeoDomain, *in_domains: GeoDomain
+        self, for_domain: GeoDomainTypes, *in_domains: GeoDomainTypes
     ) -> pd.DataFrame:
-        return self._geo_repo.get_geography_codes(for_domain, *in_domains).copy(
-            deep=True
-        )
+        return self._geo_repo.get_geography_codes(
+            self.__convert_to_geo_domain(for_domain),
+            *[self.__convert_to_geo_domain(in_domain) for in_domain in in_domains],
+        ).copy(deep=True)
 
     def get_groups(self) -> pd.DataFrame:
         return self._variable_repo.get_groups().copy(deep=True)
@@ -74,12 +76,29 @@ class CensusClient:
     def get_stats(
         self,
         variables_to_query: List[VariableCode],
-        for_domain: GeoDomain,
-        *in_domains: GeoDomain,
+        for_domain: GeoDomainTypes,
+        *in_domains: GeoDomainTypes,
     ) -> pd.DataFrame:
-        return self._stats.get_stats(variables_to_query, for_domain, *in_domains).copy(
-            deep=True
-        )
+        return self._stats.get_stats(
+            variables_to_query,
+            self.__convert_to_geo_domain(for_domain),
+            *[self.__convert_to_geo_domain(in_domain) for in_domain in in_domains],
+        ).copy(deep=True)
+
+    # helpers
+
+    def __convert_to_geo_domain(self, geo_domain: GeoDomainTypes) -> GeoDomain:  # type: ignore (checker gets upset since there's no return after the `else`)
+        if isinstance(geo_domain, GeoDomain):
+            return geo_domain
+        elif isinstance(geo_domain, tuple):  # type: ignore
+            if not all([isinstance(i, str) for i in geo_domain]):  # type: ignore
+                raise ValueError("GeoDomain params must be strings")
+            if len(geo_domain) == 2:
+                return GeoDomain(geo_domain[0], geo_domain[1])
+            elif len(geo_domain) == 1:
+                return GeoDomain(geo_domain[0])
+        else:
+            raise ValueError("geo_domain is not of correct type")
 
     # property variables for Jupyter notebook usage
 

@@ -7,12 +7,14 @@ from typing import Any, Callable, Collection, Dict, Generator, List, Optional, S
 import pandas
 import pytest
 import requests
+from _pytest.capture import CaptureFixture
 from pytest_mock import MockerFixture
 
 from tests.integration.census.mock_api_responses import MOCK_API
 from tests.utils import MockRes
 from the_census import Census, GeoDomain
 from the_census._exceptions import CensusDoesNotExistException, NoCensusApiKeyException
+from the_census._helpers import GeoDomainTypes
 from the_census._utils.clean_variable_name import clean_variable_name
 from the_census._variables.models import Group, GroupCode, GroupVariable, VariableCode
 from the_census._variables.repository.models import GroupSet, VariableSet
@@ -297,14 +299,21 @@ class TestCensus:
 
         assert Path("cache").exists()
 
+    @pytest.mark.parametrize(
+        "for_domain,in_domain",
+        [
+            (("congressional district",), ("state", "01")),
+            (GeoDomain("congressional district"), GeoDomain("state", "01")),
+        ],
+    )
     def test_get_geography_codes(
-        self,
+        self, for_domain: GeoDomainTypes, in_domain: GeoDomainTypes
     ):
         census = Census(2019)
 
         codes = census.get_geography_codes(
-            GeoDomain("congressional district"),
-            GeoDomain("state", "01"),
+            for_domain,
+            in_domain,
         )
 
         expected = [
@@ -995,6 +1004,16 @@ class TestCensus:
                 "year": 2000,
             },
         ]
+
+    def test_help(self, capsys: CaptureFixture[str]):
+        Census.help()
+
+        out, _ = capsys.readouterr()
+
+        assert (
+            str(out)
+            == "For more documentation on the census, see https://www2.census.gov/programs-surveys/\nFor more documentation on ACS subject defintiions, see https://www2.census.gov/programs-surveys/acs/tech_docs/subject_definitions/2019_ACSSubjectDefinitions.pdf\n"
+        )
 
     def test_repr(self):
         c = Census(2019)
