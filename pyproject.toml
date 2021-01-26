@@ -10,6 +10,7 @@ repository = "https://github.com/drawjk705/us-stats/"
 version = "2.1.0"
 
 [tool.poetry.dependencies]
+jedi = "0.17.2"
 pandas = "^1.2.0"
 punq = "^0.4.1"
 python = "^3.9"
@@ -36,7 +37,6 @@ pytest-mock = "^3.5.0"
 pytest-randomly = "^3.5.0"
 pytest-sugar = "^0.9.4"
 pytest-tldr = "^0.2.2"
-jedi = "0.17.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
