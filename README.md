@@ -101,6 +101,8 @@ census.get_supported_geographies()
 
 This will output a DataFrame will all possible supported geographies (e.g., if I can query all school districts across all states).
 
+#### Supported geographies autocomplete
+
 If you don't want to have to keep on typing supported geographies after this, you can use tab-completion in Jupyter by typing:
 
 ```python
@@ -234,6 +236,14 @@ variables = census.get_variables_for_group(census.groups.SexByAge)
 census.get_stats(variables["code"].tolist(),
                  ("school district", "*"),
                  ("state", "08"))
+```
+
+## General notes on autocomplete
+
+Jupyter notebook/lab has been having an issue with autocomplete lately (see [this GitHub issue](https://github.com/jupyter/notebook/issues/2435)), so running the following in your environment should help you take advantage of the autocomplete offerings of this package:
+
+```
+pip install jedi==0.17.2
 ```
 
 ## Dataset "architecture"
