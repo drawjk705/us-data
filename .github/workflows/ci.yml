@@ -228,6 +228,13 @@ jobs:
             - name: checkout repo
               uses: actions/checkout@v2
 
+            # source https://github.com/ekalinin/github-markdown-toc#toc-generation-with-github-actions
+            - name: update README TOC
+              run: |
+                  curl https://raw.githubusercontent.com/ekalinin/github-markdown-toc/master/gh-md-toc -o gh-md-toc
+                  chmod a+x gh-md-toc
+                  ./gh-md-toc --insert --no-backup README.md
+
             - name: set up python
               uses: actions/setup-python@v2
               with:
