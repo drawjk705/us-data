@@ -7,7 +7,7 @@ keywords = ["US", "census"]
 name = "the_census"
 readme = "README.md"
 repository = "https://github.com/drawjk705/us-stats/"
-version = "2.1.0"
+version = "2.1.1"
 
 [tool.poetry.dependencies]
 jedi = "0.17.2"
