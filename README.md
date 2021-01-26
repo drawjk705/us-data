@@ -7,31 +7,31 @@
 Want to work with US Census data? Look no further.
 
 <!--ts-->
+   * [The Census](#the-census)
+      * [Getting started](#getting-started)
+         * [View all datasets](#view-all-datasets)
+         * [Help with terminology](#help-with-terminology)
+         * [Selecting a dataset](#selecting-a-dataset)
+         * [Arguments to Census](#arguments-to-census)
+            * [A note on caching](#a-note-on-caching)
+      * [Making queries](#making-queries)
+         * [Supported geographies](#supported-geographies)
+            * [Supported geographies autocomplete](#supported-geographies-autocomplete)
+         * [Geography codes](#geography-codes)
+         * [Groups](#groups)
+            * [Searching groups](#searching-groups)
+            * [Groups autocomplete](#groups-autocomplete)
+         * [Variables](#variables)
+            * [Searching variables](#searching-variables)
+            * [Variables autocomplete](#variables-autocomplete)
+         * [Statistics](#statistics)
+      * [General notes on autocomplete](#general-notes-on-autocomplete)
+      * [Dataset "architecture"](#dataset-architecture)
+         * [Groups](#groups-1)
+         * [Variables](#variables-1)
+         * [Supported Geographies](#supported-geographies-1)
 
--   [The Census](#the-census)
-    -   [Getting started](#getting-started)
-        -   [View all datasets](#view-all-datasets)
-        -   [Help with terminology](#help-with-terminology)
-        -   [Selecting a dataset](#selecting-a-dataset)
-        -   [Arguments to Census](#arguments-to-census) \* [A note on caching](#a-note-on-caching)
-    -   [Making queries](#making-queries)
-        -   [Supported geographies](#supported-geographies)
-            -   [Supported geographies autocomplete](#supported-geographies-autocomplete)
-        -   [Geography codes](#geography-codes)
-        -   [Groups](#groups)
-            -   [Searching groups](#searching-groups)
-            -   [Groups autocomplete](#groups-autocomplete)
-        -   [Variables](#variables)
-            -   [Searching variables](#searching-variables)
-            -   [Variables autocomplete](#variables-autocomplete)
-        -   [Statistics](#statistics)
-    -   [General notes on autocomplete](#general-notes-on-autocomplete)
-    -   [Dataset "architecture"](#dataset-architecture)
-        -   [Groups](#groups-1)
-        -   [Variables](#variables-1)
-        -   [Supported Geographies](#supported-geographies-1)
-
-<!-- Added by: joel, at: Tue Jan 26 16:00:13 EST 2021 -->
+<!-- Added by: joel, at: Tue Jan 26 16:02:13 EST 2021 -->
 
 <!--te-->
 
@@ -114,7 +114,7 @@ class Census
 -   `replace_column_headers`: whether or not to replace column header names for variables with more intelligible names instead of their codes
 -   `log_file`: name of the file in which to store logging information
 
-###### A note on caching
+#### A note on caching
 
 While on-disk caching is optional, this tool, by design, performs in-memory caching. So a call to `census.get_groups()` will hit the Census API one time at most. All subsequent calls will retrieve the value cached in-memory.
 
