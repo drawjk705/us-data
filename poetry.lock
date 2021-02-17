@@ -205,7 +205,7 @@ toml = ["toml"]
 
 [[package]]
 name = "data-science-types"
-version = "0.2.22"
+version = "0.2.23"
 description = "Type stubs for Python machine learning libraries"
 category = "dev"
 optional = false
@@ -1348,7 +1348,7 @@ notebook = ">=4.4.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e9e27f35e71c4710175bf8e36a00c02ac8bb5fc0a4fa219abf942768545fbdce"
+content-hash = "c5cd7955055ccb2f451494a34b69561b30a12b3431242352cb26aa0196a4ac80"
 
 [metadata.files]
 anyio = [
@@ -1524,8 +1524,8 @@ coverage = [
     {file = "coverage-5.4.tar.gz", hash = "sha256:6d2e262e5e8da6fa56e774fb8e2643417351427604c2b177f8e8c5f75fc928ca"},
 ]
 data-science-types = [
-    {file = "data-science-types-0.2.22.tar.gz", hash = "sha256:5b6bb2ca4cb6b8c467c799382e12156816f38122522bdaafd882d5a3828c7345"},
-    {file = "data_science_types-0.2.22-py3-none-any.whl", hash = "sha256:065475a4c5ee9b5f30883e65cdcffdd1b09a9d2e203857af25d21ffb336fece0"},
+    {file = "data-science-types-0.2.23.tar.gz", hash = "sha256:8096b9a35a8a187bf9a122b4707c97de841d810744690ee2a4ac30c6462e0d16"},
+    {file = "data_science_types-0.2.23-py3-none-any.whl", hash = "sha256:bca319abc0e53a0316f9fcb887937e942477cb9e5fc63c8581e0b0438903b977"},
 ]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
