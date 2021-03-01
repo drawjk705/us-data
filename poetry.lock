@@ -329,7 +329,7 @@ test = ["pytest (!=5.3.4)", "pytest-cov", "flaky", "nose", "jedi (<=0.17.2)"]
 
 [[package]]
 name = "ipython"
-version = "7.20.0"
+version = "7.21.0"
 description = "IPython: Productive Interactive Computing"
 category = "dev"
 optional = false
@@ -1348,7 +1348,7 @@ notebook = ">=4.4.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e9e27f35e71c4710175bf8e36a00c02ac8bb5fc0a4fa219abf942768545fbdce"
+content-hash = "6b4d964397afe77a3630e5de635f653a61a3621dfe12b37a59b38f55785d1fa9"
 
 [metadata.files]
 anyio = [
@@ -1568,8 +1568,8 @@ ipykernel = [
     {file = "ipykernel-5.4.3.tar.gz", hash = "sha256:697103d218e9a8828025af7986e033c89e0b36e2b6eb84a5bda4739b9a27f3cb"},
 ]
 ipython = [
-    {file = "ipython-7.20.0-py3-none-any.whl", hash = "sha256:1918dea4bfdc5d1a830fcfce9a710d1d809cbed123e85eab0539259cb0f56640"},
-    {file = "ipython-7.20.0.tar.gz", hash = "sha256:1923af00820a8cf58e91d56b89efc59780a6e81363b94464a0f17c039dffff9e"},
+    {file = "ipython-7.21.0-py3-none-any.whl", hash = "sha256:34207ffb2f653bced2bc8e3756c1db86e7d93e44ed049daae9814fed66d408ec"},
+    {file = "ipython-7.21.0.tar.gz", hash = "sha256:04323f72d5b85b606330b6d7e2dc8d2683ad46c3905e955aa96ecc7a99388e70"},
 ]
 ipython-genutils = [
     {file = "ipython_genutils-0.2.0-py2.py3-none-any.whl", hash = "sha256:72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8"},
